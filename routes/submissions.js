@@ -45,17 +45,33 @@ router.get('/', requireAuth, async (req, res) => {
   const page   = Math.max(1, parseInt(req.query.page)  || 1);
   const limit  = Math.min(50, parseInt(req.query.limit) || 20);
   const offset = (page - 1) * limit;
-  const search  = req.query.search;
+  const search    = req.query.search;
+  const dateFrom  = req.query.date_from; // YYYY-MM-DD
+  const dateTo    = req.query.date_to;   // YYYY-MM-DD
   let rows, totalRow;
 
+  // Build dynamic WHERE clauses
+  const conditions = [];
+  const params = [];
+
   if (search) {
-    const like = `%${search}%`;
-    rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by WHERE s.form_data LIKE ? ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [like, limit, offset]);
-    totalRow = await get(`SELECT COUNT(*) as c FROM submissions WHERE form_data LIKE ?`, [like]);
-  } else {
-    rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [limit, offset]);
-    totalRow = await get(`SELECT COUNT(*) as c FROM submissions`);
+    conditions.push(`s.form_data LIKE ?`);
+    params.push(`%${search}%`);
   }
+  if (dateFrom) {
+    conditions.push(`json_extract(s.form_data, '$.tanggal') >= ?`);
+    params.push(dateFrom);
+  }
+  if (dateTo) {
+    conditions.push(`json_extract(s.form_data, '$.tanggal') <= ?`);
+    params.push(dateTo);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;
+
+  rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
+  totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
 
   const total = totalRow?.c || 0;
   rows = rows.map(r => ({ ...r, form_data: JSON.parse(r.form_data), image_urls: JSON.parse(r.image_urls || '[]') }));

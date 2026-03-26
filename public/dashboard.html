@@ -55,6 +55,16 @@
       outline: none; transition: all 0.2s;
     }
     .search-box:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
+    .date-input {
+      padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+      font-size: 13px; font-family: inherit; background: var(--card); outline: none;
+      transition: all 0.2s; color: var(--text);
+    }
+    .date-input:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
+    .date-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .date-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .btn-pdf-all { background: linear-gradient(135deg,#8b1a1a,#c0392b); color: #fff; text-decoration: none; white-space: nowrap; padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .btn-pdf-all:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139,26,26,0.3); }
 
     /* TABLE */
     .table-card { background: var(--card); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
@@ -134,6 +144,27 @@
     .toast.success { background: var(--green-800); }
     .toast.error { background: #8b1a1a; }
     @media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--card); border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: fit-content; }
+    .tab-btn { padding: 9px 20px; border-radius: 9px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; color: var(--muted); background: transparent; }
+    .tab-btn.active { background: var(--green-800); color: #fff; }
+
+    /* USER TABLE */
+    .role-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .role-admin { background: #fef3c7; color: #92400e; }
+    .role-karyawan { background: var(--green-100); color: var(--green-800); }
+
+    /* USER MODAL */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .modal-form label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
+    .modal-form input, .modal-form select { border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 14px; font-family: inherit; width: 100%; outline: none; transition: all 0.2s; }
+    .modal-form input:focus, .modal-form select:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .btn-cancel { padding: 9px 18px; border-radius: 9px; border: 1.5px solid var(--border); background: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; }
+    .btn-save { padding: 9px 22px; border-radius: 9px; border: none; background: var(--green-800); color: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .btn-save:hover { background: var(--green-600); }
   </style>
 </head>
 <body>
@@ -148,10 +179,19 @@
   <div class="container">
     <div class="page-header">
       <div>
-        <h1 class="page-title">Dashboard Submissions</h1>
-        <p class="page-sub">Riwayat semua slip service yang telah disubmit</p>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Jember Pest Control Management</p>
       </div>
     </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('submissions')" id="tab-submissions">📋 Submissions</button>
+      <button class="tab-btn" onclick="switchTab('karyawan')" id="tab-karyawan">👥 Manajemen Karyawan</button>
+    </div>
+
+    <!-- SUBMISSIONS TAB -->
+    <div id="section-submissions">
 
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Slip</div></div>
@@ -160,7 +200,15 @@
 
     <div class="toolbar">
       <input class="search-box" type="text" id="searchInput" placeholder="Cari nama client, alamat..." />
-      <a href="/api/reports/export/excel" class="nav-btn nav-btn-accent" style="text-decoration:none;white-space:nowrap;background:linear-gradient(135deg,#2d7a4f,#3ddc84);color:#0f2d1a;">📊 Export Excel Semua</a>
+      <div class="date-group">
+        <span class="date-label">Dari</span>
+        <input class="date-input" type="date" id="dateFrom" />
+        <span class="date-label">s/d</span>
+        <input class="date-input" type="date" id="dateTo" />
+        <button class="btn-sm btn-detail" onclick="clearDateFilter()" title="Reset filter tanggal">✕ Reset</button>
+      </div>
+      <a href="/api/reports/export/excel" class="nav-btn nav-btn-accent" style="text-decoration:none;white-space:nowrap;background:linear-gradient(135deg,#2d7a4f,#3ddc84);color:#0f2d1a;">📊 Excel</a>
+      <button class="btn-pdf-all" onclick="downloadAllPdf()">📄 Download Semua PDF</button>
     </div>
 
     <div class="table-card">
@@ -184,6 +232,84 @@
       </div>
     </div>
     <div class="pagination" id="pagination"></div>
+
+    </div> <!-- /section-submissions -->
+
+    <!-- KARYAWAN TAB -->
+    <div id="section-karyawan" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:16px;font-weight:700;color:var(--green-800)">Daftar Karyawan</h2>
+          <p style="font-size:12px;color:var(--muted)">Kelola akun karyawan dan admin</p>
+        </div>
+        <button class="nav-btn nav-btn-accent" onclick="openUserModal()">+ Tambah Karyawan</button>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama Lengkap</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Dibuat</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> <!-- /section-karyawan -->
+
+  </div>
+
+  <!-- USER MODAL -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <h3 id="userModalTitle">Tambah Karyawan</h3>
+        <button class="modal-close" onclick="closeUserModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="userForm" onsubmit="submitUserForm(event)">
+          <input type="hidden" id="userId" />
+          <div class="form-row">
+            <div>
+              <label>Nama Lengkap</label>
+              <input type="text" id="uFullName" placeholder="Nama lengkap" />
+            </div>
+            <div>
+              <label>Role</label>
+              <select id="uRole">
+                <option value="karyawan">Karyawan</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div>
+              <label>Username</label>
+              <input type="text" id="uUsername" placeholder="Username untuk login" />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div>
+              <label id="uPasswordLabel">Password</label>
+              <input type="password" id="uPassword" placeholder="Min. 6 karakter" />
+              <small id="uPasswordHint" style="color:var(--muted);font-size:11px;display:none">Kosongkan jika tidak ingin mengubah password</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeUserModal()">Batal</button>
+            <button type="submit" class="btn-save" id="saveUserBtn">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- DETAIL MODAL -->
@@ -201,6 +327,16 @@
 
   <script>
     let currentPage = 1, searchTimer;
+    let editingUserId = null;
+
+    // ── TABS ──────────────────────────────────────────────────────
+    function switchTab(name) {
+      ['submissions','karyawan'].forEach(t => {
+        document.getElementById(`section-${t}`).style.display = t === name ? '' : 'none';
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+      });
+      if (name === 'karyawan') loadUsers();
+    }
 
     // ── AUTH ───────────────────────────────────────────────────────────
     let currentUser = null;
@@ -229,9 +365,15 @@
     }
 
     // ── LOAD DATA ──────────────────────────────────────────────────────
-    async function loadData(page = 1, search = '') {
+    async function loadData(page = 1) {
       currentPage = page;
-      const params = new URLSearchParams({ page, limit: 15, ...(search && { search }) });
+      const search   = document.getElementById('searchInput').value;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo   = document.getElementById('dateTo').value;
+      const params   = new URLSearchParams({ page, limit: 15 });
+      if (search)   params.set('search', search);
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo)   params.set('date_to', dateTo);
       const res = await fetch(`/api/submissions?${params}`);
       if (!res.ok) return;
       const { data, total, pages } = await res.json();
@@ -277,15 +419,119 @@
         const btn = document.createElement('button');
         btn.className = 'page-btn' + (p === page ? ' active' : '');
         btn.textContent = p;
-        btn.onclick = () => loadData(p, document.getElementById('searchInput').value);
+        btn.onclick = () => loadData(p);
         pag.appendChild(btn);
       }
     }
 
-    // Search debounce
-    document.getElementById('searchInput').addEventListener('input', (e) => {
+    // Search & date filter listeners
+    document.getElementById('searchInput').addEventListener('input', () => {
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => loadData(1, e.target.value), 400);
+      searchTimer = setTimeout(() => loadData(1), 400);
+    });
+    ['dateFrom','dateTo'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => loadData(1));
+    });
+
+    function clearDateFilter() {
+      document.getElementById('dateFrom').value = '';
+      document.getElementById('dateTo').value = '';
+      loadData(1);
+    }
+
+    // ── DOWNLOAD ALL PDF ───────────────────────────────────────────────
+    function downloadAllPdf() {
+      const search   = document.getElementById('searchInput').value;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo   = document.getElementById('dateTo').value;
+      const params   = new URLSearchParams();
+      if (search)   params.set('search', search);
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo)   params.set('date_to', dateTo);
+      showToast('⏳ Menyiapkan PDF gabungan...', '');
+      window.location.href = `/api/reports/export/pdf-merge?${params}`;
+    }
+
+    // ── USER MANAGEMENT ───────────────────────────────────────────────
+    async function loadUsers() {
+      const res = await fetch('/api/users');
+      if (!res.ok) return;
+      const { data } = await res.json();
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = data.map((u, i) => `
+        <tr>
+          <td style="color:var(--muted);font-size:12px">${i + 1}</td>
+          <td><strong>${u.full_name || '-'}</strong></td>
+          <td style="font-size:12px">${u.username}</td>
+          <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+          <td style="font-size:12px;color:var(--muted)">${new Date(u.created_at).toLocaleDateString('id-ID')}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-sm btn-detail" onclick="openUserModal(${JSON.stringify(u).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              ${u.id !== currentUser?.id ? `<button class="btn-sm btn-del" onclick="deleteUser(${u.id}, '${u.username}')">🗑</button>` : '<span style="font-size:11px;color:var(--muted)">Anda</span>'}
+            </div>
+          </td>
+        </tr>`);
+    }
+
+    function openUserModal(user) {
+      editingUserId = user?.id || null;
+      document.getElementById('userModalTitle').textContent = user ? 'Edit Karyawan' : 'Tambah Karyawan';
+      document.getElementById('userId').value = user?.id || '';
+      document.getElementById('uFullName').value = user?.full_name || '';
+      document.getElementById('uUsername').value = user?.username || '';
+      document.getElementById('uUsername').disabled = !!user;
+      document.getElementById('uRole').value = user?.role || 'karyawan';
+      document.getElementById('uPassword').value = '';
+      document.getElementById('uPasswordLabel').textContent = user ? 'Password Baru (opsional)' : 'Password';
+      document.getElementById('uPasswordHint').style.display = user ? 'block' : 'none';
+      document.getElementById('userModal').classList.add('open');
+    }
+
+    function closeUserModal() {
+      document.getElementById('userModal').classList.remove('open');
+      editingUserId = null;
+    }
+
+    async function submitUserForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveUserBtn');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+      const body = {
+        full_name: document.getElementById('uFullName').value,
+        role:      document.getElementById('uRole').value,
+        password:  document.getElementById('uPassword').value || undefined,
+      };
+
+      let res;
+      if (editingUserId) {
+        res = await fetch(`/api/users/${editingUserId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      } else {
+        body.username = document.getElementById('uUsername').value;
+        res = await fetch('/api/users', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      }
+
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Simpan';
+      if (res.ok) {
+        showToast(editingUserId ? '✅ Data karyawan diperbarui' : '✅ Karyawan berhasil ditambahkan', 'success');
+        closeUserModal();
+        loadUsers();
+      } else {
+        showToast('❌ ' + (data.error || 'Gagal menyimpan'), 'error');
+      }
+    }
+
+    async function deleteUser(id, username) {
+      if (!confirm(`Hapus user "${username}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      if (res.ok) { showToast('✅ User dihapus', 'success'); loadUsers(); }
+      else { const d = await res.json(); showToast('❌ ' + (d.error || 'Gagal menghapus'), 'error'); }
+    }
+
+    document.getElementById('userModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeUserModal();
     });
 
     // ── DETAIL MODAL ───────────────────────────────────────────────────

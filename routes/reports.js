@@ -36,6 +36,242 @@ function ensureSpace(doc, y, needed) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+// Helper: build all pages for one slip into an existing PDFDocument
+// Returns the final y-position (unused, but kept for API consistency)
+// ════════════════════════════════════════════════════════════════════════════
+async function buildSlipPages(doc, row, isFirst) {
+  if (!isFirst) doc.addPage();
+
+  const fd   = JSON.parse(row.form_data || '{}');
+  const imgs = JSON.parse(row.image_urls || '[]');
+
+  const chk = (v) => v ? '[X]' : '[ ]';
+  const PRI = '#1a4a2e', SEC = '#2d7a4f', GRY = '#555555', LGT = '#f0f7f4';
+  const W = doc.page.width - 90;
+
+  // ── HEADER ──────────────────────────────────────────────────────────
+  doc.rect(45, 45, W, 72).fill(PRI);
+  doc.fillColor('white').fontSize(18).font('Helvetica-Bold').text('SLIP SERVICE', 55, 52);
+  doc.fontSize(9).font('Helvetica')
+     .text('CV. KASUARI INVESTAMA - Jember Pest Control', 55, 74)
+     .text('Jl. Kasuari No. 22, Gebang-Patrang-Jember', 55, 86)
+     .text('Telp/WA: 082 332 173 442 | jemberpestcontrol@gmail.com | www.jemberpest.co.id', 55, 98);
+  const rightX = 45 + W - 150;
+  doc.fillColor('#ccffcc').fontSize(9).font('Helvetica-Bold')
+     .text(`No: ${fd.no || '-'}`, rightX, 52, { width: 145, align: 'right' })
+     .text(`Tgl: ${fd.tanggal || '-'}`, rightX, 64, { width: 145, align: 'right' });
+  let y = 130;
+
+  const section = (title) => {
+    doc.rect(45, y, W, 18).fill(SEC);
+    doc.fillColor('white').fontSize(10).font('Helvetica-Bold').text(title, 52, y + 4);
+    y += 22;
+  };
+
+  // ── CLIENT INFO ──────────────────────────────────────────────────────
+  section('INFORMASI CLIENT');
+  doc.rect(45, y, W, 40).fill(LGT);
+  doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
+     .text('Nama Client', 50, y + 4).text('Alamat', 50, y + 20)
+     .text('Tanggal', 320, y + 4).text('No. Slip', 320, y + 20);
+  doc.fillColor('#111').fontSize(9).font('Helvetica')
+     .text(fd.nama_client || '-', 130, y + 4, { width: 180 })
+     .text(fd.alamat || '-', 130, y + 20, { width: 180 })
+     .text(fd.tanggal || '-', 395, y + 4)
+     .text(fd.no || '-', 395, y + 20);
+  y += 48;
+
+  // ── LAPORAN KUNJUNGAN ────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 70); section('LAPORAN KUNJUNGAN');
+  const half = Math.floor(W / 2) - 5;
+  doc.rect(45, y, half, 22).fill(LGT); doc.rect(45 + half + 10, y, half, 22).fill(LGT);
+  doc.fillColor('#111').fontSize(9).font('Helvetica')
+     .text(`${chk(fd.one_time_treatment)} One Time Treatment`, 52, y + 6)
+     .text(`${chk(fd.reguler_treatment)} Reguler Treatment`, 52 + half + 10, y + 6);
+  y += 30;
+  doc.rect(45, y, half, 28).fill(LGT); doc.rect(45 + half + 10, y, half, 28).fill(LGT);
+  doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
+     .text('Waktu Masuk (In)', 52, y + 4).text('Waktu Keluar (Out)', 52 + half + 10, y + 4);
+  doc.fillColor('#111').fontSize(10).font('Helvetica-Bold')
+     .text(fd.time_in || '--:--', 52, y + 14).text(fd.time_out || '--:--', 52 + half + 10, y + 14);
+  y += 36;
+
+  // ── SASARAN & METODE ─────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 90); section('SASARAN & METODE');
+  const pests1 = ['tikus', 'kecoa', 'semut', 'rayap'];
+  const pests2 = ['nyamuk', 'lalat', 'laba2', 'kutu'];
+  const rowH = 16, ph = pests1.length * rowH + 12;
+  doc.rect(45, y, half, ph).fill(LGT); doc.rect(45 + half + 10, y, half, ph).fill(LGT);
+  doc.fillColor('#a0c8a0').fontSize(8).font('Helvetica-Bold')
+     .text('Hama', 52, y + 4).text('Metode', 130, y + 4)
+     .text('Hama', 52 + half + 10, y + 4).text('Metode', 130 + half + 10, y + 4);
+  pests1.forEach((p, i) => {
+    doc.fillColor('#111').fontSize(8.5).font('Helvetica')
+       .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52, y + 4 + (i + 1) * rowH)
+       .text(fd[`method_${p}`] || '-', 130, y + 4 + (i + 1) * rowH, { width: half - 90 });
+  });
+  pests2.forEach((p, i) => {
+    doc.fillColor('#111').fontSize(8.5).font('Helvetica')
+       .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52 + half + 10, y + 4 + (i + 1) * rowH)
+       .text(fd[`method_${p}`] || '-', 130 + half + 10, y + 4 + (i + 1) * rowH, { width: half - 90 });
+  });
+  y += ph + 8;
+
+  // ── MONITORING ───────────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 100); section('JUMLAH MONITORING');
+  [['1. Rat Box (Umpan Racun dgn Box)', fd.rat_box],
+   ['2. Glue Trapping (Lem)', fd.glue_trapping],
+   ['3. Glue Trapping Tambahan', fd.glue_tambahan],
+   ['4. Perangkap Masal', fd.perangkap_masal]].forEach(([label, val]) => {
+    doc.rect(45, y, W, 16).fill(LGT);
+    doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold').text(label, 52, y + 4, { width: W - 80 });
+    doc.fillColor('#111').fontSize(9).font('Helvetica-Bold').text(`${val || 0} titik`, 45 + W - 70, y + 4, { width: 65, align: 'right' });
+    y += 18;
+  });
+  y += 6;
+
+  // ── CHEMICAL ─────────────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 80); section('BAHAN AKTIF CHEMICAL');
+  doc.rect(45, y, W, 16).fill('#c8e6c0');
+  doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
+     .text('Bahan Aktif', 52, y + 4).text('Dosis Pemakaian', 45 + W - 155, y + 4);
+  y += 16;
+  [[fd.chemical1_name, fd.chemical1_dose],
+   [fd.chemical2_name, fd.chemical2_dose],
+   [fd.chemical3_name, fd.chemical3_dose],
+   [fd.chemical4_name, fd.chemical4_dose]].forEach(([name, dose], idx) => {
+    if (!name && !dose) return;
+    doc.rect(45, y, W, 18).fill(LGT);
+    doc.fillColor('#111').fontSize(9).font('Helvetica')
+       .text(`${idx + 1}. ${name || '-'}`, 52, y + 4, { width: W - 200 })
+       .text(dose || '-', 45 + W - 155, y + 4, { width: 150 });
+    y += 20;
+  });
+  y += 6;
+
+  // ── REKOMENDASI ──────────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 110); section('REKOMENDASI');
+  const recs = [
+    ['Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
+    ['Kondisi Pintu/Plafon', 'Menutup lubang akses jika ada, tertutup dengan rapat'],
+    ['Sisa Makanan', 'Tidak berserakan'],
+    ['Genangan Air', 'Hindari adanya genangan air di area'],
+    ['Sampah', 'Di bungkus dengan plastik & ditaruh di dalam tempatnya'],
+  ];
+  doc.rect(45, y, W, recs.length * 17 + 8).fill(LGT);
+  recs.forEach(([point, rec], i) => {
+    doc.fillColor(SEC).fontSize(8).font('Helvetica-Bold').text(`• ${point}`, 52, y + 4 + i * 17, { width: 140 });
+    doc.fillColor('#333').fontSize(8).font('Helvetica').text(rec, 200, y + 4 + i * 17, { width: W - 160 });
+  });
+  y += recs.length * 17 + 14;
+
+  // ── CATATAN ──────────────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 80); section('CATATAN');
+  const catatanText = fd.catatan || '(tidak ada catatan)';
+  const catatanH = Math.max(60, doc.heightOfString(catatanText, { width: W - 20 }) + 16);
+  doc.rect(45, y, W, catatanH).fill(LGT);
+  doc.fillColor('#333').fontSize(9).font('Helvetica').text(catatanText, 52, y + 8, { width: W - 20 });
+  y += catatanH + 8;
+
+  // ── SIGNATURE ────────────────────────────────────────────────────────
+  y = ensureSpace(doc, y, 120); section('TANDA TANGAN CLIENT');
+  const sigH = 110;
+  doc.rect(45, y, W, sigH).fill(LGT);
+  if (row.signature_b64 && row.signature_b64.length > 100) {
+    try {
+      const sigBuf = Buffer.from(row.signature_b64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+      doc.image(sigBuf, 52, y + 6, { fit: [220, sigH - 14], align: 'left' });
+    } catch (_) {}
+  }
+  doc.fillColor(GRY).fontSize(8.5).font('Helvetica-Bold')
+     .text('Nama    :', 45 + W - 210, y + 30)
+     .text('Telepon :', 45 + W - 210, y + 50);
+  doc.fillColor('#111').fontSize(9).font('Helvetica')
+     .text(fd.client_nama || '-', 45 + W - 130, y + 30)
+     .text(fd.client_telp || '-', 45 + W - 130, y + 50);
+  y += sigH + 8;
+
+  // ── EVIDENCE PHOTOS ──────────────────────────────────────────────────
+  if (imgs.length > 0) {
+    y = ensureSpace(doc, y, 40); section('FOTO BUKTI PEKERJAAN');
+    const imgSize = 155, perRow = Math.floor(W / (imgSize + 10));
+    let col = 0, rowStartY = y;
+    for (const url of imgs) {
+      try {
+        const buf = await fetchImageBuffer(url);
+        if (col === 0) { rowStartY = ensureSpace(doc, rowStartY, imgSize + 30); doc.rect(45, rowStartY, W, imgSize + 20).fill(LGT); }
+        doc.image(buf, 45 + col * (imgSize + 10), rowStartY + 10, { fit: [imgSize, imgSize] });
+        col++;
+        if (col >= perRow) { col = 0; rowStartY += imgSize + 22; }
+      } catch (_) {}
+    }
+    y = rowStartY + imgSize + 26;
+  }
+
+  return y;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GET /api/reports/export/pdf-merge  —  Bulk merged PDF
+// Query params: date_from, date_to, search (all optional)
+// ════════════════════════════════════════════════════════════════════════════
+router.get('/export/pdf-merge', requireAuth, async (req, res) => {
+  const { date_from, date_to, search } = req.query;
+
+  // Build dynamic WHERE
+  const conditions = [];
+  const params = [];
+  if (search)    { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
+  if (date_from) { conditions.push(`json_extract(s.form_data, '$.tanggal') >= ?`); params.push(date_from); }
+  if (date_to)   { conditions.push(`json_extract(s.form_data, '$.tanggal') <= ?`); params.push(date_to); }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  let rows;
+  try {
+    rows = await all(`
+      SELECT s.*, u.full_name as tech_name, u.username
+      FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by
+      ${where}
+      ORDER BY json_extract(s.form_data, '$.tanggal') ASC, s.id ASC
+    `, params);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+
+  if (!rows.length) return res.status(404).json({ error: 'Tidak ada data ditemukan' });
+
+  const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  const bufs = [];
+  doc.on('data', d => bufs.push(d));
+  doc.on('end', () => {
+    // Add footer to all pages
+    const PRI = '#1a4a2e';
+    const W = doc.page.width - 90;
+    const pageCount = doc.bufferedPageRange().count;
+    for (let i = 0; i < pageCount; i++) {
+      doc.switchToPage(i);
+      const fY = doc.page.height - 36;
+      doc.rect(45, fY - 6, W, 28).fill(PRI);
+      doc.fillColor('white').fontSize(7.5).font('Helvetica')
+         .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
+    }
+    const pdfBuf = Buffer.concat(bufs);
+    const label = date_from && date_to ? `${date_from}_sd_${date_to}` : `semua_${Date.now()}`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="slip-service-gabungan-${label}.pdf"`);
+    res.setHeader('Content-Length', pdfBuf.length);
+    res.end(pdfBuf);
+  });
+  doc.on('error', err => { if (!res.headersSent) res.status(500).json({ error: 'Gagal membuat PDF' }); });
+
+  for (let i = 0; i < rows.length; i++) {
+    await buildSlipPages(doc, rows[i], i === 0);
+  }
+  doc.end();
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // GET /api/reports/:id  —  PDF individual slip
 // ════════════════════════════════════════════════════════════════════════════
 router.get('/:id', requireAuth, async (req, res) => {
