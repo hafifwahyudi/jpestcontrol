@@ -14,12 +14,12 @@ const upload = multer({
   },
 });
 
-// POST /api/submissions
+// ── POST /api/submissions ─────────────────────────────────────────────────────
 router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
   try {
-    const formData    = JSON.parse(req.body.form_data || '{}');
+    const formData     = JSON.parse(req.body.form_data || '{}');
     const signatureB64 = req.body.signature_b64 || null;
-    const imageUrls   = [];
+    const imageUrls    = [];
 
     if (req.files?.length) {
       for (const file of req.files) {
@@ -40,62 +40,93 @@ router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, r
   }
 });
 
-// GET /api/submissions — paginated list
+// ── GET /api/submissions — paginated list (karyawan only sees their own) ──────
 router.get('/', requireAuth, async (req, res) => {
-  const page   = Math.max(1, parseInt(req.query.page)  || 1);
-  const limit  = Math.min(50, parseInt(req.query.limit) || 20);
-  const offset = (page - 1) * limit;
-  const search    = req.query.search;
-  const dateFrom  = req.query.date_from; // YYYY-MM-DD
-  const dateTo    = req.query.date_to;   // YYYY-MM-DD
-  let rows, totalRow;
+  const page    = Math.max(1, parseInt(req.query.page)  || 1);
+  const limit   = Math.min(50, parseInt(req.query.limit) || 20);
+  const offset  = (page - 1) * limit;
+  const search  = req.query.search;
+  const dateFrom = req.query.date_from;
+  const dateTo   = req.query.date_to;
 
-  // Build dynamic WHERE clauses
   const conditions = [];
   const params = [];
 
-  if (search) {
-    conditions.push(`s.form_data ILIKE ?`);
-    params.push(`%${search}%`);
+  // Karyawan hanya bisa lihat submission milik sendiri
+  if (req.user.role !== 'admin') {
+    conditions.push(`s.submitted_by = ?`);
+    params.push(req.user.id);
   }
-  if (dateFrom) {
-    conditions.push(`(s.form_data::json)->>'tanggal' >= ?`);
-    params.push(dateFrom);
-  }
-  if (dateTo) {
-    conditions.push(`(s.form_data::json)->>'tanggal' <= ?`);
-    params.push(dateTo);
-  }
+  if (search)   { conditions.push(`s.form_data ILIKE ?`); params.push(`%${search}%`); }
+  if (dateFrom) { conditions.push(`(s.form_data::json)->>'tanggal' >= ?`); params.push(dateFrom); }
+  if (dateTo)   { conditions.push(`(s.form_data::json)->>'tanggal' <= ?`); params.push(dateTo); }
 
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const where     = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;
 
-  rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
-  totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
+  const rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
+  const totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
 
-  const total = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
-  rows = rows.map(r => ({ ...r, form_data: JSON.parse(r.form_data), image_urls: JSON.parse(r.image_urls || '[]') }));
-  res.json({ ok: true, data: rows, total, page, limit, pages: Math.ceil(total / limit) });
+  const total  = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
+  const mapped = rows.map(r => ({ ...r, form_data: JSON.parse(r.form_data), image_urls: JSON.parse(r.image_urls || '[]') }));
+  res.json({ ok: true, data: mapped, total, page, limit, pages: Math.ceil(total / limit) });
 });
 
-// GET /api/submissions/:id
+// ── GET /api/submissions/:id ──────────────────────────────────────────────────
 router.get('/:id', requireAuth, async (req, res) => {
   const row = await get(`SELECT s.*, u.username, u.full_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by WHERE s.id = ?`, [req.params.id]);
   if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
+  if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
   row.form_data  = JSON.parse(row.form_data);
   row.image_urls = JSON.parse(row.image_urls || '[]');
   delete row.signature_b64;
   res.json({ ok: true, data: row });
 });
 
-// GET /api/submissions/:id/signature
+// ── GET /api/submissions/:id/signature ───────────────────────────────────────
 router.get('/:id/signature', requireAuth, async (req, res) => {
-  const row = await get('SELECT signature_b64 FROM submissions WHERE id = ?', [req.params.id]);
+  const row = await get('SELECT signature_b64, submitted_by FROM submissions WHERE id = ?', [req.params.id]);
   if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
+  if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
   res.json({ ok: true, signature_b64: row.signature_b64 });
 });
 
-// DELETE /api/submissions/:id
+// ── PUT /api/submissions/:id — edit ──────────────────────────────────────────
+router.put('/:id', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
+  try {
+    const existing = await get('SELECT * FROM submissions WHERE id = ?', [req.params.id]);
+    if (!existing) return res.status(404).json({ error: 'Tidak ditemukan' });
+    if (req.user.role !== 'admin' && existing.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
+
+    const formData     = JSON.parse(req.body.form_data || existing.form_data);
+    const signatureB64 = req.body.signature_b64 !== undefined ? (req.body.signature_b64 || null) : existing.signature_b64;
+
+    // Start with existing images, then add new uploads
+    let imageUrls = JSON.parse(existing.image_urls || '[]');
+    if (req.files?.length) {
+      for (const file of req.files) {
+        const url = await uploadImage(file.buffer, 'pest-control/evidence');
+        imageUrls.push(url);
+      }
+    }
+    // Client can send kept_images to remove specific images
+    if (req.body.kept_images) {
+      imageUrls = JSON.parse(req.body.kept_images);
+    }
+
+    await run(
+      `UPDATE submissions SET form_data = ?, signature_b64 = ?, image_urls = ? WHERE id = ?`,
+      [JSON.stringify(formData), signatureB64, JSON.stringify(imageUrls), req.params.id]
+    );
+
+    res.json({ ok: true, image_urls: imageUrls });
+  } catch (err) {
+    console.error('[submissions PUT]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/submissions/:id ───────────────────────────────────────────────
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   const result = await run('DELETE FROM submissions WHERE id = ?', [req.params.id]);
   if (result.changes === 0) return res.status(404).json({ error: 'Tidak ditemukan' });

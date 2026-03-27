@@ -345,10 +345,9 @@
       if (!r.ok) { window.location.href = '/'; return; }
       const d = await r.json();
       currentUser = d.user;
+      // Hide Karyawan management tab for non-admin
       if (currentUser.role !== 'admin') {
-        alert('Akses ditolak. Halaman dashboard hanya untuk Admin.');
-        window.location.href = '/form.html';
-        return;
+        document.getElementById('tab-karyawan').style.display = 'none';
       }
       loadData();
     })();
@@ -391,9 +390,10 @@
         return;
       }
       tbody.innerHTML = data.map(row => {
-        const fd = row.form_data;
+        const fd   = row.form_data;
         const date = new Date(row.created_at).toLocaleDateString('id-ID', { day:'2-digit',month:'short',year:'numeric' });
         const imgs = row.image_urls || [];
+        const isOwner = currentUser?.role === 'admin' || row.submitted_by === currentUser?.id;
         return `<tr>
           <td style="color:var(--muted);font-size:12px">#${row.id}</td>
           <td><strong>${fd.nama_client || '-'}</strong></td>
@@ -404,8 +404,9 @@
           <td>
             <div class="actions">
               <button class="btn-sm btn-detail" onclick="openDetail(${row.id})">Detail</button>
+              <button class="btn-sm" style="background:#e8edf8;color:#3a5a9e" onclick="window.location.href='/form.html?edit=${row.id}'">✏️ Edit</button>
               <button class="btn-sm btn-pdf" onclick="window.open('/api/reports/${row.id}','_blank')">📄 PDF</button>
-              <button class="btn-sm btn-xls" onclick="window.location.href='/api/reports/${row.id}/excel'">📊 Excel</button>
+              ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-xls" onclick="window.location.href='/api/reports/${row.id}/excel'">📊 Excel</button>` : ''}
               ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-del" onclick="deleteRow(${row.id})">🗑</button>` : ''}
             </div>
           </td>

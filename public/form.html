@@ -188,8 +188,8 @@
   </nav>
 
   <div class="container">
-    <h1 class="page-title">Slip Service</h1>
-    <p class="page-sub">Isi formulir layanan kunjungan dengan lengkap</p>
+    <h1 class="page-title" id="pageTitle">Slip Service</h1>
+    <p class="page-sub" id="pageSub">Isi formulir layanan kunjungan dengan lengkap</p>
 
     <form id="slipForm" enctype="multipart/form-data">
 
@@ -355,6 +355,8 @@
       <div class="card">
         <div class="card-header">📸 Foto Bukti Pekerjaan</div>
         <div class="card-body">
+          <!-- Existing photos shown in edit mode -->
+          <div id="existingPhotos" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px"></div>
           <label class="img-upload-area" id="uploadArea" for="evidenceImages">
             <input type="file" id="evidenceImages" name="evidence_images" accept="image/*" multiple capture="environment" />
             <div class="img-upload-icon">📷</div>
@@ -392,7 +394,7 @@
       <!-- SUBMIT -->
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       <button type="submit" class="submit-btn" id="submitBtn">🚀 Kirim & Simpan Slip Service</button>
-      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Data akan tersimpan dan laporan PDF dapat diunduh dari Dashboard</p>
+      <p id="submitHint" style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">Data akan tersimpan dan laporan PDF dapat diunduh dari Dashboard</p>
     </form>
   </div>
 
@@ -400,14 +402,22 @@
 
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
   <script>
-    // ── AUTH CHECK ─────────────────────────────────────────────────────
+    // ── EDIT MODE SETUP ──────────────────────────────────────────────────
+    const editId = new URLSearchParams(location.search).get('edit');
+    let keptImages    = []; // URLs of existing images to keep
+    let existingSigB64 = null; // existing signature for edit mode
+
+    // ── AUTH CHECK ──────────────────────────────────────────────────
     (async () => {
       const r = await fetch('/api/auth/me');
       if (!r.ok) { window.location.href = '/'; return; }
       const { user } = await r.json();
-      // Hide dashboard link for non-admin
-      if (user.role !== 'admin') {
-        document.querySelector('.nav-btn-ghost[onclick]')?.remove();
+      // Show dashboard link for all roles
+      if (editId) {
+        document.getElementById('pageTitle').textContent = 'Edit Slip Service';
+        document.getElementById('pageSub').textContent   = `Mengubah data slip #${editId}`;
+        document.getElementById('submitBtn').textContent  = '💾 Update Slip Service';
+        await loadEditData();
       }
     })();
 
@@ -441,8 +451,73 @@
       });
     });
 
-    // Set today's date
-    document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+    // Set today's date (only in create mode)
+    if (!editId) document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+
+    // ── LOAD EDIT DATA ───────────────────────────────────────────────
+    async function loadEditData() {
+      const [detRes, sigRes] = await Promise.all([
+        fetch(`/api/submissions/${editId}`),
+        fetch(`/api/submissions/${editId}/signature`),
+      ]);
+      if (!detRes.ok) { alert('Submission tidak ditemukan atau akses ditolak'); history.back(); return; }
+      const { data } = await detRes.json();
+      const { signature_b64 } = await sigRes.json();
+      existingSigB64 = signature_b64;
+      const fd = data.form_data;
+
+      // Fill text fields
+      ['no','tanggal','nama_client','alamat','time_in','time_out',
+       'rat_box','glue_trapping','glue_tambahan','perangkap_masal',
+       'chemical1_name','chemical1_dose','chemical2_name','chemical2_dose',
+       'chemical3_name','chemical3_dose','chemical4_name','chemical4_dose',
+       'catatan','client_nama','client_telp'].forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.value = fd[f] || '';
+      });
+
+      // Checkboxes
+      ['one_time_treatment','reguler_treatment'].forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.checked = !!fd[f];
+      });
+
+      // Pest checkboxes + methods (wait for pest table to be rendered)
+      pests.forEach(([k]) => {
+        const cb  = document.getElementById(`pest_${k}`);
+        const mth = document.querySelector(`[name='method_${k}']`);
+        if (cb)  { cb.checked = !!fd[`pest_${k}`]; cb.dispatchEvent(new Event('change')); }
+        if (mth) mth.value = fd[`method_${k}`] || '';
+      });
+
+      // Existing signature
+      if (signature_b64 && signature_b64.length > 50) {
+        const img = new Image();
+        img.onload = () => {
+          resizeCanvas();
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio||1), canvas.height / (window.devicePixelRatio||1));
+        };
+        img.src = signature_b64;
+      }
+
+      // Existing photos
+      keptImages = [...(data.image_urls || [])];
+      renderExistingPhotos();
+    }
+
+    function renderExistingPhotos() {
+      const container = document.getElementById('existingPhotos');
+      container.innerHTML = keptImages.map((url, i) => `
+        <div style="position:relative;width:90px;height:90px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)">
+          <img src="${url}" style="width:100%;height:100%;object-fit:cover" alt="foto" />
+          <button type="button" onclick="removeExistingPhoto(${i})" style="position:absolute;top:3px;right:3px;width:20px;height:20px;background:rgba(0,0,0,0.65);color:#fff;border-radius:50%;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+        </div>`).join('');
+    }
+    function removeExistingPhoto(idx) {
+      keptImages.splice(idx, 1);
+      renderExistingPhotos();
+    }
 
     // ── SIGNATURE PAD ──────────────────────────────────────────────────
     const canvas = document.getElementById('signaturePad');
@@ -566,20 +641,30 @@
 
       progress.style.width = '60%';
       try {
-        const res = await fetch('/api/submissions', { method: 'POST', body: fd });
+        let res;
+        if (editId) {
+          // Edit mode — PUT
+          fd.append('kept_images', JSON.stringify(keptImages));
+          fd.set('signature_b64', sigPad.isEmpty() ? (existingSigB64 || '') : sigPad.toDataURL('image/png'));
+          res = await fetch(`/api/submissions/${editId}`, { method: 'PUT', body: fd });
+        } else {
+          res = await fetch('/api/submissions', { method: 'POST', body: fd });
+        }
         const data = await res.json();
         progress.style.width = '100%';
         if (res.ok) {
-          showToast('✅ Slip Service berhasil disimpan!', 'success');
+          showToast(editId ? '✅ Slip berhasil diupdate!' : '✅ Slip Service berhasil disimpan!', 'success');
           setTimeout(() => { progress.style.width = '0%'; window.location.href = '/dashboard.html'; }, 1800);
         } else {
           showToast('❌ ' + (data.error || 'Terjadi kesalahan'), 'error');
-          btn.disabled = false; btn.textContent = '🚀 Kirim & Simpan Slip Service';
+          btn.disabled = false;
+          btn.textContent = editId ? '💾 Update Slip Service' : '🚀 Kirim & Simpan Slip Service';
           progress.style.width = '0%';
         }
       } catch (err) {
         showToast('❌ Tidak dapat terhubung ke server', 'error');
-        btn.disabled = false; btn.textContent = '🚀 Kirim & Simpan Slip Service';
+        btn.disabled = false;
+        btn.textContent = editId ? '💾 Update Slip Service' : '🚀 Kirim & Simpan Slip Service';
         progress.style.width = '0%';
       }
     });
