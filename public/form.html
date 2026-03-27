@@ -515,9 +515,20 @@
         img.src = signature_b64;
       }
 
+      // Lock signature pad in edit mode — not editable
+      sigPad.off();
+      canvas.style.cursor    = 'not-allowed';
+      canvas.style.opacity   = '0.85';
+      document.getElementById('clearSig').style.display = 'none';
+      const sigLock = document.createElement('p');
+      sigLock.textContent = '🔒 Tanda tangan tidak dapat diubah';
+      sigLock.style.cssText = 'font-size:11px;color:var(--muted);margin-top:6px;text-align:center';
+      canvas.closest('.sig-container').after(sigLock);
+
       // Existing photos
       keptImages = [...(data.image_urls || [])];
       renderExistingPhotos();
+
     }
 
     function renderExistingPhotos() {
@@ -622,11 +633,20 @@
     // ── SUBMIT ─────────────────────────────────────────────────────────
     document.getElementById('slipForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Signature required (in create mode, or if no existing sig in edit mode)
+      if (sigPad.isEmpty() && !editId && !existingSigB64) {
+        showToast('❌ Tanda tangan client wajib diisi', 'error');
+        document.getElementById('signaturePad').closest('.card').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
       const btn = document.getElementById('submitBtn');
       const progress = document.getElementById('progressFill');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>Mengirim data...';
       progress.style.width = '30%';
+
 
       const fd = new FormData();
 

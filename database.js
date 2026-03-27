@@ -56,9 +56,13 @@ async function initDb() {
       signature_b64 TEXT,
       image_urls    TEXT    NOT NULL DEFAULT '[]',
       submitted_by  INTEGER REFERENCES users(id),
-      created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+      created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at    TIMESTAMP
     )
   `);
+  // Migrate existing tables that may not have updated_at
+  await pool.query(`ALTER TABLE submissions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP`);
+
 
   // Seed default admin
   const existing = await get('SELECT id FROM users WHERE username = $1', ['admin']);

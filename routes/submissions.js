@@ -80,7 +80,7 @@ router.get('/', requireAuth, async (req, res) => {
   const where     = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;
 
-  const rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
+  const rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, s.updated_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
   const totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
 
   const total  = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
@@ -131,9 +131,10 @@ router.put('/:id', requireAuth, upload.array('evidence_images', 10), async (req,
     }
 
     await run(
-      `UPDATE submissions SET form_data = ?, signature_b64 = ?, image_urls = ? WHERE id = ?`,
+      `UPDATE submissions SET form_data = ?, signature_b64 = ?, image_urls = ?, updated_at = NOW() WHERE id = ?`,
       [JSON.stringify(formData), signatureB64, JSON.stringify(imageUrls), req.params.id]
     );
+
 
     res.json({ ok: true, image_urls: imageUrls });
   } catch (err) {
