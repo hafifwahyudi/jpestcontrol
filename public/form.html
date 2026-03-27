@@ -451,8 +451,22 @@
       });
     });
 
-    // Set today's date (only in create mode)
-    if (!editId) document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+    // Set today's date & auto slip number (only in create mode)
+    if (!editId) {
+      document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+      fetch('/api/submissions/next-no')
+        .then(r => r.json())
+        .then(d => {
+          if (d.ok) {
+            const el = document.getElementById('no');
+            el.value    = d.no;
+            el.readOnly = true;
+            el.style.color      = 'var(--muted)';
+            el.style.background = '#f0f4f2';
+          }
+        });
+    }
+
 
     // ── LOAD EDIT DATA ───────────────────────────────────────────────
     async function loadEditData() {

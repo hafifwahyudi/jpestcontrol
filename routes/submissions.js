@@ -14,7 +14,23 @@ const upload = multer({
   },
 });
 
+const ROMAN = ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+
+// ── GET /api/submissions/next-no ─────────────────────────────────────────────
+router.get('/next-no', requireAuth, async (req, res) => {
+  try {
+    const row  = await get('SELECT COUNT(*) as c FROM submissions');
+    const count = parseInt(row?.c ?? row?.count ?? 0) + 1;
+    const now  = new Date();
+    const no   = `${String(count).padStart(3,'0')}/SS-JPC/${ROMAN[now.getMonth()+1]}/${now.getFullYear()}`;
+    res.json({ ok: true, no });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── POST /api/submissions ─────────────────────────────────────────────────────
+
 router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
   try {
     const formData     = JSON.parse(req.body.form_data || '{}');
