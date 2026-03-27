@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
   try {
     const hash = bcrypt.hashSync(password, 10);
     const result = await run(
-      `INSERT INTO users (username, password_hash, role, full_name) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO users (username, password_hash, role, full_name) VALUES (?, ?, ?, ?) RETURNING id`,
       [username, hash, role, full_name || '']
     );
     res.status(201).json({ ok: true, id: result.lastID });

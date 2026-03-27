@@ -29,7 +29,7 @@ router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, r
     }
 
     const result = await run(
-      `INSERT INTO submissions (form_data, signature_b64, image_urls, submitted_by) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO submissions (form_data, signature_b64, image_urls, submitted_by) VALUES (?, ?, ?, ?) RETURNING id`,
       [JSON.stringify(formData), signatureB64, JSON.stringify(imageUrls), req.user.id]
     );
 
@@ -55,15 +55,15 @@ router.get('/', requireAuth, async (req, res) => {
   const params = [];
 
   if (search) {
-    conditions.push(`s.form_data LIKE ?`);
+    conditions.push(`s.form_data ILIKE ?`);
     params.push(`%${search}%`);
   }
   if (dateFrom) {
-    conditions.push(`json_extract(s.form_data, '$.tanggal') >= ?`);
+    conditions.push(`(s.form_data::json)->>'tanggal' >= ?`);
     params.push(dateFrom);
   }
   if (dateTo) {
-    conditions.push(`json_extract(s.form_data, '$.tanggal') <= ?`);
+    conditions.push(`(s.form_data::json)->>'tanggal' <= ?`);
     params.push(dateTo);
   }
 
@@ -73,7 +73,7 @@ router.get('/', requireAuth, async (req, res) => {
   rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
   totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
 
-  const total = totalRow?.c || 0;
+  const total = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
   rows = rows.map(r => ({ ...r, form_data: JSON.parse(r.form_data), image_urls: JSON.parse(r.image_urls || '[]') }));
   res.json({ ok: true, data: rows, total, page, limit, pages: Math.ceil(total / limit) });
 });
