@@ -357,14 +357,36 @@
         <div class="card-body">
           <!-- Existing photos shown in edit mode -->
           <div id="existingPhotos" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px"></div>
-          <label class="img-upload-area" id="uploadArea" for="evidenceImages">
-            <input type="file" id="evidenceImages" name="evidence_images" accept="image/*" multiple capture="environment" />
-            <div class="img-upload-icon">📷</div>
-            <div class="img-upload-text">Ketuk untuk ambil foto atau pilih dari galeri<br/><small>Maks. 10 foto, maks. 10MB per foto</small></div>
-          </label>
+
+          <!-- Hidden inputs -->
+          <input type="file" id="galleryInput" accept="image/*" multiple style="display:none" />
+          <input type="file" id="cameraInput"  accept="image/*" capture="environment" style="display:none" />
+
+          <!-- Two-option picker -->
+          <div style="display:flex;gap:12px;margin-bottom:12px">
+            <button type="button" id="btnGallery"
+              style="flex:1;padding:18px 10px;border:2px dashed var(--border);border-radius:12px;background:#fafcfb;cursor:pointer;font-family:inherit;font-size:13px;color:var(--muted);transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:6px"
+              onmouseover="this.style.borderColor='var(--green-400)';this.style.background='var(--green-100)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.background='#fafcfb'">
+              <span style="font-size:28px">🖼️</span>
+              <strong style="color:var(--text)">Pilih dari Galeri</strong>
+              <small>File gambar dari perangkat</small>
+            </button>
+            <button type="button" id="btnCamera"
+              style="flex:1;padding:18px 10px;border:2px dashed var(--border);border-radius:12px;background:#fafcfb;cursor:pointer;font-family:inherit;font-size:13px;color:var(--muted);transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:6px"
+              onmouseover="this.style.borderColor='var(--green-400)';this.style.background='var(--green-100)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.background='#fafcfb'">
+              <span style="font-size:28px">📷</span>
+              <strong style="color:var(--text)">Ambil Foto</strong>
+              <small>Buka kamera langsung</small>
+            </button>
+          </div>
+          <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:8px">Maks. 10 foto · Maks. 10MB per foto</p>
+
           <div class="img-preview" id="imgPreview"></div>
         </div>
       </div>
+
 
       <!-- E-SIGNATURE -->
       <div class="card">
@@ -588,16 +610,24 @@
 
     // ── IMAGE PREVIEW ──────────────────────────────────────────────────
     const filesStore = new DataTransfer();
-    document.getElementById('evidenceImages').addEventListener('change', async (e) => {
+
+    // Wire buttons to hidden inputs
+    document.getElementById('btnGallery').addEventListener('click', () => document.getElementById('galleryInput').click());
+    document.getElementById('btnCamera').addEventListener('click',  () => document.getElementById('cameraInput').click());
+
+    async function handleFileInput(e) {
       const raw = Array.from(e.target.files);
-      // Compress each image before storing
       for (const file of raw) {
         const compressed = await compressImage(file);
         filesStore.items.add(compressed);
       }
-      e.target.files = filesStore.files;
+      e.target.value = ''; // reset so same file can be re-selected
       renderPreviews();
-    });
+    }
+
+    document.getElementById('galleryInput').addEventListener('change', handleFileInput);
+    document.getElementById('cameraInput').addEventListener('change',  handleFileInput);
+
 
     function renderPreviews() {
       const container = document.getElementById('imgPreview');
@@ -616,8 +646,8 @@
           Array.from(filesStore.files).forEach((f, i) => { if (i !== idx) dt.items.add(f); });
           filesStore.items.clear();
           Array.from(dt.files).forEach(f => filesStore.items.add(f));
-          document.getElementById('evidenceImages').files = filesStore.files;
           renderPreviews();
+
         });
       });
     }
