@@ -3,13 +3,33 @@ const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const { get, all } = require('../database');
 const { requireAuth } = require('../middleware/auth');
-const https = require('https');
-const http = require('http');
+const https  = require('https');
+const http   = require('http');
+const crypto = require('crypto');
 
 const router = express.Router();
 
+// ── Shared token helpers (7-day expiring public PDF links) ───────────────────
+const TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function generateToken(id, timestamp) {
+  const secret = process.env.JWT_SECRET || 'jpc_secret';
+  return crypto.createHmac('sha256', secret)
+    .update(`${id}:${timestamp}`)
+    .digest('hex')
+    .substring(0, 32);
+}
+
+function verifyToken(id, timestamp, token) {
+  if (!token || !timestamp) return false;
+  const ts = parseInt(timestamp);
+  if (isNaN(ts) || Date.now() - ts > TOKEN_EXPIRY_MS) return false;
+  return generateToken(id, timestamp) === token;
+}
+
 const PESTS = ['tikus', 'kecoa', 'semut', 'rayap', 'nyamuk', 'lalat', 'laba2', 'kutu'];
 const PEST_LABELS = { tikus: 'Tikus', kecoa: 'Kecoa', semut: 'Semut', rayap: 'Rayap', nyamuk: 'Nyamuk', lalat: 'Lalat', laba2: 'Laba-laba', kutu: 'Kutu' };
+
 
 function fetchImageBuffer(url) {
   return new Promise((resolve, reject) => {
@@ -771,5 +791,56 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
   await wb.xlsx.write(res);
   res.end();
 });
+// ════════════════════════════════════════════════════════════════════════════
+// GET /api/reports/:id/public?token=xxx&t=timestamp  — Public PDF (no auth)
+// ════════════════════════════════════════════════════════════════════════════
+router.get('/:id/public', async (req, res) => {
+  const { token, t } = req.query;
+  const { id } = req.params;
+
+  if (!verifyToken(id, t, token)) {
+    return res.status(403).send(`
+      <html><body style="font-family:sans-serif;text-align:center;padding:60px">
+        <h2>🔒 Link Tidak Valid atau Sudah Kadaluarsa</h2>
+        <p>Link PDF ini hanya berlaku 7 hari. Minta link baru dari Jember Pest Control.</p>
+      </body></html>
+    `);
+  }
+
+  let row;
+  try {
+    row = await get(`SELECT s.*, u.full_name as tech_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by WHERE s.id = ?`, [id]);
+  } catch (e) {
+    return res.status(500).send('Server error');
+  }
+  if (!row) return res.status(404).send('Slip tidak ditemukan');
+
+  const doc  = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  const bufs = [];
+  doc.on('data', d => bufs.push(d));
+  doc.on('end', () => {
+    const W = doc.page.width - 90;
+    const PRI = '#1a4a2e';
+    const pageCount = doc.bufferedPageRange().count;
+    for (let i = 0; i < pageCount; i++) {
+      doc.switchToPage(i);
+      const fY = doc.page.height - 36;
+      doc.rect(45, fY - 6, W, 28).fill(PRI);
+      doc.fillColor('white').fontSize(7.5).font('Helvetica')
+         .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
+    }
+    const pdfBuf = Buffer.concat(bufs);
+    const fd = JSON.parse(row.form_data || '{}');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="slip-${fd.no || id}.pdf"`);
+    res.setHeader('Content-Length', pdfBuf.length);
+    res.end(pdfBuf);
+  });
+
+  await buildSlipPages(doc, row, true);
+  doc.end();
+});
 
 module.exports = router;
+module.exports.generateToken = generateToken;

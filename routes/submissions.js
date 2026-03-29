@@ -1,8 +1,17 @@
 const express = require('express');
 const multer  = require('multer');
+const crypto  = require('crypto');
 const { run, get, all } = require('../database');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { uploadImage } = require('../services/storage');
+
+function generateToken(id, timestamp) {
+  const secret = process.env.JWT_SECRET || 'jpc_secret';
+  return crypto.createHmac('sha256', secret)
+    .update(`${id}:${timestamp}`)
+    .digest('hex')
+    .substring(0, 32);
+}
 
 const router = express.Router();
 const upload = multer({
@@ -148,6 +157,17 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   const result = await run('DELETE FROM submissions WHERE id = ?', [req.params.id]);
   if (result.changes === 0) return res.status(404).json({ error: 'Tidak ditemukan' });
   res.json({ ok: true, message: 'Submission dihapus' });
+});
+
+// ── GET /api/submissions/:id/share-link ──────────────────────────────────────
+router.get('/:id/share-link', requireAuth, async (req, res) => {
+  const row = await get('SELECT id FROM submissions WHERE id = ?', [req.params.id]);
+  if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
+  const t     = Date.now();
+  const token = generateToken(req.params.id, t);
+  const base  = `${req.protocol}://${req.get('host')}`;
+  const url   = `${base}/api/reports/${req.params.id}/public?token=${token}&t=${t}`;
+  res.json({ ok: true, url, expires_in: '7 hari' });
 });
 
 module.exports = router;

@@ -411,6 +411,7 @@
               <button class="btn-sm btn-detail" onclick="openDetail(${row.id})">Detail</button>
               <button class="btn-sm" style="background:#e8edf8;color:#3a5a9e" onclick="window.location.href='/form.html?edit=${row.id}'">✏️ Edit</button>
               <button class="btn-sm btn-pdf" onclick="window.open('/api/reports/${row.id}','_blank')">📄 PDF</button>
+              <button class="btn-sm" style="background:#e8f5e9;color:#2e7d32" onclick="shareViaWA(${row.id},'${(fd.nama_client||'').replace(/'/g,'')}',' ${(fd.client_telp||'').replace(/'/g,'')}')">📲 WA</button>
               ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-xls" onclick="window.location.href='/api/reports/${row.id}/excel'">📊 Excel</button>` : ''}
               ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-del" onclick="deleteRow(${row.id})">🗑</button>` : ''}
             </div>
@@ -457,6 +458,58 @@
       showToast('⏳ Menyiapkan PDF gabungan...', '');
       window.location.href = `/api/reports/export/pdf-merge?${params}`;
     }
+
+    // ── SHARE VIA WHATSAPP ─────────────────────────────────────────────
+    let _waContext = {};
+    function shareViaWA(id, clientName, clientTelp) {
+      _waContext = { id, clientName, clientTelp: (clientTelp || '').trim() };
+      // Set modal fields
+      document.getElementById('waClientName').textContent = clientName || '-';
+      const chk = document.getElementById('waUseFormPhone');
+      const inp = document.getElementById('waPhoneInput');
+      chk.checked = !!_waContext.clientTelp;
+      inp.value   = _waContext.clientTelp || '';
+      inp.disabled = chk.checked;
+      document.getElementById('waModal').classList.add('open');
+    }
+    function closeWaModal() {
+      document.getElementById('waModal').classList.remove('open');
+      _waContext = {};
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('waUseFormPhone').addEventListener('change', function() {
+        const inp = document.getElementById('waPhoneInput');
+        if (this.checked) {
+          inp.value    = _waContext.clientTelp || '';
+          inp.disabled = true;
+        } else {
+          inp.disabled = false;
+          inp.focus();
+        }
+      });
+    });
+    async function confirmSendWA() {
+      const { id, clientName } = _waContext;
+      const rawPhone = document.getElementById('waPhoneInput').value.trim();
+      closeWaModal();
+      try {
+        showToast('⏳ Membuat link...', '');
+        const r = await fetch(`/api/submissions/${id}/share-link`);
+        if (!r.ok) throw new Error('Gagal membuat link');
+        const { url } = await r.json();
+        const phone = rawPhone.replace(/\D/g, '').replace(/^0/, '62');
+        const msg = encodeURIComponent(
+          `Yth. ${clientName || 'Bapak/Ibu'},\n\n` +
+          `Berikut adalah Slip Service dari *Jember Pest Control*:\n${url}\n\n` +
+          `Link berlaku 7 hari. Terima kasih atas kepercayaan Anda. 🙏`
+        );
+        const waUrl = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+        window.open(waUrl, '_blank');
+      } catch (e) {
+        showToast('❌ Gagal membuat link WA', 'error');
+      }
+    }
+
 
     // ── USER MANAGEMENT ───────────────────────────────────────────────
     async function loadUsers() {
@@ -624,5 +677,37 @@
       else showToast('❌ Gagal menghapus', 'error');
     }
   </script>
+
+<!-- ── WA MODAL ──────────────────────────────────────────────────── -->
+<div id="waModal" class="modal-overlay" onclick="if(event.target===this)closeWaModal()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3>📲 Kirim Slip via WhatsApp</h3>
+      <button class="modal-close" onclick="closeWaModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <p style="margin-bottom:16px;color:var(--muted);font-size:13px">Client: <strong id="waClientName"></strong></p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:14px">
+        <input type="checkbox" id="waUseFormPhone" style="width:16px;height:16px;accent-color:var(--green-500);cursor:pointer" />
+        Ambil No. HP dari form
+      </label>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="font-size:13px">No. WhatsApp Tujuan</label>
+        <input type="tel" id="waPhoneInput" placeholder="08xxxxxxxxxx" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none" />
+        <small style="color:var(--muted);font-size:11px">Kosongkan jika ingin pilih kontak manual di WhatsApp</small>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--border)">
+      <button class="btn-sm" onclick="closeWaModal()" style="background:#f1f5f9">Batal</button>
+      <button class="btn-sm" onclick="confirmSendWA()" style="background:#25d366;color:white;font-weight:600">📲 Kirim via WA</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #waModal { display:none; }
+  #waModal.open { display:flex; }
+</style>
+
 </body>
 </html>
