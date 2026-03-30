@@ -654,7 +654,15 @@
             <div class="detail-item"><label>Bahan 4</label><p>${fd.chemical4_name||'-'} — ${fd.chemical4_dose||'-'}</p></div>
             ${(fd.extra_chemicals||[]).map((c,i)=>`<div class="detail-item"><label>Bahan ${5+i}</label><p>${c.name||'-'} — ${c.dose||'-'}</p></div>`).join('')}
           </div>
-          ${ (()=>{ const recs=[fd.rec_tumpukan&&'Tumpukan Barang',fd.rec_pintu&&'Kondisi Pintu/Plafon',fd.rec_makanan&&'Sisa Makanan',fd.rec_air&&'Genangan Air',fd.rec_sampah&&'Sampah'].filter(Boolean); return recs.length?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase">Rekomendasi</label><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">${recs.map(r=>`<span class="badge badge-blue">${r}</span>`).join('')}</div></div>`:''; })() }
+          ${ (()=>{ const REC_MAP=[
+              [fd.rec_tumpukan,'Tumpukan Barang','Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
+              [fd.rec_pintu,'Kondisi Pintu/Plafon','Menutup lubang akses hama dengan bahan yang kuat'],
+              [fd.rec_makanan,'Sisa Makanan','Sisa makanan/sampah tidak berserakan'],
+              [fd.rec_air,'Genangan Air','Hindari adanya genangan air di area'],
+              [fd.rec_sampah,'Sampah','Dibungkus plastik & ditaruh di dalam tempatnya'],
+            ].filter(([v])=>v);
+            return REC_MAP.length?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px">Rekomendasi</label><div style="display:flex;flex-direction:column;gap:6px">${REC_MAP.map(([,title,desc])=>`<div style="padding:8px 12px;background:var(--green-100);border-radius:8px;border-left:3px solid var(--green-600)"><strong style="font-size:12px;color:var(--green-800)">${title}</strong><p style="font-size:12px;color:var(--text);margin-top:2px">${desc}</p></div>`).join('')}</div></div>`:''; })() }
+
         </div>
         ${fd.catatan ? `<div class="detail-section"><h4>Catatan</h4><p style="font-size:13px;line-height:1.6">${fd.catatan}</p></div>` : ''}
         ${imgs.length > 0 ? `<div class="detail-section"><h4>📸 Foto Bukti (${imgs.length})</h4>
