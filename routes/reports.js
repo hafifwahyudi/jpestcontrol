@@ -3,8 +3,8 @@ const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const { get, all } = require('../database');
 const { requireAuth } = require('../middleware/auth');
-const https  = require('https');
-const http   = require('http');
+const https = require('https');
+const http = require('http');
 const crypto = require('crypto');
 
 const router = express.Router();
@@ -62,7 +62,7 @@ function ensureSpace(doc, y, needed) {
 async function buildSlipPages(doc, row, isFirst) {
   if (!isFirst) doc.addPage();
 
-  const fd   = JSON.parse(row.form_data || '{}');
+  const fd = JSON.parse(row.form_data || '{}');
   const imgs = JSON.parse(row.image_urls || '[]');
 
   const chk = (v) => v ? '[X]' : '[ ]';
@@ -73,13 +73,13 @@ async function buildSlipPages(doc, row, isFirst) {
   doc.rect(45, 45, W, 72).fill(PRI);
   doc.fillColor('white').fontSize(18).font('Helvetica-Bold').text('SLIP SERVICE', 55, 52);
   doc.fontSize(9).font('Helvetica')
-     .text('CV. KASUARI INVESTAMA - Jember Pest Control', 55, 74)
-     .text('Jl. Kasuari No. 22, Gebang-Patrang-Jember', 55, 86)
-     .text('Telp/WA: 082 332 173 442 | jemberpestcontrol@gmail.com | www.jemberpest.co.id', 55, 98);
+    .text('CV. KASUARI INVESTAMA - Jember Pest Control', 55, 74)
+    .text('Jl. Kasuari No. 22, Gebang-Patrang-Jember', 55, 86)
+    .text('Telp/WA: 082 332 173 442 | jemberpestcontrol@gmail.com | www.jemberpest.co.id', 55, 98);
   const rightX = 45 + W - 150;
   doc.fillColor('#ccffcc').fontSize(9).font('Helvetica-Bold')
-     .text(`No: ${fd.no || '-'}`, rightX, 52, { width: 145, align: 'right' })
-     .text(`Tgl: ${fd.tanggal || '-'}`, rightX, 64, { width: 145, align: 'right' });
+    .text(`No: ${fd.no || '-'}`, rightX, 52, { width: 145, align: 'right' })
+    .text(`Tgl: ${fd.tanggal || '-'}`, rightX, 64, { width: 145, align: 'right' });
   let y = 130;
 
   const section = (title) => {
@@ -92,13 +92,13 @@ async function buildSlipPages(doc, row, isFirst) {
   section('INFORMASI CLIENT');
   doc.rect(45, y, W, 40).fill(LGT);
   doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
-     .text('Nama Client', 50, y + 4).text('Alamat', 50, y + 20)
-     .text('Tanggal', 320, y + 4).text('No. Slip', 320, y + 20);
+    .text('Nama Client', 50, y + 4).text('Alamat', 50, y + 20)
+    .text('Tanggal', 320, y + 4).text('No. Slip', 320, y + 20);
   doc.fillColor('#111').fontSize(9).font('Helvetica')
-     .text(fd.nama_client || '-', 130, y + 4, { width: 180 })
-     .text(fd.alamat || '-', 130, y + 20, { width: 180 })
-     .text(fd.tanggal || '-', 395, y + 4)
-     .text(fd.no || '-', 395, y + 20);
+    .text(fd.nama_client || '-', 130, y + 4, { width: 180 })
+    .text(fd.alamat || '-', 130, y + 20, { width: 180 })
+    .text(fd.tanggal || '-', 395, y + 4)
+    .text(fd.no || '-', 395, y + 20);
   y += 48;
 
   // ── LAPORAN KUNJUNGAN ────────────────────────────────────────────────
@@ -106,19 +106,19 @@ async function buildSlipPages(doc, row, isFirst) {
   const half = Math.floor(W / 2) - 5;
   doc.rect(45, y, half, 22).fill(LGT); doc.rect(45 + half + 10, y, half, 22).fill(LGT);
   doc.fillColor('#111').fontSize(9).font('Helvetica')
-     .text(`${chk(fd.one_time_treatment)} One Time Treatment`, 52, y + 6)
-     .text(`${chk(fd.reguler_treatment)} Reguler Treatment`, 52 + half + 10, y + 6);
+    .text(`${chk(fd.one_time_treatment)} One Time Treatment`, 52, y + 6)
+    .text(`${chk(fd.reguler_treatment)} Reguler Treatment`, 52 + half + 10, y + 6);
   y += 30;
   // Re-Treatment row
   doc.rect(45, y, W, 22).fill(LGT);
   doc.fillColor('#111').fontSize(9).font('Helvetica')
-     .text(`${chk(fd.re_treatment)} Re-Treatment`, 52, y + 6);
+    .text(`${chk(fd.re_treatment)} Re-Treatment`, 52, y + 6);
   y += 30;
   doc.rect(45, y, half, 28).fill(LGT); doc.rect(45 + half + 10, y, half, 28).fill(LGT);
   doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
-     .text('Waktu Masuk (In)', 52, y + 4).text('Waktu Keluar (Out)', 52 + half + 10, y + 4);
+    .text('Waktu Masuk (In)', 52, y + 4).text('Waktu Keluar (Out)', 52 + half + 10, y + 4);
   doc.fillColor('#111').fontSize(10).font('Helvetica-Bold')
-     .text(fd.time_in || '--:--', 52, y + 14).text(fd.time_out || '--:--', 52 + half + 10, y + 14);
+    .text(fd.time_in || '--:--', 52, y + 14).text(fd.time_out || '--:--', 52 + half + 10, y + 14);
   y += 36;
 
   // ── SASARAN & METODE ─────────────────────────────────────────────────
@@ -128,18 +128,18 @@ async function buildSlipPages(doc, row, isFirst) {
   const rowH = 16, ph = pests1.length * rowH + 12;
   doc.rect(45, y, half, ph).fill(LGT); doc.rect(45 + half + 10, y, half, ph).fill(LGT);
   doc.fillColor('#a0c8a0').fontSize(8).font('Helvetica-Bold')
-     .text('Hama', 52, y + 4).text('Metode', 130, y + 4)
-     .text('Hama', 52 + half + 10, y + 4).text('Metode', 130 + half + 10, y + 4);
+    .text('Hama', 52, y + 4).text('Metode', 130, y + 4)
+    .text('Hama', 52 + half + 10, y + 4).text('Metode', 130 + half + 10, y + 4);
   // Fixed pests
   pests1.forEach((p, i) => {
     doc.fillColor('#111').fontSize(8.5).font('Helvetica')
-       .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52, y + 4 + (i + 1) * rowH)
-       .text(fd[`method_${p}`] || '-', 130, y + 4 + (i + 1) * rowH, { width: half - 90 });
+      .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52, y + 4 + (i + 1) * rowH)
+      .text(fd[`method_${p}`] || '-', 130, y + 4 + (i + 1) * rowH, { width: half - 90 });
   });
   pests2.forEach((p, i) => {
     doc.fillColor('#111').fontSize(8.5).font('Helvetica')
-       .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52 + half + 10, y + 4 + (i + 1) * rowH)
-       .text(fd[`method_${p}`] || '-', 130 + half + 10, y + 4 + (i + 1) * rowH, { width: half - 90 });
+      .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52 + half + 10, y + 4 + (i + 1) * rowH)
+      .text(fd[`method_${p}`] || '-', 130 + half + 10, y + 4 + (i + 1) * rowH, { width: half - 90 });
   });
   y += ph + 8;
   // Custom pests
@@ -149,8 +149,8 @@ async function buildSlipPages(doc, row, isFirst) {
     doc.rect(45, y, W, customPests.length * 17 + 8).fill(LGT);
     customPests.forEach((p, i) => {
       doc.fillColor('#111').fontSize(8.5).font('Helvetica')
-         .text(`${chk(p.checked)} ${p.name}`, 52, y + 4 + i * 17)
-         .text(p.method || '-', 200, y + 4 + i * 17, { width: W - 160 });
+        .text(`${chk(p.checked)} ${p.name}`, 52, y + 4 + i * 17)
+        .text(p.method || '-', 200, y + 4 + i * 17, { width: W - 160 });
     });
     y += customPests.length * 17 + 14;
   }
@@ -158,10 +158,10 @@ async function buildSlipPages(doc, row, isFirst) {
   // ── MONITORING ───────────────────────────────────────────────────────
   y = ensureSpace(doc, y, 100); section('JUMLAH MONITORING');
   [['1. Rat Box (Umpan Racun dgn Box)', fd.rat_box],
-   ['2. Glue Trapping (Lem)', fd.glue_trapping],
-   ['3. Glue Trapping Tambahan', fd.glue_tambahan],
-   ['4. Perangkap Masal', fd.perangkap_masal],
-   ...(fd.custom_monitors || []).map((m, i) => [`${5 + i}. ${m.label}`, m.count])
+  ['2. Glue Trapping (Lem)', fd.glue_trapping],
+  ['3. Glue Trapping Tambahan', fd.glue_tambahan],
+  ['4. Perangkap Masal', fd.perangkap_masal],
+  ...(fd.custom_monitors || []).map((m, i) => [`${5 + i}. ${m.label}`, m.count])
   ].forEach(([label, val]) => {
     doc.rect(45, y, W, 16).fill(LGT);
     doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold').text(label, 52, y + 4, { width: W - 80 });
@@ -174,19 +174,19 @@ async function buildSlipPages(doc, row, isFirst) {
   y = ensureSpace(doc, y, 80); section('BAHAN AKTIF CHEMICAL');
   doc.rect(45, y, W, 16).fill('#c8e6c0');
   doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
-     .text('Bahan Aktif', 52, y + 4).text('Dosis Pemakaian', 45 + W - 155, y + 4);
+    .text('Bahan Aktif', 52, y + 4).text('Dosis Pemakaian', 45 + W - 155, y + 4);
   y += 16;
   [[fd.chemical1_name, fd.chemical1_dose],
-   [fd.chemical2_name, fd.chemical2_dose],
-   [fd.chemical3_name, fd.chemical3_dose],
-   [fd.chemical4_name, fd.chemical4_dose],
-   ...(fd.extra_chemicals || []).map(c => [c.name, c.dose])
+  [fd.chemical2_name, fd.chemical2_dose],
+  [fd.chemical3_name, fd.chemical3_dose],
+  [fd.chemical4_name, fd.chemical4_dose],
+  ...(fd.extra_chemicals || []).map(c => [c.name, c.dose])
   ].forEach(([name, dose], idx) => {
     if (!name && !dose) return;
     doc.rect(45, y, W, 18).fill(LGT);
     doc.fillColor('#111').fontSize(9).font('Helvetica')
-       .text(`${idx + 1}. ${name || '-'}`, 52, y + 4, { width: W - 200 })
-       .text(dose || '-', 45 + W - 155, y + 4, { width: 150 });
+      .text(`${idx + 1}. ${name || '-'}`, 52, y + 4, { width: W - 200 })
+      .text(dose || '-', 45 + W - 155, y + 4, { width: 150 });
     y += 20;
   });
   y += 6;
@@ -194,10 +194,10 @@ async function buildSlipPages(doc, row, isFirst) {
   // ── REKOMENDASI ──────────────────────────────────────────────────────
   const allRecs = [
     ['rec_tumpukan', 'Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
-    ['rec_pintu',    'Kondisi Pintu/Plafon', 'Menutup lubang akses hama dengan bahan yang kuat'],
-    ['rec_makanan',  'Sisa Makanan', 'Sisa makanan/sampah tidak berserakan'],
-    ['rec_air',      'Genangan Air', 'Hindari adanya genangan air di area'],
-    ['rec_sampah',   'Sampah', 'Dibungkus plastik & ditaruh di dalam tempatnya'],
+    ['rec_pintu', 'Kondisi Pintu/Plafon', 'Menutup lubang akses hama dengan bahan yang kuat'],
+    ['rec_makanan', 'Sisa Makanan', 'Sisa makanan/sampah tidak berserakan'],
+    ['rec_air', 'Genangan Air', 'Hindari adanya genangan air di area'],
+    ['rec_sampah', 'Sampah', 'Dibungkus plastik & ditaruh di dalam tempatnya'],
   ];
   const checkedRecs = allRecs.filter(([key]) => fd[key]);
   const recs = checkedRecs.length > 0 ? checkedRecs : allRecs; // fallback: show all if none checked
@@ -225,14 +225,14 @@ async function buildSlipPages(doc, row, isFirst) {
     try {
       const sigBuf = Buffer.from(row.signature_b64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
       doc.image(sigBuf, 52, y + 6, { fit: [220, sigH - 14], align: 'left' });
-    } catch (_) {}
+    } catch (_) { }
   }
   doc.fillColor(GRY).fontSize(8.5).font('Helvetica-Bold')
-     .text('Nama    :', 45 + W - 210, y + 30)
-     .text('Telepon :', 45 + W - 210, y + 50);
+    .text('Nama    :', 45 + W - 210, y + 30)
+    .text('Telepon :', 45 + W - 210, y + 50);
   doc.fillColor('#111').fontSize(9).font('Helvetica')
-     .text(fd.client_nama || '-', 45 + W - 130, y + 30)
-     .text(fd.client_telp || '-', 45 + W - 130, y + 50);
+    .text(fd.client_nama || '-', 45 + W - 130, y + 30)
+    .text(fd.client_telp || '-', 45 + W - 130, y + 50);
   y += sigH + 8;
 
   // ── EVIDENCE PHOTOS ──────────────────────────────────────────────────
@@ -247,7 +247,7 @@ async function buildSlipPages(doc, row, isFirst) {
         doc.image(buf, 45 + col * (imgSize + 10), rowStartY + 10, { fit: [imgSize, imgSize] });
         col++;
         if (col >= perRow) { col = 0; rowStartY += imgSize + 22; }
-      } catch (_) {}
+      } catch (_) { }
     }
     y = rowStartY + imgSize + 26;
   }
@@ -265,9 +265,9 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
   // Build dynamic WHERE
   const conditions = [];
   const params = [];
-  if (search)    { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
+  if (search) { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
   if (date_from) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) >= ?`); params.push(date_from); }
-  if (date_to)   { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(date_to); }
+  if (date_to) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(date_to); }
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   let rows;
@@ -297,8 +297,8 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-         .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
-         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
+        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
     const label = date_from && date_to ? `${date_from}_sd_${date_to}` : `semua_${Date.now()}`;
@@ -348,8 +348,8 @@ router.get('/:id', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-         .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
-         .text(`Report #${row.id} | Dicetak: ${new Date().toLocaleString('id-ID')} | Oleh: ${row.tech_name || row.username || '-'} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
+        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text(`Report #${row.id} | Dicetak: ${new Date().toLocaleString('id-ID')} | Oleh: ${row.tech_name || row.username || '-'} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
     res.setHeader('Content-Type', 'application/pdf');
@@ -643,7 +643,7 @@ router.get('/:id/public', async (req, res) => {
   }
   if (!row) return res.status(404).send('Slip tidak ditemukan');
 
-  const doc  = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
+  const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
   const bufs = [];
   doc.on('data', d => bufs.push(d));
   doc.on('end', () => {
@@ -655,8 +655,8 @@ router.get('/:id/public', async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-         .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
-         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
+        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
     const fd = JSON.parse(row.form_data || '{}');
