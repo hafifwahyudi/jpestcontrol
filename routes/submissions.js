@@ -54,7 +54,7 @@ router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, r
     }
 
     const result = await run(
-      `INSERT INTO submissions (form_data, signature_b64, image_urls, submitted_by) VALUES (?, ?, ?, ?) RETURNING id`,
+      `INSERT INTO submissions (form_data, signature_b64, image_urls, submitted_by) VALUES (?, ?, ?, ?)`,
       [JSON.stringify(formData), signatureB64, JSON.stringify(imageUrls), req.user.id]
     );
 
@@ -82,9 +82,9 @@ router.get('/', requireAuth, async (req, res) => {
     conditions.push(`s.submitted_by = ?`);
     params.push(req.user.id);
   }
-  if (search)   { conditions.push(`s.form_data ILIKE ?`); params.push(`%${search}%`); }
-  if (dateFrom) { conditions.push(`(s.form_data::json)->>'tanggal' >= ?`); params.push(dateFrom); }
-  if (dateTo)   { conditions.push(`(s.form_data::json)->>'tanggal' <= ?`); params.push(dateTo); }
+  if (search)   { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
+  if (dateFrom) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) >= ?`); params.push(dateFrom); }
+  if (dateTo)   { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(dateTo); }
 
   const where     = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;

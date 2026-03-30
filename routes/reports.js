@@ -241,9 +241,9 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
   // Build dynamic WHERE
   const conditions = [];
   const params = [];
-  if (search)    { conditions.push(`s.form_data ILIKE ?`); params.push(`%${search}%`); }
-  if (date_from) { conditions.push(`(s.form_data::json)->>'tanggal' >= ?`); params.push(date_from); }
-  if (date_to)   { conditions.push(`(s.form_data::json)->>'tanggal' <= ?`); params.push(date_to); }
+  if (search)    { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
+  if (date_from) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) >= ?`); params.push(date_from); }
+  if (date_to)   { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(date_to); }
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   let rows;
@@ -252,7 +252,7 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
       SELECT s.*, u.full_name as tech_name, u.username
       FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by
       ${where}
-      ORDER BY (s.form_data::json)->>'tanggal' ASC, s.id ASC
+      ORDER BY JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) ASC, s.id ASC
     `, params);
   } catch (e) {
     return res.status(500).json({ error: e.message });
