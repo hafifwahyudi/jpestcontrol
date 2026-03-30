@@ -222,7 +222,7 @@
       <div class="card">
         <div class="card-header">🏷️ Laporan Kunjungan</div>
         <div class="card-body">
-          <div class="check-grid" style="margin-bottom:16px">
+          <div class="check-grid" style="margin-bottom:16px;grid-template-columns:repeat(3,1fr)">
             <label class="check-item">
               <input type="checkbox" name="one_time_treatment" id="one_time_treatment" />
               <span class="check-box"></span>
@@ -232,6 +232,11 @@
               <input type="checkbox" name="reguler_treatment" id="reguler_treatment" />
               <span class="check-box"></span>
               <span class="check-label">Reguler Treatment</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="re_treatment" id="re_treatment" />
+              <span class="check-box"></span>
+              <span class="check-label">Re-Treatment</span>
             </label>
           </div>
           <div class="grid-2">
@@ -262,6 +267,9 @@
               <!-- rendered by JS -->
             </tbody>
           </table>
+          <div style="margin-top:10px">
+            <button type="button" onclick="addCustomPest()" style="padding:8px 16px;border:1.5px dashed var(--green-400);background:var(--green-100);color:var(--green-800);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s">+ Tambah Sasaran</button>
+          </div>
         </div>
       </div>
 
@@ -269,6 +277,7 @@
       <div class="card">
         <div class="card-header">📊 Jumlah Monitoring</div>
         <div class="card-body">
+          <div id="monitoringBody">
           <div class="monitor-row">
             <div class="monitor-label">1. Rat Box (Umpan Racun dgn Box)</div>
             <div class="monitor-input"><input type="number" name="rat_box" id="rat_box" min="0" value="0" /><span class="monitor-unit">titik</span></div>
@@ -285,6 +294,11 @@
             <div class="monitor-label">4. Perangkap Masal</div>
             <div class="monitor-input"><input type="number" name="perangkap_masal" id="perangkap_masal" min="0" value="0" /><span class="monitor-unit">titik</span></div>
           </div>
+          <div id="customMonitorContainer"></div>
+          </div>
+          <div style="margin-top:10px">
+            <button type="button" onclick="addCustomMonitor()" style="padding:8px 16px;border:1.5px dashed var(--green-400);background:var(--green-100);color:var(--green-800);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s">+ Tambah Item Monitoring</button>
+          </div>
         </div>
       </div>
 
@@ -292,7 +306,7 @@
       <div class="card">
         <div class="card-header">🧪 Bahan Aktif Chemical</div>
         <div class="card-body">
-          <div class="grid-2">
+          <div class="grid-2" id="fixedChemicals">
             <div class="form-group">
               <label>Bahan Aktif 1</label>
               <input type="text" name="chemical1_name" id="chemical1_name" placeholder="Nama bahan aktif" />
@@ -325,6 +339,10 @@
               <label>Dosis Pemakaian 4</label>
               <input type="text" name="chemical4_dose" id="chemical4_dose" placeholder="Dosis / konsentrasi" />
             </div>
+          </div>
+          <div class="grid-2" id="extraChemicalsContainer"></div>
+          <div style="margin-top:10px">
+            <button type="button" onclick="addExtraChemical()" style="padding:8px 16px;border:1.5px dashed var(--green-400);background:var(--green-100);color:var(--green-800);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s">+ Tambah Bahan</button>
           </div>
         </div>
       </div>
@@ -463,7 +481,7 @@
       `;
       tbody.appendChild(row);
     }
-    // Wire checkbox styles
+    // Wire checkbox styles for fixed pests
     document.querySelectorAll('.pest-check input[type="checkbox"]').forEach(cb => {
       const box = cb.nextElementSibling;
       cb.addEventListener('change', () => {
@@ -472,6 +490,96 @@
         box.textContent = cb.checked ? '✓' : '';
       });
     });
+
+    // ── DYNAMIC CUSTOM PEST ────────────────────────────────────────────────
+    let customPestCount = 0;
+    function addCustomPest(name = '', method = '', checked = false) {
+      customPestCount++;
+      const idx = customPestCount;
+      const row = document.createElement('tr');
+      row.id = `customPestRow_${idx}`;
+      row.innerHTML = `
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <label class="pest-check" style="flex-shrink:0">
+              <input type="checkbox" name="custom_pest_check_${idx}" id="custom_pest_check_${idx}">
+              <span class="check-box" style="width:16px;height:16px;border-radius:4px;border:2px solid #ccc;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0"></span>
+            </label>
+            <input type="text" name="custom_pest_name_${idx}" value="${name}" placeholder="Nama sasaran..." style="width:100%">
+          </div>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="text" name="custom_pest_method_${idx}" value="${method}" placeholder="Metode..." style="flex:1"/>
+            <button type="button" onclick="removeCustomPest(${idx})" style="padding:4px 8px;border:none;background:#fde8e8;color:#9e2c2c;border-radius:6px;cursor:pointer;font-weight:700;flex-shrink:0">✕</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+      const cb = document.getElementById(`custom_pest_check_${idx}`);
+      const box = cb.nextElementSibling;
+      cb.addEventListener('change', () => {
+        box.style.background  = cb.checked ? 'var(--green-600)' : '';
+        box.style.borderColor = cb.checked ? 'var(--green-600)' : '#ccc';
+        box.textContent = cb.checked ? '✓' : '';
+      });
+      if (checked) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+      row.querySelector(`[name="custom_pest_name_${idx}"]`).focus();
+    }
+    function removeCustomPest(idx) { document.getElementById(`customPestRow_${idx}`)?.remove(); }
+
+    // ── DYNAMIC MONITORING ─────────────────────────────────────────────────
+    let customMonitorCount = 0;
+    function addCustomMonitor(label = '', count = 0) {
+      customMonitorCount++;
+      const idx = customMonitorCount;
+      const container = document.getElementById('customMonitorContainer');
+      const div = document.createElement('div');
+      div.id = `customMonitorRow_${idx}`;
+      div.className = 'monitor-row';
+      div.innerHTML = `
+        <div class="monitor-label" style="flex:1">
+          <input type="text" name="custom_monitor_label_${idx}" value="${label}" placeholder="Nama item monitoring..." style="width:100%"/>
+        </div>
+        <div class="monitor-input">
+          <input type="number" name="custom_monitor_count_${idx}" value="${count}" min="0" />
+          <span class="monitor-unit">titik</span>
+          <button type="button" onclick="removeCustomMonitor(${idx})" style="padding:4px 8px;border:none;background:#fde8e8;color:#9e2c2c;border-radius:6px;cursor:pointer;font-weight:700">✕</button>
+        </div>
+      `;
+      container.appendChild(div);
+      div.querySelector(`[name="custom_monitor_label_${idx}"]`).focus();
+    }
+    function removeCustomMonitor(idx) { document.getElementById(`customMonitorRow_${idx}`)?.remove(); }
+
+    // ── DYNAMIC CHEMICALS ──────────────────────────────────────────────────
+    let extraChemCount = 0;
+    function addExtraChemical(name = '', dose = '') {
+      extraChemCount++;
+      const idx = extraChemCount;
+      const totalNum = 4 + idx;
+      const container = document.getElementById('extraChemicalsContainer');
+      const d1 = document.createElement('div');
+      d1.className = 'form-group';
+      d1.innerHTML = `<label>Bahan Aktif ${totalNum}</label><input type="text" name="extra_chem_name_${idx}" value="${name}" placeholder="Nama bahan aktif" />`;
+      const d2 = document.createElement('div');
+      d2.className = 'form-group';
+      d2.id = `extraChem_${idx}`;
+      d2.innerHTML = `
+        <label>Dosis Pemakaian ${totalNum}</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" name="extra_chem_dose_${idx}" value="${dose}" placeholder="Dosis / konsentrasi" style="flex:1"/>
+          <button type="button" onclick="removeExtraChem(${idx})" style="padding:4px 8px;border:none;background:#fde8e8;color:#9e2c2c;border-radius:6px;cursor:pointer;font-weight:700;align-self:flex-end;height:40px">✕</button>
+        </div>
+      `;
+      container.appendChild(d1);
+      container.appendChild(d2);
+      d1.querySelector('input').focus();
+    }
+    function removeExtraChem(idx) {
+      document.getElementById(`extraChem_${idx}`)?.previousElementSibling?.remove();
+      document.getElementById(`extraChem_${idx}`)?.remove();
+    }
 
     // Set today's date & auto slip number (only in create mode)
     if (!editId) {
@@ -525,6 +633,19 @@
         if (cb)  { cb.checked = !!fd[`pest_${k}`]; cb.dispatchEvent(new Event('change')); }
         if (mth) mth.value = fd[`method_${k}`] || '';
       });
+
+      // Re-treatment
+      const reTrEl = document.getElementById('re_treatment');
+      if (reTrEl) { reTrEl.checked = !!fd.re_treatment; }
+
+      // Custom pests
+      (fd.custom_pests || []).forEach(p => addCustomPest(p.name, p.method, p.checked));
+
+      // Custom monitors
+      (fd.custom_monitors || []).forEach(m => addCustomMonitor(m.label, m.count));
+
+      // Extra chemicals
+      (fd.extra_chemicals || []).forEach(c => addExtraChemical(c.name, c.dose));
 
       // Existing signature
       if (signature_b64 && signature_b64.length > 50) {
@@ -691,10 +812,38 @@
       fields.forEach(f => { formData[f] = form[f]?.value || ''; });
 
       // Checkboxes
-      ['one_time_treatment','reguler_treatment'].forEach(f => { formData[f] = form[f]?.checked || false; });
+      ['one_time_treatment','reguler_treatment','re_treatment'].forEach(f => { formData[f] = form[f]?.checked || false; });
       pests.forEach(([k]) => {
         formData[`pest_${k}`] = form[`pest_${k}`]?.checked || false;
         formData[`method_${k}`] = form[`method_${k}`]?.value || '';
+      });
+
+      // Custom pests
+      formData.custom_pests = [];
+      document.querySelectorAll('[id^="customPestRow_"]').forEach(row => {
+        const idx = row.id.replace('customPestRow_','');
+        const name = row.querySelector(`[name="custom_pest_name_${idx}"]`)?.value?.trim();
+        const method = row.querySelector(`[name="custom_pest_method_${idx}"]`)?.value?.trim();
+        const checked = row.querySelector(`[name="custom_pest_check_${idx}"]`)?.checked;
+        if (name) formData.custom_pests.push({ name, method: method||'', checked: !!checked });
+      });
+
+      // Custom monitors
+      formData.custom_monitors = [];
+      document.querySelectorAll('[id^="customMonitorRow_"]').forEach(row => {
+        const idx = row.id.replace('customMonitorRow_','');
+        const label = row.querySelector(`[name="custom_monitor_label_${idx}"]`)?.value?.trim();
+        const count = parseInt(row.querySelector(`[name="custom_monitor_count_${idx}"]`)?.value) || 0;
+        if (label) formData.custom_monitors.push({ label, count });
+      });
+
+      // Extra chemicals
+      formData.extra_chemicals = [];
+      document.querySelectorAll('[id^="extraChem_"]').forEach(el => {
+        const idx = el.id.replace('extraChem_','');
+        const name = el.previousElementSibling?.querySelector(`[name="extra_chem_name_${idx}"]`)?.value?.trim();
+        const dose = el.querySelector(`[name="extra_chem_dose_${idx}"]`)?.value?.trim();
+        if (name) formData.extra_chemicals.push({ name, dose: dose||'' });
       });
 
       fd.append('form_data', JSON.stringify(formData));
