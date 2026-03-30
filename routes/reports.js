@@ -109,6 +109,11 @@ async function buildSlipPages(doc, row, isFirst) {
      .text(`${chk(fd.one_time_treatment)} One Time Treatment`, 52, y + 6)
      .text(`${chk(fd.reguler_treatment)} Reguler Treatment`, 52 + half + 10, y + 6);
   y += 30;
+  // Re-Treatment row
+  doc.rect(45, y, W, 22).fill(LGT);
+  doc.fillColor('#111').fontSize(9).font('Helvetica')
+     .text(`${chk(fd.re_treatment)} Re-Treatment`, 52, y + 6);
+  y += 30;
   doc.rect(45, y, half, 28).fill(LGT); doc.rect(45 + half + 10, y, half, 28).fill(LGT);
   doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
      .text('Waktu Masuk (In)', 52, y + 4).text('Waktu Keluar (Out)', 52 + half + 10, y + 4);
@@ -125,6 +130,7 @@ async function buildSlipPages(doc, row, isFirst) {
   doc.fillColor('#a0c8a0').fontSize(8).font('Helvetica-Bold')
      .text('Hama', 52, y + 4).text('Metode', 130, y + 4)
      .text('Hama', 52 + half + 10, y + 4).text('Metode', 130 + half + 10, y + 4);
+  // Fixed pests
   pests1.forEach((p, i) => {
     doc.fillColor('#111').fontSize(8.5).font('Helvetica')
        .text(`${chk(fd[`pest_${p}`])} ${PEST_LABELS[p]}`, 52, y + 4 + (i + 1) * rowH)
@@ -136,13 +142,27 @@ async function buildSlipPages(doc, row, isFirst) {
        .text(fd[`method_${p}`] || '-', 130 + half + 10, y + 4 + (i + 1) * rowH, { width: half - 90 });
   });
   y += ph + 8;
+  // Custom pests
+  const customPests = (fd.custom_pests || []).filter(p => p.name);
+  if (customPests.length > 0) {
+    y = ensureSpace(doc, y, customPests.length * 17 + 8);
+    doc.rect(45, y, W, customPests.length * 17 + 8).fill(LGT);
+    customPests.forEach((p, i) => {
+      doc.fillColor('#111').fontSize(8.5).font('Helvetica')
+         .text(`${chk(p.checked)} ${p.name}`, 52, y + 4 + i * 17)
+         .text(p.method || '-', 200, y + 4 + i * 17, { width: W - 160 });
+    });
+    y += customPests.length * 17 + 14;
+  }
 
   // ── MONITORING ───────────────────────────────────────────────────────
   y = ensureSpace(doc, y, 100); section('JUMLAH MONITORING');
   [['1. Rat Box (Umpan Racun dgn Box)', fd.rat_box],
    ['2. Glue Trapping (Lem)', fd.glue_trapping],
    ['3. Glue Trapping Tambahan', fd.glue_tambahan],
-   ['4. Perangkap Masal', fd.perangkap_masal]].forEach(([label, val]) => {
+   ['4. Perangkap Masal', fd.perangkap_masal],
+   ...(fd.custom_monitors || []).map((m, i) => [`${5 + i}. ${m.label}`, m.count])
+  ].forEach(([label, val]) => {
     doc.rect(45, y, W, 16).fill(LGT);
     doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold').text(label, 52, y + 4, { width: W - 80 });
     doc.fillColor('#111').fontSize(9).font('Helvetica-Bold').text(`${val || 0} titik`, 45 + W - 70, y + 4, { width: 65, align: 'right' });
@@ -159,7 +179,9 @@ async function buildSlipPages(doc, row, isFirst) {
   [[fd.chemical1_name, fd.chemical1_dose],
    [fd.chemical2_name, fd.chemical2_dose],
    [fd.chemical3_name, fd.chemical3_dose],
-   [fd.chemical4_name, fd.chemical4_dose]].forEach(([name, dose], idx) => {
+   [fd.chemical4_name, fd.chemical4_dose],
+   ...(fd.extra_chemicals || []).map(c => [c.name, c.dose])
+  ].forEach(([name, dose], idx) => {
     if (!name && !dose) return;
     doc.rect(45, y, W, 18).fill(LGT);
     doc.fillColor('#111').fontSize(9).font('Helvetica')
@@ -170,17 +192,19 @@ async function buildSlipPages(doc, row, isFirst) {
   y += 6;
 
   // ── REKOMENDASI ──────────────────────────────────────────────────────
-  y = ensureSpace(doc, y, 110); section('REKOMENDASI');
-  const recs = [
-    ['Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
-    ['Kondisi Pintu/Plafon', 'Menutup lubang akses jika ada, tertutup dengan rapat'],
-    ['Sisa Makanan', 'Tidak berserakan'],
-    ['Genangan Air', 'Hindari adanya genangan air di area'],
-    ['Sampah', 'Di bungkus dengan plastik & ditaruh di dalam tempatnya'],
+  const allRecs = [
+    ['rec_tumpukan', 'Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
+    ['rec_pintu',    'Kondisi Pintu/Plafon', 'Menutup lubang akses hama dengan bahan yang kuat'],
+    ['rec_makanan',  'Sisa Makanan', 'Sisa makanan/sampah tidak berserakan'],
+    ['rec_air',      'Genangan Air', 'Hindari adanya genangan air di area'],
+    ['rec_sampah',   'Sampah', 'Dibungkus plastik & ditaruh di dalam tempatnya'],
   ];
+  const checkedRecs = allRecs.filter(([key]) => fd[key]);
+  const recs = checkedRecs.length > 0 ? checkedRecs : allRecs; // fallback: show all if none checked
+  y = ensureSpace(doc, y, recs.length * 17 + 30); section('REKOMENDASI');
   doc.rect(45, y, W, recs.length * 17 + 8).fill(LGT);
-  recs.forEach(([point, rec], i) => {
-    doc.fillColor(SEC).fontSize(8).font('Helvetica-Bold').text(`• ${point}`, 52, y + 4 + i * 17, { width: 140 });
+  recs.forEach(([, point, rec], i) => {
+    doc.fillColor(SEC).fontSize(8).font('Helvetica-Bold').text(`${checkedRecs.length > 0 ? '[X]' : '[ ]'} ${point}`, 52, y + 4 + i * 17, { width: 140 });
     doc.fillColor('#333').fontSize(8).font('Helvetica').text(rec, 200, y + 4 + i * 17, { width: W - 160 });
   });
   y += recs.length * 17 + 14;

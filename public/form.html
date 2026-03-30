@@ -222,7 +222,7 @@
       <div class="card">
         <div class="card-header">🏷️ Laporan Kunjungan</div>
         <div class="card-body">
-          <div class="check-grid" style="margin-bottom:16px;grid-template-columns:repeat(3,1fr)">
+          <div class="check-grid" style="margin-bottom:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
             <label class="check-item">
               <input type="checkbox" name="one_time_treatment" id="one_time_treatment" />
               <span class="check-box"></span>
@@ -351,13 +351,34 @@
       <div class="card">
         <div class="card-header">💡 Rekomendasi</div>
         <div class="card-body">
-          <ul class="rec-list">
-            <li><strong>Tumpukan Barang</strong> — Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi</li>
-            <li><strong>Kondisi Pintu/Plafon</strong> — Menutup lubang akses jika ada, tertutup dengan rapat</li>
-            <li><strong>Sisa Makanan</strong> — Tidak berserakan</li>
-            <li><strong>Genangan Air</strong> — Hindari adanya genangan air di area</li>
-            <li><strong>Sampah</strong> — Di bungkus dengan plastik & di taruh di dalam tempatnya</li>
-          </ul>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Centang rekomendasi yang disampaikan ke client</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="check-item">
+              <input type="checkbox" name="rec_tumpukan" id="rec_tumpukan" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:12.5px"><strong>Tumpukan Barang</strong> — Rotasi minimal 1×/3 bulan &amp; ditata rapi</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="rec_pintu" id="rec_pintu" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:12.5px"><strong>Kondisi Pintu/Plafon</strong> — Tutup lubang akses hama dengan bahan kuat</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="rec_makanan" id="rec_makanan" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:12.5px"><strong>Sisa Makanan</strong> — Sisa makanan/sampah tidak berserakan</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="rec_air" id="rec_air" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:12.5px"><strong>Genangan Air</strong> — Hindari adanya genangan air di area</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="rec_sampah" id="rec_sampah" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:12.5px"><strong>Sampah</strong> — Dibungkus plastik &amp; ditaruh di dalam tempatnya</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -621,7 +642,8 @@
       });
 
       // Checkboxes
-      ['one_time_treatment','reguler_treatment'].forEach(f => {
+      ['one_time_treatment','reguler_treatment',
+       'rec_tumpukan','rec_pintu','rec_makanan','rec_air','rec_sampah'].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.checked = !!fd[f];
       });
@@ -812,7 +834,9 @@
       fields.forEach(f => { formData[f] = form[f]?.value || ''; });
 
       // Checkboxes
-      ['one_time_treatment','reguler_treatment','re_treatment'].forEach(f => { formData[f] = form[f]?.checked || false; });
+      ['one_time_treatment','reguler_treatment','re_treatment',
+       'rec_tumpukan','rec_pintu','rec_makanan','rec_air','rec_sampah'
+      ].forEach(f => { formData[f] = form[f]?.checked || false; });
       pests.forEach(([k]) => {
         formData[`pest_${k}`] = form[`pest_${k}`]?.checked || false;
         formData[`method_${k}`] = form[`method_${k}`]?.value || '';

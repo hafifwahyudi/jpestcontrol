@@ -56,12 +56,12 @@ async function initDb() {
   // Seed default admin
   const existing = await get('SELECT id FROM users WHERE username = ?', ['admin']);
   if (!existing) {
-    const hash = bcrypt.hashSync('jemberpest2024', 10);
+    const hash = bcrypt.hashSync('jemberpest2024$#', 10);
     await pool.query(
       `INSERT INTO users (username, password_hash, role, full_name) VALUES (?, ?, 'admin', 'Administrator')`,
       ['admin', hash]
     );
-    console.log('✅ Default admin created → admin / jemberpest2024');
+    console.log('✅ Default admin created → admin / jemberpest2024$#');
   }
 
   // Seed example karyawan

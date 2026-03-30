@@ -627,11 +627,13 @@
           <p style="font-size:13px">
             ${fd.one_time_treatment?'<span class="badge badge-green">One Time Treatment</span>':''}
             ${fd.reguler_treatment?'<span class="badge badge-blue">Reguler Treatment</span>':''}
+            ${fd.re_treatment?'<span class="badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107">Re-Treatment</span>':''}
           </p>
         </div>
         <div class="detail-section">
           <h4>Sasaran & Metode</h4>
           <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px">${pestChecks||'Tidak ada sasaran dipilih'}</div>
+          ${(fd.custom_pests||[]).filter(p=>p.name).length>0?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${(fd.custom_pests||[]).filter(p=>p.name).map(p=>`<span class="badge badge-green">${p.name}: ${p.method||'-'}</span>`).join(' ')}</div>`:''}
         </div>
         <div class="detail-section">
           <h4>Monitoring</h4>
@@ -640,6 +642,7 @@
             <div class="detail-item"><label>Glue Trapping</label><p>${fd.glue_trapping||0} titik</p></div>
             <div class="detail-item"><label>Glue Tambahan</label><p>${fd.glue_tambahan||0} titik</p></div>
             <div class="detail-item"><label>Perangkap Masal</label><p>${fd.perangkap_masal||0} titik</p></div>
+            ${(fd.custom_monitors||[]).map(m=>`<div class="detail-item"><label>${m.label}</label><p>${m.count||0} titik</p></div>`).join('')}
           </div>
         </div>
         <div class="detail-section">
@@ -649,7 +652,9 @@
             <div class="detail-item"><label>Bahan 2</label><p>${fd.chemical2_name||'-'} — ${fd.chemical2_dose||'-'}</p></div>
             <div class="detail-item"><label>Bahan 3</label><p>${fd.chemical3_name||'-'} — ${fd.chemical3_dose||'-'}</p></div>
             <div class="detail-item"><label>Bahan 4</label><p>${fd.chemical4_name||'-'} — ${fd.chemical4_dose||'-'}</p></div>
+            ${(fd.extra_chemicals||[]).map((c,i)=>`<div class="detail-item"><label>Bahan ${5+i}</label><p>${c.name||'-'} — ${c.dose||'-'}</p></div>`).join('')}
           </div>
+          ${ (()=>{ const recs=[fd.rec_tumpukan&&'Tumpukan Barang',fd.rec_pintu&&'Kondisi Pintu/Plafon',fd.rec_makanan&&'Sisa Makanan',fd.rec_air&&'Genangan Air',fd.rec_sampah&&'Sampah'].filter(Boolean); return recs.length?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase">Rekomendasi</label><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">${recs.map(r=>`<span class="badge badge-blue">${r}</span>`).join('')}</div></div>`:''; })() }
         </div>
         ${fd.catatan ? `<div class="detail-section"><h4>Catatan</h4><p style="font-size:13px;line-height:1.6">${fd.catatan}</p></div>` : ''}
         ${imgs.length > 0 ? `<div class="detail-section"><h4>📸 Foto Bukti (${imgs.length})</h4>
