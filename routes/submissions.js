@@ -116,8 +116,8 @@ router.get('/:id/signature', requireAuth, async (req, res) => {
   res.json({ ok: true, signature_b64: row.signature_b64 });
 });
 
-// ── PUT /api/submissions/:id — edit ──────────────────────────────────────────
-router.put('/:id', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
+// ── POST /api/submissions/edit/:id — (POST instead of PUT to prevent cPanel firewall dropping files) ──
+router.post('/edit/:id', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
   try {
     const existing = await get('SELECT * FROM submissions WHERE id = ?', [req.params.id]);
     if (!existing) return res.status(404).json({ error: 'Tidak ditemukan' });

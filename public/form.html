@@ -880,10 +880,10 @@
       try {
         let res;
         if (editId) {
-          // Edit mode — PUT
+          // Edit mode — POST (bypassing PUT limitations on some hostings)
           fd.append('kept_images', JSON.stringify(keptImages));
           fd.set('signature_b64', sigPad.isEmpty() ? (existingSigB64 || '') : sigPad.toDataURL('image/png'));
-          res = await fetch(`/api/submissions/${editId}`, { method: 'PUT', body: fd });
+          res = await fetch(`/api/submissions/edit/${editId}`, { method: 'POST', body: fd });
         } else {
           res = await fetch('/api/submissions', { method: 'POST', body: fd });
         }
