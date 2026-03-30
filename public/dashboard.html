@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,166 +8,690 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green-900: #0f2d1a; --green-800: #1a4a2e; --green-600: #2d7a4f;
-      --green-400: #4caf80; --green-100: #e8f5ed; --accent: #3ddc84;
-      --bg: #f4f7f5; --card: #fff; --text: #1a1a1a; --muted: #777;
-      --border: #dde8e2; --radius: 12px;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    :root {
+      --green-900: #0f2d1a;
+      --green-800: #1a4a2e;
+      --green-600: #2d7a4f;
+      --green-400: #4caf80;
+      --green-100: #e8f5ed;
+      --accent: #3ddc84;
+      --bg: #f4f7f5;
+      --card: #fff;
+      --text: #1a1a1a;
+      --muted: #777;
+      --border: #dde8e2;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
     nav {
-      background: var(--green-800); padding: 0 20px;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 56px; position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      background: var(--green-800);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
-    .nav-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; font-size: 15px; }
-    .nav-brand span { font-size: 20px; }
-    .nav-actions { display: flex; gap: 8px; }
-    .nav-btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-    .nav-btn-ghost { background: rgba(255,255,255,0.12); color: #fff; }
-    .nav-btn-ghost:hover { background: rgba(255,255,255,0.2); }
-    .nav-btn-accent { background: var(--accent); color: #0f2d1a; font-weight: 600; }
-    .nav-btn-accent:hover { background: #5de89a; }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: gap; gap: 12px; }
-    .page-title { font-size: 22px; font-weight: 700; color: var(--green-800); }
-    .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .nav-brand span {
+      font-size: 20px;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .nav-btn-ghost {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .nav-btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-btn-accent {
+      background: var(--accent);
+      color: #0f2d1a;
+      font-weight: 600;
+    }
+
+    .nav-btn-accent:hover {
+      background: #5de89a;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: gap;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green-800);
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
     /* STATS */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
     .stat-card {
-      background: var(--card); border-radius: 14px; padding: 18px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       border-left: 4px solid var(--green-600);
     }
-    .stat-value { font-size: 28px; font-weight: 700; color: var(--green-800); }
-    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--green-800);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
 
     /* SEARCH */
-    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .search-box {
-      flex: 1; min-width: 200px; padding: 10px 16px 10px 38px; border-radius: 10px;
-      border: 1.5px solid var(--border); font-size: 13px; font-family: inherit;
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 16px 10px 38px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-size: 13px;
+      font-family: inherit;
       background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat 12px center / 18px;
-      outline: none; transition: all 0.2s;
+      outline: none;
+      transition: all 0.2s;
     }
-    .search-box:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
+
+    .search-box:focus {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.1);
+    }
+
     .date-input {
-      padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border);
-      font-size: 13px; font-family: inherit; background: var(--card); outline: none;
-      transition: all 0.2s; color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--card);
+      outline: none;
+      transition: all 0.2s;
+      color: var(--text);
     }
-    .date-input:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
-    .date-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    .date-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .btn-pdf-all { background: linear-gradient(135deg,#8b1a1a,#c0392b); color: #fff; text-decoration: none; white-space: nowrap; padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-    .btn-pdf-all:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139,26,26,0.3); }
+
+    .date-input:focus {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.1);
+    }
+
+    .date-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .date-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-pdf-all {
+      background: linear-gradient(135deg, #8b1a1a, #c0392b);
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+      padding: 9px 14px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-pdf-all:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(139, 26, 26, 0.3);
+    }
 
     /* TABLE */
-    .table-card { background: var(--card); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
-    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: var(--green-800); }
-    thead th { color: #fff; padding: 13px 16px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.4px; white-space: nowrap; }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--green-100); }
-    td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
-    .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 11px; font-weight: 600;
+    .table-card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
     }
-    .badge-green { background: var(--green-100); color: var(--green-800); }
-    .badge-blue  { background: #e8f0fa; color: #2c5a9e; }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--green-800);
+    }
+
+    thead th {
+      color: #fff;
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--green-100);
+    }
+
+    td {
+      padding: 13px 16px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-green {
+      background: var(--green-100);
+      color: var(--green-800);
+    }
+
+    .badge-blue {
+      background: #e8f0fa;
+      color: #2c5a9e;
+    }
 
     /* ACTIONS */
-    .actions { display: flex; gap: 6px; }
-    .btn-sm {
-      padding: 6px 12px; border-radius: 7px; font-size: 11px; font-weight: 600;
-      border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap;
+    .actions {
+      display: flex;
+      gap: 6px;
     }
-    .btn-detail   { background: var(--green-100); color: var(--green-800); }
-    .btn-detail:hover { background: var(--green-400); color: #fff; }
-    .btn-pdf      { background: #e8f0fa; color: #2c5a9e; }
-    .btn-pdf:hover{ background: #2c5a9e; color: #fff; }
-    .btn-xls      { background: #e8f5e9; color: #1a6b3a; }
-    .btn-xls:hover{ background: #1a6b3a; color: #fff; }
-    .btn-del      { background: #fde8e8; color: #9e2c2c; }
-    .btn-del:hover{ background: #9e2c2c; color: #fff; }
+
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-detail {
+      background: var(--green-100);
+      color: var(--green-800);
+    }
+
+    .btn-detail:hover {
+      background: var(--green-400);
+      color: #fff;
+    }
+
+    .btn-pdf {
+      background: #e8f0fa;
+      color: #2c5a9e;
+    }
+
+    .btn-pdf:hover {
+      background: #2c5a9e;
+      color: #fff;
+    }
+
+    .btn-xls {
+      background: #e8f5e9;
+      color: #1a6b3a;
+    }
+
+    .btn-xls:hover {
+      background: #1a6b3a;
+      color: #fff;
+    }
+
+    .btn-del {
+      background: #fde8e8;
+      color: #9e2c2c;
+    }
+
+    .btn-del:hover {
+      background: #9e2c2c;
+      color: #fff;
+    }
 
     /* PAGINATION */
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; }
-    .page-btn {
-      width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 500; border: 1.5px solid var(--border);
-      background: var(--card); cursor: pointer; transition: all 0.15s; font-family: inherit;
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
     }
-    .page-btn:hover, .page-btn.active { background: var(--green-800); color: #fff; border-color: var(--green-800); }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .page-btn:hover,
+    .page-btn.active {
+      background: var(--green-800);
+      color: #fff;
+      border-color: var(--green-800);
+    }
 
     /* MODAL */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200;
-      display: none; align-items: center; justify-content: center; padding: 16px;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--card); border-radius: 20px; max-width: 680px; width: 100%;
-      max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
-      animation: popIn 0.25s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-header {
-      background: var(--green-800); color: #fff; padding: 18px 24px;
-      display: flex; align-items: center; justify-content: space-between; border-radius: 20px 20px 0 0;
-    }
-    .modal-header h3 { font-size: 16px; font-weight: 700; }
-    .modal-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
-    .modal-body { padding: 24px; }
-    .detail-section { margin-bottom: 18px; }
-    .detail-section h4 { font-size: 11px; font-weight: 700; color: var(--green-600); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--green-100); }
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .detail-item label { font-size: 11px; color: var(--muted); }
-    .detail-item p { font-size: 13px; font-weight: 500; margin-top: 2px; }
-    .sig-img { max-width: 100%; border: 1.5px solid var(--border); border-radius: 10px; background: #fafcfb; }
-    .evidence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 8px; }
-    .evidence-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer; transition: transform 0.2s; }
-    .evidence-img:hover { transform: scale(1.04); }
 
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; z-index: 999; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 8px 24px rgba(0,0,0,0.3); white-space: nowrap; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.success { background: var(--green-800); }
-    .toast.error { background: #8b1a1a; }
-    @media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 20px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+      animation: popIn 0.25s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.92);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      background: var(--green-800);
+      color: #fff;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .detail-section {
+      margin-bottom: 18px;
+    }
+
+    .detail-section h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green-600);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--green-100);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .detail-item label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .detail-item p {
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .sig-img {
+      max-width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fafcfb;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .evidence-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .evidence-img:hover {
+      transform: scale(1.04);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: var(--green-800);
+    }
+
+    .toast.error {
+      background: #8b1a1a;
+    }
+
+    @media (max-width: 640px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
     /* TABS */
-    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--card); border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: fit-content; }
-    .tab-btn { padding: 9px 20px; border-radius: 9px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; color: var(--muted); background: transparent; }
-    .tab-btn.active { background: var(--green-800); color: #fff; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      width: fit-content;
+    }
+
+    .tab-btn {
+      padding: 9px 20px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .tab-btn.active {
+      background: var(--green-800);
+      color: #fff;
+    }
 
     /* USER TABLE */
-    .role-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .role-admin { background: #fef3c7; color: #92400e; }
-    .role-karyawan { background: var(--green-100); color: var(--green-800); }
+    .role-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .role-admin {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .role-karyawan {
+      background: var(--green-100);
+      color: var(--green-800);
+    }
 
     /* USER MODAL */
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-    .form-row.single { grid-template-columns: 1fr; }
-    .modal-form label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
-    .modal-form input, .modal-form select { border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 14px; font-family: inherit; width: 100%; outline: none; transition: all 0.2s; }
-    .modal-form input:focus, .modal-form select:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(45,122,79,0.1); }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
-    .btn-cancel { padding: 9px 18px; border-radius: 9px; border: 1.5px solid var(--border); background: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; }
-    .btn-save { padding: 9px 22px; border-radius: 9px; border: none; background: var(--green-800); color: #fff; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; }
-    .btn-save:hover { background: var(--green-600); }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-row.single {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-form label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .modal-form input,
+    .modal-form select {
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .modal-form input:focus,
+    .modal-form select:focus {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.1);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .btn-cancel {
+      padding: 9px 18px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .btn-save {
+      padding: 9px 22px;
+      border-radius: 9px;
+      border: none;
+      background: var(--green-800);
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-save:hover {
+      background: var(--green-600);
+    }
   </style>
 </head>
+
 <body>
   <nav>
     <div class="nav-brand"><span>🛡️</span> Jember Pest Control</div>
@@ -193,53 +718,64 @@
     <!-- SUBMISSIONS TAB -->
     <div id="section-submissions">
 
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Slip</div></div>
-      <div class="stat-card" style="border-color:#2c5a9e"><div class="stat-value" id="statToday" style="color:#2c5a9e">—</div><div class="stat-label">Slip Hari Ini</div></div>
-    </div>
-
-    <div class="toolbar">
-      <input class="search-box" type="text" id="searchInput" placeholder="Cari nama client, alamat..." />
-      <div class="date-group">
-        <span class="date-label">Dari</span>
-        <input class="date-input" type="date" id="dateFrom" />
-        <span class="date-label">s/d</span>
-        <input class="date-input" type="date" id="dateTo" />
-        <button class="btn-sm btn-detail" onclick="clearDateFilter()" title="Reset filter tanggal">✕ Reset</button>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total Slip</div>
+        </div>
+        <div class="stat-card" style="border-color:#2c5a9e">
+          <div class="stat-value" id="statToday" style="color:#2c5a9e">—</div>
+          <div class="stat-label">Slip Hari Ini</div>
+        </div>
       </div>
-      <a href="/api/reports/export/excel" class="nav-btn nav-btn-accent" style="text-decoration:none;white-space:nowrap;background:linear-gradient(135deg,#2d7a4f,#3ddc84);color:#0f2d1a;">📊 Excel</a>
-      <button class="btn-pdf-all" onclick="downloadAllPdf()">📄 Download Semua PDF</button>
-    </div>
 
-    <div class="table-card">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Client</th>
-              <th>Alamat</th>
-              <th>Tgl Service</th>
-              <th>Disubmit Oleh</th>
-              <th>Submitted</th>
-              <th>Diubah</th>
-              <th>Foto</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Memuat data...</td></tr>
-          </tbody>
-        </table>
+      <div class="toolbar">
+        <input class="search-box" type="text" id="searchInput" placeholder="Cari nama client, alamat..." />
+        <div class="date-group">
+          <span class="date-label">Dari</span>
+          <input class="date-input" type="date" id="dateFrom" />
+          <span class="date-label">s/d</span>
+          <input class="date-input" type="date" id="dateTo" />
+          <button class="btn-sm btn-detail" onclick="clearDateFilter()" title="Reset filter tanggal">✕ Reset</button>
+        </div>
+        <a href="/api/reports/export/excel" class="nav-btn nav-btn-accent"
+          style="text-decoration:none;white-space:nowrap;background:linear-gradient(135deg,#2d7a4f,#3ddc84);color:#0f2d1a;">📊
+          Excel</a>
+        <button class="btn-pdf-all" onclick="downloadAllPdf()">📄 Download Semua PDF</button>
       </div>
-    </div>
-    <div class="pagination" id="pagination"></div>
+
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Alamat</th>
+                <th>Tgl Service</th>
+                <th>Disubmit Oleh</th>
+                <th>Submitted</th>
+                <th>Diubah</th>
+                <th>Foto</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="pagination"></div>
 
     </div> <!-- /section-submissions -->
 
     <!-- KARYAWAN TAB -->
     <div id="section-karyawan" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div
+        style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
         <div>
           <h2 style="font-size:16px;font-weight:700;color:var(--green-800)">Daftar Karyawan</h2>
           <p style="font-size:12px;color:var(--muted)">Kelola akun karyawan dan admin</p>
@@ -260,7 +796,9 @@
               </tr>
             </thead>
             <tbody id="userTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td></tr>
+              <tr>
+                <td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -302,7 +840,8 @@
             <div>
               <label id="uPasswordLabel">Password</label>
               <input type="password" id="uPassword" placeholder="Min. 6 karakter" />
-              <small id="uPasswordHint" style="color:var(--muted);font-size:11px;display:none">Kosongkan jika tidak ingin mengubah password</small>
+              <small id="uPasswordHint" style="color:var(--muted);font-size:11px;display:none">Kosongkan jika tidak
+                ingin mengubah password</small>
             </div>
           </div>
           <div class="modal-footer">
@@ -333,7 +872,7 @@
 
     // ── TABS ──────────────────────────────────────────────────────
     function switchTab(name) {
-      ['submissions','karyawan'].forEach(t => {
+      ['submissions', 'karyawan'].forEach(t => {
         document.getElementById(`section-${t}`).style.display = t === name ? '' : 'none';
         document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
       });
@@ -368,16 +907,17 @@
     // ── LOAD DATA ──────────────────────────────────────────────────────
     async function loadData(page = 1) {
       currentPage = page;
-      const search   = document.getElementById('searchInput').value;
+      const search = document.getElementById('searchInput').value;
       const dateFrom = document.getElementById('dateFrom').value;
-      const dateTo   = document.getElementById('dateTo').value;
-      const params   = new URLSearchParams({ page, limit: 15 });
-      if (search)   params.set('search', search);
+      const dateTo = document.getElementById('dateTo').value;
+      const params = new URLSearchParams({ page, limit: 15 });
+      if (search) params.set('search', search);
       if (dateFrom) params.set('date_from', dateFrom);
-      if (dateTo)   params.set('date_to', dateTo);
+      if (dateTo) params.set('date_to', dateTo);
       const res = await fetch(`/api/submissions?${params}`);
       if (!res.ok) return;
       const { data, total, pages } = await res.json();
+      window.loadedData = data;
 
       // Stats
       document.getElementById('statTotal').textContent = total;
@@ -392,11 +932,11 @@
         return;
       }
       tbody.innerHTML = data.map(row => {
-        const fd          = row.form_data;
-        const submittedAt = new Date(row.created_at).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-        const updatedAt   = row.updated_at ? new Date(row.updated_at).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : null;
-        const imgs        = row.image_urls || [];
-        const isOwner     = currentUser?.role === 'admin' || row.submitted_by === currentUser?.id;
+        const fd = row.form_data;
+        const submittedAt = new Date(row.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const updatedAt = row.updated_at ? new Date(row.updated_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+        const imgs = row.image_urls || [];
+        const isOwner = currentUser?.role === 'admin' || row.submitted_by === currentUser?.id;
         return `<tr>
           <td style="color:var(--muted);font-size:12px">#${row.id}</td>
           <td><strong>${fd.nama_client || '-'}</strong></td>
@@ -411,7 +951,7 @@
               <button class="btn-sm btn-detail" onclick="openDetail(${row.id})">Detail</button>
               <button class="btn-sm" style="background:#e8edf8;color:#3a5a9e" onclick="window.location.href='/form.html?edit=${row.id}'">✏️ Edit</button>
               <button class="btn-sm btn-pdf" onclick="window.open('/api/reports/${row.id}','_blank')">📄 PDF</button>
-              <button class="btn-sm" style="background:#e8f5e9;color:#2e7d32" onclick="shareViaWA(${row.id},'${(fd.nama_client||'').replace(/'/g,'')}',' ${(fd.client_telp||'').replace(/'/g,'')}')">📲 WA</button>
+              <button class="btn-sm" style="background:#e8f5e9;color:#2e7d32" onclick="shareViaWA(${row.id},'${(fd.nama_client || '').replace(/'/g, '')}',' ${(fd.client_telp || '').replace(/'/g, '')}')">📲 WA</button>
               ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-xls" onclick="window.location.href='/api/reports/${row.id}/excel'">📊 Excel</button>` : ''}
               ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-del" onclick="deleteRow(${row.id})">🗑</button>` : ''}
             </div>
@@ -436,7 +976,7 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => loadData(1), 400);
     });
-    ['dateFrom','dateTo'].forEach(id => {
+    ['dateFrom', 'dateTo'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => loadData(1));
     });
 
@@ -448,13 +988,13 @@
 
     // ── DOWNLOAD ALL PDF ───────────────────────────────────────────────
     function downloadAllPdf() {
-      const search   = document.getElementById('searchInput').value;
+      const search = document.getElementById('searchInput').value;
       const dateFrom = document.getElementById('dateFrom').value;
-      const dateTo   = document.getElementById('dateTo').value;
-      const params   = new URLSearchParams();
-      if (search)   params.set('search', search);
+      const dateTo = document.getElementById('dateTo').value;
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
       if (dateFrom) params.set('date_from', dateFrom);
-      if (dateTo)   params.set('date_to', dateTo);
+      if (dateTo) params.set('date_to', dateTo);
       showToast('⏳ Menyiapkan PDF gabungan...', '');
       window.location.href = `/api/reports/export/pdf-merge?${params}`;
     }
@@ -468,7 +1008,7 @@
       const chk = document.getElementById('waUseFormPhone');
       const inp = document.getElementById('waPhoneInput');
       chk.checked = !!_waContext.clientTelp;
-      inp.value   = _waContext.clientTelp || '';
+      inp.value = _waContext.clientTelp || '';
       inp.disabled = chk.checked;
       document.getElementById('waModal').classList.add('open');
     }
@@ -477,10 +1017,10 @@
       _waContext = {};
     }
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('waUseFormPhone').addEventListener('change', function() {
+      document.getElementById('waUseFormPhone').addEventListener('change', function () {
         const inp = document.getElementById('waPhoneInput');
         if (this.checked) {
-          inp.value    = _waContext.clientTelp || '';
+          inp.value = _waContext.clientTelp || '';
           inp.disabled = true;
         } else {
           inp.disabled = false;
@@ -498,10 +1038,62 @@
         if (!r.ok) throw new Error('Gagal membuat link');
         const { url } = await r.json();
         const phone = rawPhone.replace(/\D/g, '').replace(/^0/, '62');
+
+        const row = window.loadedData?.find(x => x.id === id);
+        let extraInfo = '';
+        if (row && row.form_data) {
+          const fd = row.form_data;
+          const methods = [];
+          const PEST_NAMES = {
+            tikus: 'Tikus', kecoa: 'Kecoa', semut: 'Semut', rayap: 'Rayap',
+            nyamuk: 'Nyamuk', lalat: 'Lalat', laba2: 'Laba-laba', kutu: 'Kutu'
+          };
+          Object.keys(PEST_NAMES).forEach(p => {
+            if (fd[`pest_${p}`]) methods.push(`- ${PEST_NAMES[p]} (${fd[`method_${p}`] || '-'})`);
+          });
+          if (fd.custom_pests) {
+            fd.custom_pests.forEach(p => {
+              if (p.checked) methods.push(`- ${p.name} (${p.method || '-'})`);
+            });
+          }
+
+          const chems = [];
+          [1, 2, 3, 4].forEach(i => {
+            if (fd[`chemical${i}_name`]) chems.push(`- ${fd[`chemical${i}_name`]} (${fd[`chemical${i}_dose`] || '-'})`);
+          });
+          if (fd.extra_chemicals) {
+            fd.extra_chemicals.forEach(c => {
+              if (c.name) chems.push(`- ${c.name} (${c.dose || '-'})`);
+            });
+          }
+
+          const allRecs = [
+            ['rec_tumpukan', 'Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
+            ['rec_pintu', 'Kondisi Pintu/Plafon', 'Menutup lubang akses hama dengan bahan yang kuat'],
+            ['rec_makanan', 'Sisa Makanan', 'Sisa makanan/sampah tidak berserakan'],
+            ['rec_air', 'Genangan Air', 'Hindari adanya genangan air di area'],
+            ['rec_sampah', 'Sampah', 'Dibungkus plastik & ditaruh di dalam tempatnya'],
+          ];
+          const recs = [];
+          allRecs.forEach(([key, title, desc]) => {
+            if (fd[key]) recs.push(`- ${title}: ${desc}`);
+          });
+
+          const catatan = (fd.catatan || '-').trim();
+
+          extraInfo = `*Ringkasan Treatment:*\n\n` +
+            `*Sasaran & Metode:*\n${methods.length ? methods.join('\n') : '-'}\n\n` +
+            `*Bahan Aktif:*\n${chems.length ? chems.join('\n') : '-'}\n\n` +
+            `*Rekomendasi Teknisi:*\n${recs.length ? recs.join('\n') : '-'}\n\n` +
+            `*Catatan Tambahan:*\n${catatan}\n\n`;
+        }
+
         const msg = encodeURIComponent(
           `Yth. ${clientName || 'Bapak/Ibu'},\n\n` +
-          `Berikut adalah Slip Service dari *Jember Pest Control*:\n${url}\n\n` +
-          `Link berlaku 7 hari. Terima kasih atas kepercayaan Anda. 🙏`
+          `Berikut adalah detail Slip Service dari *Jember Pest Control* untuk pekerjaan hari ini:\n\n` +
+          extraInfo +
+          `Klik tautan di bawah ini untuk mengunduh laporan PDF digital yang lengkap:\n${url}\n\n` +
+          `Link unduhan berlaku selama 7 hari. Jika Link Expired, Silahkan Hubungi Kami Kembali. Terima kasih atas kepercayaan Anda. 🙏`
         );
         const waUrl = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
         window.open(waUrl, '_blank');
@@ -526,7 +1118,7 @@
           <td style="font-size:12px;color:var(--muted)">${new Date(u.created_at).toLocaleDateString('id-ID')}</td>
           <td>
             <div class="actions">
-              <button class="btn-sm btn-detail" onclick="openUserModal(${JSON.stringify(u).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn-sm btn-detail" onclick="openUserModal(${JSON.stringify(u).replace(/"/g, '&quot;')})">✏️ Edit</button>
               ${u.id !== currentUser?.id ? `<button class="btn-sm btn-del" onclick="deleteUser(${u.id}, '${u.username}')">🗑</button>` : '<span style="font-size:11px;color:var(--muted)">Anda</span>'}
             </div>
           </td>
@@ -559,16 +1151,16 @@
 
       const body = {
         full_name: document.getElementById('uFullName').value,
-        role:      document.getElementById('uRole').value,
-        password:  document.getElementById('uPassword').value || undefined,
+        role: document.getElementById('uRole').value,
+        password: document.getElementById('uPassword').value || undefined,
       };
 
       let res;
       if (editingUserId) {
-        res = await fetch(`/api/users/${editingUserId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        res = await fetch(`/api/users/${editingUserId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       } else {
         body.username = document.getElementById('uUsername').value;
-        res = await fetch('/api/users', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        res = await fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       }
 
       const data = await res.json();
@@ -607,69 +1199,71 @@
       const fd = data.form_data;
       const imgs = data.image_urls || [];
 
-      const pests = ['tikus','kecoa','semut','rayap','nyamuk','lalat','laba2','kutu'];
-      const pestChecks = pests.map(p => fd[`pest_${p}`] ? `<span class="badge badge-green">${p.charAt(0).toUpperCase()+p.slice(1)}: ${fd[`method_${p}`]||'-'}</span>` : '').filter(Boolean).join(' ');
+      const pests = ['tikus', 'kecoa', 'semut', 'rayap', 'nyamuk', 'lalat', 'laba2', 'kutu'];
+      const pestChecks = pests.map(p => fd[`pest_${p}`] ? `<span class="badge badge-green">${p.charAt(0).toUpperCase() + p.slice(1)}: ${fd[`method_${p}`] || '-'}</span>` : '').filter(Boolean).join(' ');
 
       document.getElementById('modalBody').innerHTML = `
         <div class="detail-section">
           <h4>Informasi Layanan</h4>
           <div class="detail-grid">
-            <div class="detail-item"><label>No. Slip</label><p>${fd.no||'-'}</p></div>
-            <div class="detail-item"><label>Tanggal</label><p>${fd.tanggal||'-'}</p></div>
-            <div class="detail-item"><label>Nama Client</label><p>${fd.nama_client||'-'}</p></div>
-            <div class="detail-item"><label>Alamat</label><p>${fd.alamat||'-'}</p></div>
-            <div class="detail-item"><label>Waktu Masuk</label><p>${fd.time_in||'-'}</p></div>
-            <div class="detail-item"><label>Waktu Keluar</label><p>${fd.time_out||'-'}</p></div>
+            <div class="detail-item"><label>No. Slip</label><p>${fd.no || '-'}</p></div>
+            <div class="detail-item"><label>Tanggal</label><p>${fd.tanggal || '-'}</p></div>
+            <div class="detail-item"><label>Nama Client</label><p>${fd.nama_client || '-'}</p></div>
+            <div class="detail-item"><label>Alamat</label><p>${fd.alamat || '-'}</p></div>
+            <div class="detail-item"><label>Waktu Masuk</label><p>${fd.time_in || '-'}</p></div>
+            <div class="detail-item"><label>Waktu Keluar</label><p>${fd.time_out || '-'}</p></div>
           </div>
         </div>
         <div class="detail-section">
           <h4>Jenis Kunjungan</h4>
           <p style="font-size:13px">
-            ${fd.one_time_treatment?'<span class="badge badge-green">One Time Treatment</span>':''}
-            ${fd.reguler_treatment?'<span class="badge badge-blue">Reguler Treatment</span>':''}
-            ${fd.re_treatment?'<span class="badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107">Re-Treatment</span>':''}
+            ${fd.one_time_treatment ? '<span class="badge badge-green">One Time Treatment</span>' : ''}
+            ${fd.reguler_treatment ? '<span class="badge badge-blue">Reguler Treatment</span>' : ''}
+            ${fd.re_treatment ? '<span class="badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107">Re-Treatment</span>' : ''}
           </p>
         </div>
         <div class="detail-section">
           <h4>Sasaran & Metode</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px">${pestChecks||'Tidak ada sasaran dipilih'}</div>
-          ${(fd.custom_pests||[]).filter(p=>p.name).length>0?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${(fd.custom_pests||[]).filter(p=>p.name).map(p=>`<span class="badge badge-green">${p.name}: ${p.method||'-'}</span>`).join(' ')}</div>`:''}
+          <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px">${pestChecks || 'Tidak ada sasaran dipilih'}</div>
+          ${(fd.custom_pests || []).filter(p => p.name).length > 0 ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${(fd.custom_pests || []).filter(p => p.name).map(p => `<span class="badge badge-green">${p.name}: ${p.method || '-'}</span>`).join(' ')}</div>` : ''}
         </div>
         <div class="detail-section">
           <h4>Monitoring</h4>
           <div class="detail-grid">
-            <div class="detail-item"><label>Rat Box</label><p>${fd.rat_box||0} titik</p></div>
-            <div class="detail-item"><label>Glue Trapping</label><p>${fd.glue_trapping||0} titik</p></div>
-            <div class="detail-item"><label>Glue Tambahan</label><p>${fd.glue_tambahan||0} titik</p></div>
-            <div class="detail-item"><label>Perangkap Masal</label><p>${fd.perangkap_masal||0} titik</p></div>
-            ${(fd.custom_monitors||[]).map(m=>`<div class="detail-item"><label>${m.label}</label><p>${m.count||0} titik</p></div>`).join('')}
+            <div class="detail-item"><label>Rat Box</label><p>${fd.rat_box || 0} titik</p></div>
+            <div class="detail-item"><label>Glue Trapping</label><p>${fd.glue_trapping || 0} titik</p></div>
+            <div class="detail-item"><label>Glue Tambahan</label><p>${fd.glue_tambahan || 0} titik</p></div>
+            <div class="detail-item"><label>Perangkap Masal</label><p>${fd.perangkap_masal || 0} titik</p></div>
+            ${(fd.custom_monitors || []).map(m => `<div class="detail-item"><label>${m.label}</label><p>${m.count || 0} titik</p></div>`).join('')}
           </div>
         </div>
         <div class="detail-section">
           <h4>Bahan Aktif Chemical</h4>
           <div class="detail-grid">
-            <div class="detail-item"><label>Bahan 1</label><p>${fd.chemical1_name||'-'} — ${fd.chemical1_dose||'-'}</p></div>
-            <div class="detail-item"><label>Bahan 2</label><p>${fd.chemical2_name||'-'} — ${fd.chemical2_dose||'-'}</p></div>
-            <div class="detail-item"><label>Bahan 3</label><p>${fd.chemical3_name||'-'} — ${fd.chemical3_dose||'-'}</p></div>
-            <div class="detail-item"><label>Bahan 4</label><p>${fd.chemical4_name||'-'} — ${fd.chemical4_dose||'-'}</p></div>
-            ${(fd.extra_chemicals||[]).map((c,i)=>`<div class="detail-item"><label>Bahan ${5+i}</label><p>${c.name||'-'} — ${c.dose||'-'}</p></div>`).join('')}
+            <div class="detail-item"><label>Bahan 1</label><p>${fd.chemical1_name || '-'} — ${fd.chemical1_dose || '-'}</p></div>
+            <div class="detail-item"><label>Bahan 2</label><p>${fd.chemical2_name || '-'} — ${fd.chemical2_dose || '-'}</p></div>
+            <div class="detail-item"><label>Bahan 3</label><p>${fd.chemical3_name || '-'} — ${fd.chemical3_dose || '-'}</p></div>
+            <div class="detail-item"><label>Bahan 4</label><p>${fd.chemical4_name || '-'} — ${fd.chemical4_dose || '-'}</p></div>
+            ${(fd.extra_chemicals || []).map((c, i) => `<div class="detail-item"><label>Bahan ${5 + i}</label><p>${c.name || '-'} — ${c.dose || '-'}</p></div>`).join('')}
           </div>
-          ${ (()=>{ const REC_MAP=[
-              [fd.rec_tumpukan,'Tumpukan Barang','Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
-              [fd.rec_pintu,'Kondisi Pintu/Plafon','Menutup lubang akses hama dengan bahan yang kuat'],
-              [fd.rec_makanan,'Sisa Makanan','Sisa makanan/sampah tidak berserakan'],
-              [fd.rec_air,'Genangan Air','Hindari adanya genangan air di area'],
-              [fd.rec_sampah,'Sampah','Dibungkus plastik & ditaruh di dalam tempatnya'],
-            ].filter(([v])=>v);
-            return REC_MAP.length?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px">Rekomendasi</label><div style="display:flex;flex-direction:column;gap:6px">${REC_MAP.map(([,title,desc])=>`<div style="padding:8px 12px;background:var(--green-100);border-radius:8px;border-left:3px solid var(--green-600)"><strong style="font-size:12px;color:var(--green-800)">${title}</strong><p style="font-size:12px;color:var(--text);margin-top:2px">${desc}</p></div>`).join('')}</div></div>`:''; })() }
+          ${(() => {
+          const REC_MAP = [
+            [fd.rec_tumpukan, 'Tumpukan Barang', 'Melakukan rotasi minimal 1 kali / 3 bulan & ditata dengan rapi'],
+            [fd.rec_pintu, 'Kondisi Pintu/Plafon', 'Menutup lubang akses hama dengan bahan yang kuat'],
+            [fd.rec_makanan, 'Sisa Makanan', 'Sisa makanan/sampah tidak berserakan'],
+            [fd.rec_air, 'Genangan Air', 'Hindari adanya genangan air di area'],
+            [fd.rec_sampah, 'Sampah', 'Dibungkus plastik & ditaruh di dalam tempatnya'],
+          ].filter(([v]) => v);
+          return REC_MAP.length ? `<div style="margin-top:10px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px">Rekomendasi</label><div style="display:flex;flex-direction:column;gap:6px">${REC_MAP.map(([, title, desc]) => `<div style="padding:8px 12px;background:var(--green-100);border-radius:8px;border-left:3px solid var(--green-600)"><strong style="font-size:12px;color:var(--green-800)">${title}</strong><p style="font-size:12px;color:var(--text);margin-top:2px">${desc}</p></div>`).join('')}</div></div>` : '';
+        })()}
 
         </div>
         ${fd.catatan ? `<div class="detail-section"><h4>Catatan</h4><p style="font-size:13px;line-height:1.6">${fd.catatan}</p></div>` : ''}
         ${imgs.length > 0 ? `<div class="detail-section"><h4>📸 Foto Bukti (${imgs.length})</h4>
-          <div class="evidence-grid">${imgs.map(url=>`<a href="${url}" target="_blank"><img src="${url}" class="evidence-img" alt="bukti"/></a>`).join('')}</div></div>` : ''}
+          <div class="evidence-grid">${imgs.map(url => `<a href="${url}" target="_blank"><img src="${url}" class="evidence-img" alt="bukti"/></a>`).join('')}</div></div>` : ''}
         <div class="detail-section">
           <h4>Tanda Tangan Client</h4>
-          <p style="font-size:13px;margin-bottom:8px">${fd.client_nama||'-'} · ${fd.client_telp||'-'}</p>
+          <p style="font-size:13px;margin-bottom:8px">${fd.client_nama || '-'} · ${fd.client_telp || '-'}</p>
           ${signature_b64 && signature_b64.length > 50 ? `<img src="${signature_b64}" class="sig-img" alt="tanda tangan"/>` : '<p style="color:var(--muted);font-size:13px">Tidak ada tanda tangan</p>'}
         </div>
       `;
@@ -691,36 +1285,45 @@
     }
   </script>
 
-<!-- ── WA MODAL ──────────────────────────────────────────────────── -->
-<div id="waModal" class="modal-overlay" onclick="if(event.target===this)closeWaModal()">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <h3>📲 Kirim Slip via WhatsApp</h3>
-      <button class="modal-close" onclick="closeWaModal()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:20px">
-      <p style="margin-bottom:16px;color:var(--muted);font-size:13px">Client: <strong id="waClientName"></strong></p>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:14px">
-        <input type="checkbox" id="waUseFormPhone" style="width:16px;height:16px;accent-color:var(--green-500);cursor:pointer" />
-        Ambil No. HP dari form
-      </label>
-      <div class="form-group" style="margin-bottom:0">
-        <label style="font-size:13px">No. WhatsApp Tujuan</label>
-        <input type="tel" id="waPhoneInput" placeholder="08xxxxxxxxxx" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none" />
-        <small style="color:var(--muted);font-size:11px">Kosongkan jika ingin pilih kontak manual di WhatsApp</small>
+  <!-- ── WA MODAL ──────────────────────────────────────────────────── -->
+  <div id="waModal" class="modal-overlay" onclick="if(event.target===this)closeWaModal()">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <h3>📲 Kirim Slip via WhatsApp</h3>
+        <button class="modal-close" onclick="closeWaModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:20px">
+        <p style="margin-bottom:16px;color:var(--muted);font-size:13px">Client: <strong id="waClientName"></strong></p>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:14px">
+          <input type="checkbox" id="waUseFormPhone"
+            style="width:16px;height:16px;accent-color:var(--green-500);cursor:pointer" />
+          Ambil No. HP dari form
+        </label>
+        <div class="form-group" style="margin-bottom:0">
+          <label style="font-size:13px">No. WhatsApp Tujuan</label>
+          <input type="tel" id="waPhoneInput" placeholder="08xxxxxxxxxx"
+            style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none" />
+          <small style="color:var(--muted);font-size:11px">Kosongkan jika ingin pilih kontak manual di WhatsApp</small>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--border)">
+        <button class="btn-sm" onclick="closeWaModal()" style="background:#f1f5f9">Batal</button>
+        <button class="btn-sm" onclick="confirmSendWA()" style="background:#25d366;color:white;font-weight:600">📲 Kirim
+          via WA</button>
       </div>
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px;border-top:1px solid var(--border)">
-      <button class="btn-sm" onclick="closeWaModal()" style="background:#f1f5f9">Batal</button>
-      <button class="btn-sm" onclick="confirmSendWA()" style="background:#25d366;color:white;font-weight:600">📲 Kirim via WA</button>
-    </div>
   </div>
-</div>
 
-<style>
-  #waModal { display:none; }
-  #waModal.open { display:flex; }
-</style>
+  <style>
+    #waModal {
+      display: none;
+    }
+
+    #waModal.open {
+      display: flex;
+    }
+  </style>
 
 </body>
+
 </html>
