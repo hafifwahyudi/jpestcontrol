@@ -7,10 +7,11 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  sameSite: 'strict',
+  sameSite: 'lax',
   maxAge: 8 * 60 * 60 * 1000,
   secure: process.env.NODE_ENV === 'production',
 };
+
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;

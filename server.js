@@ -6,6 +6,7 @@ const { initDb } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', 1); // cPanel / LiteSpeed proxy
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
