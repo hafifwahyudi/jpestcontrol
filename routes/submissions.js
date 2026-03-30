@@ -126,17 +126,20 @@ router.put('/:id', requireAuth, upload.array('evidence_images', 10), async (req,
     const formData     = JSON.parse(req.body.form_data || existing.form_data);
     const signatureB64 = req.body.signature_b64 !== undefined ? (req.body.signature_b64 || null) : existing.signature_b64;
 
-    // Start with existing images, then add new uploads
-    let imageUrls = JSON.parse(existing.image_urls || '[]');
+    // Determine base images to keep
+    let imageUrls = [];
+    if (req.body.kept_images) {
+      imageUrls = JSON.parse(req.body.kept_images);
+    } else {
+      imageUrls = JSON.parse(existing.image_urls || '[]');
+    }
+
+    // Add new uploads
     if (req.files?.length) {
       for (const file of req.files) {
         const url = await uploadImage(file.buffer, 'pest-control/evidence');
         imageUrls.push(url);
       }
-    }
-    // Client can send kept_images to remove specific images
-    if (req.body.kept_images) {
-      imageUrls = JSON.parse(req.body.kept_images);
     }
 
     await run(
