@@ -712,6 +712,7 @@
     <!-- TABS -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('submissions')" id="tab-submissions">📋 Submissions</button>
+      <button class="tab-btn" onclick="switchTab('clients')" id="tab-clients">👤 Data Client</button>
       <button class="tab-btn" onclick="switchTab('karyawan')" id="tab-karyawan">👥 Manajemen Karyawan</button>
     </div>
 
@@ -805,6 +806,44 @@
       </div>
     </div> <!-- /section-karyawan -->
 
+    <!-- CLIENTS TAB -->
+    <div id="section-clients" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:16px;font-weight:700;color:var(--green-800)">Daftar Client</h2>
+          <p style="font-size:12px;color:var(--muted)">Kelola data client / customer</p>
+        </div>
+        <button class="nav-btn nav-btn-accent" onclick="openClientModal()">+ Tambah Client</button>
+      </div>
+      <div class="toolbar" style="margin-bottom:16px">
+        <input class="search-box" type="text" id="clientSearchInput" placeholder="Cari nama, alamat, no HP..." />
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama</th>
+                <th>Alamat</th>
+                <th>No HP</th>
+                <th>Dibuat Oleh</th>
+                <th>Diubah Oleh</th>
+                <th>Dibuat</th>
+                <th>Diubah</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="clientTableBody">
+              <tr>
+                <td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> <!-- /section-clients -->
+
   </div>
 
   <!-- USER MODAL -->
@@ -853,6 +892,43 @@
     </div>
   </div>
 
+  <!-- CLIENT MODAL -->
+  <div class="modal-overlay" id="clientModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <h3 id="clientModalTitle">Tambah Client</h3>
+        <button class="modal-close" onclick="closeClientModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="clientForm" onsubmit="submitClientForm(event)">
+          <input type="hidden" id="clientId" />
+          <div class="form-row single">
+            <div>
+              <label>Nama *</label>
+              <input type="text" id="cNama" placeholder="Nama lengkap / perusahaan" required />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div>
+              <label>Alamat</label>
+              <input type="text" id="cAlamat" placeholder="Alamat lengkap" />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div>
+              <label>No Handphone</label>
+              <input type="text" id="cNoHp" placeholder="08xxxxxxxxxx" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeClientModal()">Batal</button>
+            <button type="submit" class="btn-save" id="saveClientBtn">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- DETAIL MODAL -->
   <div class="modal-overlay" id="detailModal">
     <div class="modal">
@@ -872,11 +948,14 @@
 
     // ── TABS ──────────────────────────────────────────────────────
     function switchTab(name) {
-      ['submissions', 'karyawan'].forEach(t => {
-        document.getElementById(`section-${t}`).style.display = t === name ? '' : 'none';
-        document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+      ['submissions', 'karyawan', 'clients'].forEach(t => {
+        const section = document.getElementById(`section-${t}`);
+        const tab = document.getElementById(`tab-${t}`);
+        if (section) section.style.display = t === name ? '' : 'none';
+        if (tab) tab.classList.toggle('active', t === name);
       });
       if (name === 'karyawan') loadUsers();
+      if (name === 'clients') loadClients();
     }
 
     // ── AUTH ───────────────────────────────────────────────────────────
@@ -886,7 +965,7 @@
       if (!r.ok) { window.location.href = '/'; return; }
       const d = await r.json();
       currentUser = d.user;
-      // Hide Karyawan management tab for non-admin
+      // Hide Karyawan management tab for non-admin (clients tab visible to all)
       if (currentUser.role !== 'admin') {
         document.getElementById('tab-karyawan').style.display = 'none';
       }
@@ -1183,6 +1262,105 @@
 
     document.getElementById('userModal').addEventListener('click', e => {
       if (e.target === e.currentTarget) closeUserModal();
+    });
+
+    // ── CLIENT MANAGEMENT ─────────────────────────────────────────────
+    let clientSearchTimer;
+    let editingClientId = null;
+
+    async function loadClients() {
+      const search = document.getElementById('clientSearchInput').value;
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/clients?${params}`);
+      if (!res.ok) return;
+      const { data } = await res.json();
+      const tbody = document.getElementById('clientTableBody');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">👤</div><p>Belum ada data client</p></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map((c, i) => {
+        const createdAt = new Date(c.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        const updatedAt = c.updated_at ? new Date(c.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+        const canDelete = currentUser?.role === 'admin' || c.created_by === currentUser?.id;
+        return `<tr>
+          <td style="color:var(--muted);font-size:12px">${i + 1}</td>
+          <td><strong>${c.nama}</strong></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.alamat || '-'}</td>
+          <td style="font-size:13px">${c.no_hp || '-'}</td>
+          <td style="font-size:12px;color:var(--muted)">${c.created_by_name || c.created_by_username || '-'}</td>
+          <td style="font-size:12px;color:var(--muted)">${c.updated_by_name || c.updated_by_username || '-'}</td>
+          <td style="font-size:12px;color:var(--muted)">${createdAt}</td>
+          <td style="font-size:11px;white-space:nowrap">${updatedAt ? `<span style="color:#b45309">${updatedAt}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-sm btn-detail" onclick="openClientModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">✏️ Edit</button>
+              ${canDelete ? `<button class="btn-sm btn-del" onclick="deleteClient(${c.id}, '${c.nama.replace(/'/g, '')}')">🗑</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('clientSearchInput').addEventListener('input', () => {
+      clearTimeout(clientSearchTimer);
+      clientSearchTimer = setTimeout(() => loadClients(), 400);
+    });
+
+    function openClientModal(client) {
+      editingClientId = client?.id || null;
+      document.getElementById('clientModalTitle').textContent = client ? 'Edit Client' : 'Tambah Client';
+      document.getElementById('clientId').value = client?.id || '';
+      document.getElementById('cNama').value = client?.nama || '';
+      document.getElementById('cAlamat').value = client?.alamat || '';
+      document.getElementById('cNoHp').value = client?.no_hp || '';
+      document.getElementById('clientModal').classList.add('open');
+    }
+
+    function closeClientModal() {
+      document.getElementById('clientModal').classList.remove('open');
+      editingClientId = null;
+    }
+
+    async function submitClientForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveClientBtn');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+      const body = {
+        nama: document.getElementById('cNama').value,
+        alamat: document.getElementById('cAlamat').value,
+        no_hp: document.getElementById('cNoHp').value,
+      };
+
+      let res;
+      if (editingClientId) {
+        res = await fetch(`/api/clients/${editingClientId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      } else {
+        res = await fetch('/api/clients', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      }
+
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Simpan';
+      if (res.ok) {
+        showToast(editingClientId ? '✅ Data client diperbarui' : '✅ Client berhasil ditambahkan', 'success');
+        closeClientModal();
+        loadClients();
+      } else {
+        showToast('❌ ' + (data.error || 'Gagal menyimpan'), 'error');
+      }
+    }
+
+    async function deleteClient(id, nama) {
+      if (!confirm(`Hapus client "${nama}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+      const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      if (res.ok) { showToast('✅ Client dihapus', 'success'); loadClients(); }
+      else { const d = await res.json(); showToast('❌ ' + (d.error || 'Gagal menghapus'), 'error'); }
+    }
+
+    document.getElementById('clientModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeClientModal();
     });
 
     // ── DETAIL MODAL ───────────────────────────────────────────────────

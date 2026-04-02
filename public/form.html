@@ -45,12 +45,13 @@
     /* CARD */
     .card {
       background: var(--card); border-radius: 16px; margin-bottom: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: relative;
     }
     .card-header {
       background: var(--green-800); color: #fff;
       padding: 12px 18px; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
       display: flex; align-items: center; gap: 8px;
+      border-radius: 16px 16px 0 0;
     }
     .card-body { padding: 18px; }
 
@@ -176,6 +177,57 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .progress-bar { height: 3px; background: var(--green-100); border-radius: 2px; margin-top: 8px; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green-600), var(--accent)); width: 0%; transition: width 0.3s ease; }
+
+    /* SEARCHABLE DROPDOWN */
+    .client-dropdown-container { position: relative; width: 100%; }
+    .client-dropdown-trigger {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 36px 10px 12px;
+      font-size: 14px; font-family: inherit; color: var(--text); background: #fafcfb;
+      cursor: pointer; outline: none; transition: all 0.2s; text-align: left;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      appearance: none; position: relative;
+    }
+    .client-dropdown-trigger::after {
+      content: '▼'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; color: var(--muted); pointer-events: none;
+    }
+    .client-dropdown-trigger:focus, .client-dropdown-trigger.open {
+      border-color: var(--green-400); background: #fff;
+      box-shadow: 0 0 0 3px rgba(45,122,79,0.1);
+    }
+    .client-dropdown-panel {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid var(--green-400);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 50; max-height: 280px; display: none; flex-direction: column;
+      overflow: hidden;
+    }
+    .client-dropdown-panel.open { display: flex; }
+    .client-dropdown-search {
+      padding: 10px 12px; border: none; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-family: inherit; outline: none; background: #fafcfb;
+    }
+    .client-dropdown-list {
+      overflow-y: auto; flex: 1; max-height: 220px;
+    }
+    .client-dropdown-item {
+      padding: 10px 14px; font-size: 13px; cursor: pointer; transition: background 0.1s;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .client-dropdown-item:last-child { border-bottom: none; }
+    .client-dropdown-item:hover { background: var(--green-100); }
+    .client-dropdown-item.selected { background: var(--green-100); font-weight: 600; color: var(--green-800); }
+    .client-dropdown-item .item-name { font-weight: 600; }
+    .client-dropdown-item .item-addr { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .client-dropdown-empty {
+      padding: 20px 14px; text-align: center; font-size: 13px; color: var(--muted);
+    }
+    .client-dropdown-clear {
+      position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 14px; color: var(--muted);
+      padding: 2px 6px; border-radius: 50%; transition: all 0.15s;
+    }
+    .client-dropdown-clear:hover { background: #fde8e8; color: #9e2c2c; }
   </style>
 </head>
 <body>
@@ -197,6 +249,15 @@
       <div class="card">
         <div class="card-header">📋 Informasi Layanan</div>
         <div class="card-body">
+          <!-- Use registered client checkbox -->
+          <div style="margin-bottom:14px">
+            <label class="check-item" style="border-color:var(--green-400);background:var(--green-100)">
+              <input type="checkbox" id="useRegisteredClient" />
+              <span class="check-box"></span>
+              <span class="check-label" style="font-size:13px">👤 Gunakan data client terdaftar</span>
+            </label>
+          </div>
+
           <div class="grid-3">
             <div class="form-group">
               <label>No. Slip</label>
@@ -206,13 +267,36 @@
               <label>Tanggal</label>
               <input type="date" name="tanggal" id="tanggal" required />
             </div>
-            <div class="form-group full">
+
+            <!-- Client dropdown (hidden by default) -->
+            <div class="form-group full" id="clientDropdownGroup" style="display:none">
+              <label>Pilih Client *</label>
+              <div class="client-dropdown-container">
+                <button type="button" class="client-dropdown-trigger" id="clientDropdownTrigger">-- Pilih client --</button>
+                <button type="button" class="client-dropdown-clear" id="clientDropdownClear" style="display:none" title="Hapus pilihan">✕</button>
+                <div class="client-dropdown-panel" id="clientDropdownPanel">
+                  <input type="text" class="client-dropdown-search" id="clientDropdownSearch" placeholder="Cari nama atau alamat..." />
+                  <div class="client-dropdown-list" id="clientDropdownList"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual input fields (shown by default) -->
+            <div class="form-group full" id="namaClientGroup">
               <label>Nama Client *</label>
               <input type="text" name="nama_client" id="nama_client" placeholder="Nama lengkap / perusahaan" required />
             </div>
-            <div class="form-group full">
+            <div class="form-group full" id="alamatGroup">
               <label>Alamat *</label>
               <input type="text" name="alamat" id="alamat" placeholder="Alamat lengkap lokasi" required />
+            </div>
+            <!-- Save as new client checkbox (shown only in manual mode) -->
+            <div class="form-group full" id="saveAsNewClientGroup">
+              <label class="check-item" style="display:inline-flex">
+                <input type="checkbox" id="saveAsNewClient" />
+                <span class="check-box"></span>
+                <span class="check-label" style="font-size:12.5px">💾 Simpan sebagai client baru</span>
+              </label>
             </div>
           </div>
         </div>
@@ -485,6 +569,128 @@
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/';
+    });
+
+    // ── CLIENT DROPDOWN LOGIC ───────────────────────────────────────────
+    let clientsList = [];
+    let selectedClientId = null;
+    let selectedClient = null;
+
+    async function fetchClients() {
+      try {
+        const res = await fetch('/api/clients');
+        if (!res.ok) return;
+        const { data } = await res.json();
+        clientsList = data || [];
+      } catch (e) {
+        console.error('Failed to fetch clients', e);
+      }
+    }
+
+    function renderClientDropdownList(filter = '') {
+      const list = document.getElementById('clientDropdownList');
+      const filtered = clientsList.filter(c => {
+        const q = filter.toLowerCase();
+        return c.nama.toLowerCase().includes(q) || (c.alamat || '').toLowerCase().includes(q) || (c.no_hp || '').toLowerCase().includes(q);
+      });
+      if (!filtered.length) {
+        list.innerHTML = '<div class="client-dropdown-empty">Tidak ada client ditemukan</div>';
+        return;
+      }
+      list.innerHTML = filtered.map(c => `
+        <div class="client-dropdown-item ${selectedClientId === c.id ? 'selected' : ''}" data-id="${c.id}">
+          <div class="item-name">${c.nama}</div>
+          <div class="item-addr">${c.alamat || '-'} · ${c.no_hp || '-'}</div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.client-dropdown-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const cid = parseInt(el.dataset.id);
+          const client = clientsList.find(c => c.id === cid);
+          if (client) selectClient(client);
+        });
+      });
+    }
+
+    function selectClient(client) {
+      selectedClientId = client.id;
+      selectedClient = client;
+      const trigger = document.getElementById('clientDropdownTrigger');
+      trigger.textContent = `${client.nama} — ${client.alamat || '-'}`;
+      document.getElementById('clientDropdownPanel').classList.remove('open');
+      trigger.classList.remove('open');
+      document.getElementById('clientDropdownClear').style.display = '';
+
+      // Auto-populate signature fields
+      document.getElementById('client_nama').value = client.nama;
+      document.getElementById('client_telp').value = client.no_hp || '';
+    }
+
+    function clearClientSelection() {
+      selectedClientId = null;
+      selectedClient = null;
+      document.getElementById('clientDropdownTrigger').textContent = '-- Pilih client --';
+      document.getElementById('clientDropdownClear').style.display = 'none';
+      document.getElementById('client_nama').value = '';
+      document.getElementById('client_telp').value = '';
+    }
+
+    // Toggle dropdown
+    document.getElementById('clientDropdownTrigger').addEventListener('click', () => {
+      const panel = document.getElementById('clientDropdownPanel');
+      const trigger = document.getElementById('clientDropdownTrigger');
+      const isOpen = panel.classList.contains('open');
+      if (isOpen) {
+        panel.classList.remove('open');
+        trigger.classList.remove('open');
+      } else {
+        panel.classList.add('open');
+        trigger.classList.add('open');
+        const search = document.getElementById('clientDropdownSearch');
+        search.value = '';
+        renderClientDropdownList();
+        search.focus();
+      }
+    });
+
+    // Search within dropdown
+    document.getElementById('clientDropdownSearch').addEventListener('input', (e) => {
+      renderClientDropdownList(e.target.value);
+    });
+
+    // Clear selection
+    document.getElementById('clientDropdownClear').addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearClientSelection();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const container = document.querySelector('.client-dropdown-container');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('clientDropdownPanel').classList.remove('open');
+        document.getElementById('clientDropdownTrigger').classList.remove('open');
+      }
+    });
+
+    // Toggle between registered client mode and manual mode
+    document.getElementById('useRegisteredClient').addEventListener('change', async function() {
+      const isChecked = this.checked;
+      document.getElementById('clientDropdownGroup').style.display = isChecked ? '' : 'none';
+      document.getElementById('namaClientGroup').style.display = isChecked ? 'none' : '';
+      document.getElementById('alamatGroup').style.display = isChecked ? 'none' : '';
+      document.getElementById('saveAsNewClientGroup').style.display = isChecked ? 'none' : '';
+
+      // Toggle required attribute
+      document.getElementById('nama_client').required = !isChecked;
+      document.getElementById('alamat').required = !isChecked;
+
+      if (isChecked) {
+        await fetchClients();
+        renderClientDropdownList();
+      } else {
+        clearClientSelection();
+      }
     });
 
     // ── PEST TABLE ─────────────────────────────────────────────────────
@@ -877,16 +1083,44 @@
       Array.from(filesStore.files).forEach(f => fd.append('evidence_images', f));
 
       progress.style.width = '60%';
+
+      // Save as new client if checkbox is checked (only in manual mode, create mode)
+      const useRegistered = document.getElementById('useRegisteredClient').checked;
+      const saveAsNew = document.getElementById('saveAsNewClient').checked;
+      if (!useRegistered && saveAsNew && formData.nama_client) {
+        try {
+          await fetch('/api/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nama: formData.nama_client,
+              alamat: formData.alamat,
+              no_hp: formData.client_telp || '',
+            }),
+          });
+        } catch (e) {
+          console.warn('Auto-save client failed:', e);
+        }
+      }
+
+      // If using registered client, add client_id to form data
+      if (useRegistered && selectedClientId) {
+        formData.client_id = selectedClientId;
+        formData.nama_client = selectedClient?.nama || '';
+        formData.alamat = selectedClient?.alamat || '';
+        fd.set('form_data', JSON.stringify(formData));
+      }
       try {
-        let res;
+        let url, method;
         if (editId) {
-          // Edit mode — POST (bypassing PUT limitations on some hostings)
+          // Edit mode
           fd.append('kept_images', JSON.stringify(keptImages));
           fd.set('signature_b64', sigPad.isEmpty() ? (existingSigB64 || '') : sigPad.toDataURL('image/png'));
-          res = await fetch(`/api/submissions/edit/${editId}`, { method: 'POST', body: fd });
+          url = `/api/submissions/edit/${editId}`;
         } else {
-          res = await fetch('/api/submissions', { method: 'POST', body: fd });
+          url = '/api/submissions';
         }
+        const res = await fetch(url, { method: 'POST', body: fd });
         const data = await res.json();
         progress.style.width = '100%';
         if (res.ok) {

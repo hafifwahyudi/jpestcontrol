@@ -26,6 +26,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/submissions', require('./routes/submissions'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/clients', require('./routes/clients'));
 
 
 // Catch-all: serve index.html for SPA-style navigation

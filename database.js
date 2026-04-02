@@ -53,6 +53,19 @@ async function initDb() {
     ) CHARACTER SET utf8mb4
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clients (
+      id            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      nama          VARCHAR(255) NOT NULL,
+      alamat        TEXT,
+      no_hp         VARCHAR(50),
+      created_by    INT,
+      updated_by    INT,
+      created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at    TIMESTAMP NULL DEFAULT NULL
+    ) CHARACTER SET utf8mb4
+  `);
+
   // Seed default admin
   const existing = await get('SELECT id FROM users WHERE username = ?', ['admin']);
   if (!existing) {
