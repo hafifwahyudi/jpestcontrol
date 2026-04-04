@@ -694,7 +694,7 @@
 
 <body>
   <nav>
-    <div class="nav-brand"><span>🛡️</span> Jember Pest Control</div>
+    <div class="nav-brand"><img src="logo.png" style="width: 25px; height: 25px; object-fit: contain;" alt="Logo" /> Jember Pest Control</div>
     <div class="nav-actions">
       <button class="nav-btn nav-btn-accent" onclick="window.location.href='/form.html'">+ Slip Baru</button>
       <button class="nav-btn nav-btn-ghost" id="logoutBtn">Keluar</button>
@@ -1398,6 +1398,7 @@
             ${fd.one_time_treatment ? '<span class="badge badge-green">One Time Treatment</span>' : ''}
             ${fd.reguler_treatment ? '<span class="badge badge-blue">Reguler Treatment</span>' : ''}
             ${fd.re_treatment ? '<span class="badge" style="background:#fff3cd;color:#856404;border:1px solid #ffc107">Re-Treatment</span>' : ''}
+            ${fd.supervisi ? '<span class="badge badge-purple" style="background:#e0ccff;color:#4a148c;border:1px solid #b388ff">Supervisi</span>' : ''}
           </p>
         </div>
         <div class="detail-section">
@@ -1408,10 +1409,10 @@
         <div class="detail-section">
           <h4>Monitoring</h4>
           <div class="detail-grid">
-            <div class="detail-item"><label>Rat Box</label><p>${fd.rat_box || 0} titik</p></div>
-            <div class="detail-item"><label>Glue Trapping</label><p>${fd.glue_trapping || 0} titik</p></div>
-            <div class="detail-item"><label>Glue Tambahan</label><p>${fd.glue_tambahan || 0} titik</p></div>
-            <div class="detail-item"><label>Perangkap Masal</label><p>${fd.perangkap_masal || 0} titik</p></div>
+            <div class="detail-item"><label>Glue Trap (Lem)</label><p>${fd.glue_trap ?? fd.glue_trapping ?? 0} titik</p></div>
+            <div class="detail-item"><label>Baiting (Umpan Racun)</label><p>${fd.baiting ?? fd.rat_box ?? 0} titik</p></div>
+            <div class="detail-item"><label>Fly Catcher</label><p>${fd.fly_catcher ?? 0} titik</p></div>
+            <div class="detail-item"><label>Live Trap</label><p>${fd.live_trap ?? fd.perangkap_masal ?? 0} titik</p></div>
             ${(fd.custom_monitors || []).map(m => `<div class="detail-item"><label>${m.label}</label><p>${m.count || 0} titik</p></div>`).join('')}
           </div>
         </div>

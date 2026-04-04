@@ -109,10 +109,11 @@ async function buildSlipPages(doc, row, isFirst) {
     .text(`${chk(fd.one_time_treatment)} One Time Treatment`, 52, y + 6)
     .text(`${chk(fd.reguler_treatment)} Reguler Treatment`, 52 + half + 10, y + 6);
   y += 30;
-  // Re-Treatment row
-  doc.rect(45, y, W, 22).fill(LGT);
+  // Re-Treatment & Supervisi row
+  doc.rect(45, y, half, 22).fill(LGT); doc.rect(45 + half + 10, y, half, 22).fill(LGT);
   doc.fillColor('#111').fontSize(9).font('Helvetica')
-    .text(`${chk(fd.re_treatment)} Re-Treatment`, 52, y + 6);
+    .text(`${chk(fd.re_treatment)} Re-Treatment`, 52, y + 6)
+    .text(`${chk(fd.supervisi)} Supervisi`, 52 + half + 10, y + 6);
   y += 30;
   doc.rect(45, y, half, 28).fill(LGT); doc.rect(45 + half + 10, y, half, 28).fill(LGT);
   doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
@@ -157,10 +158,10 @@ async function buildSlipPages(doc, row, isFirst) {
 
   // ── MONITORING ───────────────────────────────────────────────────────
   y = ensureSpace(doc, y, 100); section('JUMLAH MONITORING');
-  [['1. Rat Box (Umpan Racun dgn Box)', fd.rat_box],
-  ['2. Glue Trapping (Lem)', fd.glue_trapping],
-  ['3. Glue Trapping Tambahan', fd.glue_tambahan],
-  ['4. Perangkap Masal', fd.perangkap_masal],
+  [['1. Glue Trap (Lem)', fd.glue_trap ?? fd.glue_trapping],
+  ['2. Baiting (Umpan Racun)', fd.baiting ?? fd.rat_box],
+  ['3. Fly Catcher', fd.fly_catcher ?? 0],
+  ['4. Live Trap', fd.live_trap ?? fd.perangkap_masal],
   ...(fd.custom_monitors || []).map((m, i) => [`${5 + i}. ${m.label}`, m.count])
   ].forEach(([label, val]) => {
     doc.rect(45, y, W, 16).fill(LGT);
@@ -406,7 +407,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   const headers = [
     '#', 'Tanggal', 'No. Slip', 'Nama Client', 'Alamat',
     'Jenis Kunjungan', 'Waktu Masuk', 'Waktu Keluar',
-    'Sasaran Hama', 'Rat Box', 'Glue Trapping', 'Glue Tambahan', 'Perangkap Masal',
+    'Sasaran Hama', 'Glue Trap', 'Baiting', 'Fly Catcher', 'Live Trap',
     'Chemical 1', 'Dosis 1', 'Chemical 2', 'Dosis 2',
     'Catatan', 'Nama Client (TTD)', 'Telp Client', 'Foto Count',
     'Disubmit Oleh', 'Waktu Submit',
@@ -426,7 +427,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
     const fd = JSON.parse(row.form_data || '{}');
     const imgUrls = JSON.parse(row.image_urls || '[]');
     const activePests = PESTS.filter(p => fd[`pest_${p}`]).map(p => `${PEST_LABELS[p]}(${fd[`method_${p}`] || '-'})`).join(', ');
-    const visitType = [fd.one_time_treatment && 'One Time', fd.reguler_treatment && 'Reguler'].filter(Boolean).join(', ') || '-';
+    const visitType = [fd.one_time_treatment && 'One Time', fd.reguler_treatment && 'Reguler', fd.re_treatment && 'Re-Treatment', fd.supervisi && 'Supervisi'].filter(Boolean).join(', ') || '-';
 
     const r = ws.addRow([
       idx + 1,
@@ -438,10 +439,10 @@ router.get('/export/excel', requireAuth, async (req, res) => {
       fd.time_in || '-',
       fd.time_out || '-',
       activePests || '-',
-      Number(fd.rat_box) || 0,
-      Number(fd.glue_trapping) || 0,
-      Number(fd.glue_tambahan) || 0,
-      Number(fd.perangkap_masal) || 0,
+      Number(fd.glue_trap ?? fd.glue_trapping) || 0,
+      Number(fd.baiting ?? fd.rat_box) || 0,
+      Number(fd.fly_catcher) || 0,
+      Number(fd.live_trap ?? fd.perangkap_masal) || 0,
       fd.chemical1_name || '-',
       fd.chemical1_dose || '-',
       fd.chemical2_name || '-',
@@ -576,10 +577,10 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
   if (!PESTS.some(p => fd[`pest_${p}`])) addField('(tidak ada sasaran)', '-');
 
   addSection('MONITORING');
-  addField('Rat Box', `${fd.rat_box || 0} titik`);
-  addField('Glue Trapping', `${fd.glue_trapping || 0} titik`);
-  addField('Glue Tambahan', `${fd.glue_tambahan || 0} titik`);
-  addField('Perangkap Masal', `${fd.perangkap_masal || 0} titik`);
+  addField('Glue Trap (Lem)', `${fd.glue_trap ?? fd.glue_trapping ?? 0} titik`);
+  addField('Baiting (Umpan Racun)', `${fd.baiting ?? fd.rat_box ?? 0} titik`);
+  addField('Fly Catcher', `${fd.fly_catcher ?? 0} titik`);
+  addField('Live Trap', `${fd.live_trap ?? fd.perangkap_masal ?? 0} titik`);
 
   addSection('BAHAN AKTIF CHEMICAL');
   addField('Bahan Aktif 1', fd.chemical1_name || '-');

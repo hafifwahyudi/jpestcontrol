@@ -86,7 +86,7 @@
       transition: all 0.15s; user-select: none;
     }
     .check-item:hover { border-color: var(--green-400); background: var(--green-100); }
-    .check-item input[type="checkbox"] { display: none; }
+    .check-item input[type="checkbox"], .check-item input[type="radio"] { display: none; }
     .check-box {
       width: 18px; height: 18px; border-radius: 5px;
       border: 2px solid #ccc; display: flex; align-items: center; justify-content: center;
@@ -94,6 +94,14 @@
     }
     .check-item input:checked ~ .check-box { background: var(--green-600); border-color: var(--green-600); }
     .check-item input:checked ~ .check-box::after { content: '✓'; }
+
+    .radio-box {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid #ccc; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .check-item input[type="radio"]:checked ~ .radio-box { border-color: var(--green-600); border-width: 5px; }
+
     .check-label { font-size: 13px; font-weight: 500; }
 
     /* PEST TABLE */
@@ -232,7 +240,7 @@
 </head>
 <body>
   <nav>
-    <div class="nav-brand"><span>🛡️</span> Jember Pest Control</div>
+    <div class="nav-brand"><img src="logo.png" style="width: 25px; height: 25px; object-fit: contain;" alt="Logo" /> Jember Pest Control</div>
     <div class="nav-actions">
       <button class="nav-btn nav-btn-ghost" onclick="window.location.href='/dashboard.html'">📋 Dashboard</button>
       <button class="nav-btn nav-btn-ghost" id="logoutBtn">Keluar</button>
@@ -308,19 +316,24 @@
         <div class="card-body">
           <div class="check-grid" style="margin-bottom:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
             <label class="check-item">
-              <input type="checkbox" name="one_time_treatment" id="one_time_treatment" />
-              <span class="check-box"></span>
+              <input type="radio" name="jenis_kunjungan" id="one_time_treatment" />
+              <span class="radio-box"></span>
               <span class="check-label">One Time Treatment</span>
             </label>
             <label class="check-item">
-              <input type="checkbox" name="reguler_treatment" id="reguler_treatment" />
-              <span class="check-box"></span>
+              <input type="radio" name="jenis_kunjungan" id="reguler_treatment" />
+              <span class="radio-box"></span>
               <span class="check-label">Reguler Treatment</span>
             </label>
             <label class="check-item">
-              <input type="checkbox" name="re_treatment" id="re_treatment" />
-              <span class="check-box"></span>
+              <input type="radio" name="jenis_kunjungan" id="re_treatment" />
+              <span class="radio-box"></span>
               <span class="check-label">Re-Treatment</span>
+            </label>
+            <label class="check-item">
+              <input type="radio" name="jenis_kunjungan" id="supervisi" />
+              <span class="radio-box"></span>
+              <span class="check-label">Supervisi</span>
             </label>
           </div>
           <div class="grid-2">
@@ -363,20 +376,20 @@
         <div class="card-body">
           <div id="monitoringBody">
           <div class="monitor-row">
-            <div class="monitor-label">1. Rat Box (Umpan Racun dgn Box)</div>
-            <div class="monitor-input"><input type="number" name="rat_box" id="rat_box" min="0" value="0" /><span class="monitor-unit">titik</span></div>
+            <div class="monitor-label">1. Glue Trap (Lem)</div>
+            <div class="monitor-input"><input type="number" name="glue_trap" id="glue_trap" min="0" value="0" /><span class="monitor-unit">titik</span></div>
           </div>
           <div class="monitor-row">
-            <div class="monitor-label">2. Glue Trapping (Lem)</div>
-            <div class="monitor-input"><input type="number" name="glue_trapping" id="glue_trapping" min="0" value="0" /><span class="monitor-unit">titik</span></div>
+            <div class="monitor-label">2. Baiting (Umpan Racun )</div>
+            <div class="monitor-input"><input type="number" name="baiting" id="baiting" min="0" value="0" /><span class="monitor-unit">titik</span></div>
           </div>
           <div class="monitor-row">
-            <div class="monitor-label">3. Glue Trapping Tambahan</div>
-            <div class="monitor-input"><input type="number" name="glue_tambahan" id="glue_tambahan" min="0" value="0" /><span class="monitor-unit">titik</span></div>
+            <div class="monitor-label">3. Fly Catcher</div>
+            <div class="monitor-input"><input type="number" name="fly_catcher" id="fly_catcher" min="0" value="0" /><span class="monitor-unit">titik</span></div>
           </div>
           <div class="monitor-row">
-            <div class="monitor-label">4. Perangkap Masal</div>
-            <div class="monitor-input"><input type="number" name="perangkap_masal" id="perangkap_masal" min="0" value="0" /><span class="monitor-unit">titik</span></div>
+            <div class="monitor-label">4. Live Trap</div>
+            <div class="monitor-input"><input type="number" name="live_trap" id="live_trap" min="0" value="0" /><span class="monitor-unit">titik</span></div>
           </div>
           <div id="customMonitorContainer"></div>
           </div>
@@ -839,7 +852,6 @@
 
       // Fill text fields
       ['no','tanggal','nama_client','alamat','time_in','time_out',
-       'rat_box','glue_trapping','glue_tambahan','perangkap_masal',
        'chemical1_name','chemical1_dose','chemical2_name','chemical2_dose',
        'chemical3_name','chemical3_dose','chemical4_name','chemical4_dose',
        'catatan','client_nama','client_telp'].forEach(f => {
@@ -847,8 +859,14 @@
         if (el) el.value = fd[f] || '';
       });
 
-      // Checkboxes
-      ['one_time_treatment','reguler_treatment',
+      // Backward compatibility for monitor fields
+      document.getElementById('glue_trap').value = fd.glue_trap ?? fd.glue_trapping ?? 0;
+      document.getElementById('baiting').value = fd.baiting ?? fd.rat_box ?? 0;
+      document.getElementById('fly_catcher').value = fd.fly_catcher ?? 0;
+      document.getElementById('live_trap').value = fd.live_trap ?? fd.perangkap_masal ?? 0;
+
+      // Checkboxes & Radios
+      ['one_time_treatment','reguler_treatment','re_treatment','supervisi',
        'rec_tumpukan','rec_pintu','rec_makanan','rec_air','rec_sampah'].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.checked = !!fd[f];
@@ -862,9 +880,6 @@
         if (mth) mth.value = fd[`method_${k}`] || '';
       });
 
-      // Re-treatment
-      const reTrEl = document.getElementById('re_treatment');
-      if (reTrEl) { reTrEl.checked = !!fd.re_treatment; }
 
       // Custom pests
       (fd.custom_pests || []).forEach(p => addCustomPest(p.name, p.method, p.checked));
@@ -1033,14 +1048,14 @@
       const formData = {};
       const form = e.target;
       const fields = ['no','tanggal','nama_client','alamat','time_in','time_out',
-        'rat_box','glue_trapping','glue_tambahan','perangkap_masal',
+        'glue_trap','baiting','fly_catcher','live_trap',
         'chemical1_name','chemical1_dose','chemical2_name','chemical2_dose',
         'chemical3_name','chemical3_dose','chemical4_name','chemical4_dose',
         'catatan','client_nama','client_telp'];
       fields.forEach(f => { formData[f] = form[f]?.value || ''; });
 
-      // Checkboxes
-      ['one_time_treatment','reguler_treatment','re_treatment',
+      // Checkboxes & Radios
+      ['one_time_treatment','reguler_treatment','re_treatment','supervisi',
        'rec_tumpukan','rec_pintu','rec_makanan','rec_air','rec_sampah'
       ].forEach(f => { formData[f] = form[f]?.checked || false; });
       pests.forEach(([k]) => {
