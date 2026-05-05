@@ -576,7 +576,196 @@
       padding: 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       width: fit-content;
+      flex-wrap: wrap;
     }
+
+    /* SURVEY */
+    .survey-form-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+    .survey-form-card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green-800);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--green-100);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sf-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .sf-row.single { grid-template-columns: 1fr; }
+    @media (max-width:640px) { .sf-row { grid-template-columns: 1fr; } }
+    .sf-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .sf-group input,
+    .sf-group textarea {
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+      background: #fafcfb;
+      resize: vertical;
+    }
+    .sf-group input:focus,
+    .sf-group textarea:focus {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(45,122,79,0.1);
+      background: #fff;
+    }
+    /* pest checkboxes */
+    .pest-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .pest-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+      user-select: none;
+      background: #fff;
+    }
+    .pest-chip:hover { border-color: var(--green-400); background: var(--green-100); }
+    .pest-chip input[type=checkbox] { display:none; }
+    .pest-chip.checked {
+      background: var(--green-800);
+      color: #fff;
+      border-color: var(--green-800);
+    }
+    /* signature */
+    .sig-container {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: #fafcfb;
+      position: relative;
+      overflow: hidden;
+    }
+    .sig-container canvas {
+      display: block;
+      width: 100%;
+      height: 180px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .sig-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 13px;
+      color: #ccc;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .sig-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+    .btn-clear-sig {
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .btn-clear-sig:hover { background: #fde8e8; border-color:#e57373; color:#9e2c2c; }
+    .btn-submit-survey {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--green-800), var(--green-600));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      margin-top: 20px;
+      letter-spacing: 0.3px;
+    }
+    .btn-submit-survey:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(45,122,79,0.3);
+    }
+    .btn-submit-survey:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    /* TREATMENT CARD */
+    .tc-card { background:var(--card); border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.06); margin-bottom:18px; border-left:4px solid #7c4dff; }
+    .tc-table-wrap { overflow-x:auto; }
+    .tc-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .tc-table thead tr { background:var(--green-800); }
+    .tc-table thead th { color:#fff; padding:10px 12px; text-align:left; font-size:11px; white-space:nowrap; }
+    .tc-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    .tc-table tbody tr:hover { background:var(--green-100); }
+    .tc-table td { padding:10px 12px; vertical-align:middle; }
+    .badge-purple { background:#ede7f6; color:#4a148c; }
+    /* entry table in modal */
+    .entry-table { width:100%; border-collapse:collapse; font-size:11px; margin-bottom:10px; }
+    .entry-table th { background:#1a4a2e; color:#fff; padding:6px 8px; text-align:left; font-size:10px; }
+    .entry-table td { padding:5px 8px; border-bottom:1px solid #eee; vertical-align:top; }
+    .entry-table tr:hover td { background:#f0f7f4; }
+    /* tc entry form */
+    .tc-entry-form { background:#f9fcfb; border-radius:12px; padding:18px; border:1.5px solid var(--border); margin-top:12px; }
+    .tc-entry-form h4 { font-size:12px; font-weight:700; color:var(--green-800); margin-bottom:12px; }
+    .tc-ef-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .tc-ef-row.three { grid-template-columns:1fr 1fr 1fr; }
+    .tc-ef-row.single { grid-template-columns:1fr; }
+    @media(max-width:600px){.tc-ef-row,.tc-ef-row.three{grid-template-columns:1fr;}}
+    .tc-ef-group label { display:block; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+    .tc-ef-group input, .tc-ef-group select, .tc-ef-group textarea { border:1.5px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; font-family:inherit; width:100%; outline:none; transition:all .2s; background:#fafcfb; }
+    .tc-ef-group input:focus, .tc-ef-group select:focus, .tc-ef-group textarea:focus { border-color:var(--green-400); box-shadow:0 0 0 3px rgba(45,122,79,.1); }
+    .paraf-container { border:1.5px solid var(--border); border-radius:10px; background:#fafcfb; position:relative; overflow:hidden; }
+    .paraf-container canvas { display:block; width:100%; height:120px; cursor:crosshair; touch-action:none; }
+    .paraf-hint { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:11px; color:#ccc; pointer-events:none; white-space:nowrap; }
+    .btn-save-entry { padding:10px 22px; border-radius:9px; border:none; background:var(--green-800); color:#fff; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; transition:all .2s; }
+    .btn-save-entry:hover { background:var(--green-600); }
+    .modal-wide { max-width:860px !important; }
+    /* card info header in modal */
+    .tc-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; margin-bottom:14px; font-size:12px; }
+    .tc-info-grid .lbl { font-size:10px; color:var(--muted); font-weight:600; text-transform:uppercase; }
+    .tc-info-grid .val { font-weight:600; color:var(--text); }
+    .tipe-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+    .tipe-chip-disp { padding:3px 12px; border-radius:20px; font-size:11px; font-weight:600; background:#ede7f6; color:#4a148c; }
 
     .tab-btn {
       padding: 9px 20px;
@@ -714,6 +903,8 @@
       <button class="tab-btn active" onclick="switchTab('submissions')" id="tab-submissions">📋 Submissions</button>
       <button class="tab-btn" onclick="switchTab('clients')" id="tab-clients">👤 Data Client</button>
       <button class="tab-btn" onclick="switchTab('karyawan')" id="tab-karyawan">👥 Manajemen Karyawan</button>
+      <button class="tab-btn" onclick="switchTab('survey')" id="tab-survey">🔍 Form Survey</button>
+      <button class="tab-btn" onclick="switchTab('treatment-card')" id="tab-treatment-card">🗂️ Treatment Card</button>
     </div>
 
     <!-- SUBMISSIONS TAB -->
@@ -844,6 +1035,114 @@
       </div>
     </div> <!-- /section-clients -->
 
+    <!-- SURVEY TAB -->
+    <div id="section-survey" style="display:none">
+
+      <!-- FORM INPUT SURVEY -->
+      <div class="survey-form-card">
+        <h2>🔍 Form Survey Calon Pelanggan</h2>
+        <form id="surveyForm" onsubmit="submitSurvey(event)">
+
+          <div class="sf-row">
+            <div class="sf-group">
+              <label>Nama Calon Pelanggan *</label>
+              <input type="text" id="svNama" placeholder="Nama lengkap / perusahaan" required />
+            </div>
+            <div class="sf-group">
+              <label>Waktu Kunjungan *</label>
+              <input type="datetime-local" id="svWaktu" required />
+            </div>
+          </div>
+
+          <div class="sf-row single">
+            <div class="sf-group">
+              <label>Hama yang Disurvey</label>
+              <div class="pest-grid" id="pestChips">
+                <!-- Chip hama akan di-render oleh JS -->
+              </div>
+              <input type="text" id="svHamaTambahan" placeholder="Hama lain (ketik manual, pisahkan koma)" style="margin-top:10px" />
+            </div>
+          </div>
+
+          <div class="sf-row single">
+            <div class="sf-group">
+              <label>Tanda Tangan Calon Pelanggan</label>
+              <div class="sig-container">
+                <canvas id="surveySignatureCanvas"></canvas>
+                <span class="sig-hint" id="sigHint">Tanda tangan di sini</span>
+              </div>
+              <div class="sig-actions">
+                <button type="button" class="btn-clear-sig" onclick="clearSurveySignature()">🗑 Hapus Tanda Tangan</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit-survey" id="btnSubmitSurvey">
+            💾 Simpan Data Survey
+          </button>
+        </form>
+      </div>
+
+      <!-- TABEL DATA SURVEY -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:16px;font-weight:700;color:var(--green-800)">📋 Riwayat Survey</h2>
+          <p style="font-size:12px;color:var(--muted)">Data survey calon pelanggan yang tersimpan</p>
+        </div>
+        <input class="search-box" type="text" id="surveySearchInput" placeholder="Cari nama calon pelanggan..." style="max-width:280px" />
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama Calon Pelanggan</th>
+                <th>Waktu Kunjungan</th>
+                <th>Hama Disurvey</th>
+                <th>Tanda Tangan</th>
+                <th>Dicatat Oleh</th>
+                <th>Waktu Input</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="surveyTableBody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div> <!-- /section-survey -->
+
+    <!-- TREATMENT CARD TAB -->
+    <div id="section-treatment-card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:16px;font-weight:700;color:var(--green-800)">🗂️ Treatment Card</h2>
+          <p style="font-size:12px;color:var(--muted)">Kartu kunjungan treatment per client</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input class="search-box" type="text" id="tcSearchInput" placeholder="Cari nama client..." style="max-width:240px;min-width:180px" />
+          <button class="nav-btn nav-btn-accent" onclick="openTCCardModal()">+ Buat Treatment Card</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="tc-table-wrap">
+          <table class="tc-table">
+            <thead><tr>
+              <th>#</th><th>Nama Client</th><th>No. Kartu</th><th>Periode</th>
+              <th>Jenis Layanan</th><th>Jenis Treatment</th><th>Kunjungan</th>
+              <th>Dibuat Oleh</th><th>Aksi</th>
+            </tr></thead>
+            <tbody id="tcTableBody">
+              <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> <!-- /section-treatment-card -->
+
   </div>
 
   <!-- USER MODAL -->
@@ -948,7 +1247,7 @@
 
     // ── TABS ──────────────────────────────────────────────────────
     function switchTab(name) {
-      ['submissions', 'karyawan', 'clients'].forEach(t => {
+      ['submissions', 'karyawan', 'clients', 'survey', 'treatment-card'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         const tab = document.getElementById(`tab-${t}`);
         if (section) section.style.display = t === name ? '' : 'none';
@@ -956,6 +1255,8 @@
       });
       if (name === 'karyawan') loadUsers();
       if (name === 'clients') loadClients();
+        if (name === 'survey') { loadSurveys(); initSurveySignature(); }
+      if (name === 'treatment-card') loadTreatmentCards();
     }
 
     // ── AUTH ───────────────────────────────────────────────────────────
@@ -1462,6 +1763,468 @@
       if (res.ok) { showToast('✅ Submission dihapus', 'success'); loadData(currentPage); }
       else showToast('❌ Gagal menghapus', 'error');
     }
+
+    // ══════════════════════════════════════════════════════════════
+    //  SURVEY MANAGEMENT
+    // ══════════════════════════════════════════════════════════════
+    const PEST_LIST = [
+      { key:'tikus',  label:'🐭 Tikus' },
+      { key:'kecoa',  label:'🪳 Kecoa' },
+      { key:'semut',  label:'🐜 Semut' },
+      { key:'rayap',  label:'🪲 Rayap' },
+      { key:'nyamuk', label:'🦟 Nyamuk' },
+      { key:'lalat',  label:'🪰 Lalat' },
+      { key:'kutu',   label:'🐛 Kutu' },
+      { key:'tawon',  label:'🐝 Tawon' },
+    ];
+
+    // Render pest chips
+    (function renderPestChips() {
+      const container = document.getElementById('pestChips');
+      if (!container) return;
+      PEST_LIST.forEach(({ key, label }) => {
+        const chip = document.createElement('label');
+        chip.className = 'pest-chip';
+        chip.dataset.key = key;
+        chip.innerHTML = `<input type="checkbox" value="${key}"> ${label}`;
+        chip.addEventListener('click', () => {
+          const cb = chip.querySelector('input');
+          // toggle happens after click naturally
+          setTimeout(() => chip.classList.toggle('checked', cb.checked), 0);
+        });
+        container.appendChild(chip);
+      });
+    })();
+
+    // ── Signature Canvas ────────────────────────────────────────────
+    let sigCanvas, sigCtx, isSigDrawing = false, sigHasDrawing = false;
+
+    function initSurveySignature() {
+      if (sigCtx) return; // already inited
+      sigCanvas = document.getElementById('surveySignatureCanvas');
+      if (!sigCanvas) return;
+      // Set pixel resolution
+      const dpr = window.devicePixelRatio || 1;
+      const rect = sigCanvas.getBoundingClientRect();
+      sigCanvas.width  = (rect.width  || 600) * dpr;
+      sigCanvas.height = 180 * dpr;
+      sigCtx = sigCanvas.getContext('2d');
+      sigCtx.scale(dpr, dpr);
+      sigCtx.strokeStyle = '#1a1a1a';
+      sigCtx.lineWidth = 2;
+      sigCtx.lineCap = 'round';
+      sigCtx.lineJoin = 'round';
+
+      function pos(e) {
+        const r = sigCanvas.getBoundingClientRect();
+        const src = e.touches ? e.touches[0] : e;
+        return { x: src.clientX - r.left, y: src.clientY - r.top };
+      }
+      function startDraw(e) { e.preventDefault(); isSigDrawing = true; const p = pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); }
+      function draw(e) {
+        if (!isSigDrawing) return;
+        e.preventDefault();
+        const p = pos(e);
+        sigCtx.lineTo(p.x, p.y);
+        sigCtx.stroke();
+        sigHasDrawing = true;
+        document.getElementById('sigHint').style.display = 'none';
+      }
+      function endDraw(e) { isSigDrawing = false; }
+
+      sigCanvas.addEventListener('mousedown',  startDraw);
+      sigCanvas.addEventListener('mousemove',  draw);
+      sigCanvas.addEventListener('mouseup',    endDraw);
+      sigCanvas.addEventListener('mouseleave', endDraw);
+      sigCanvas.addEventListener('touchstart', startDraw, { passive: false });
+      sigCanvas.addEventListener('touchmove',  draw,      { passive: false });
+      sigCanvas.addEventListener('touchend',   endDraw);
+    }
+
+    function clearSurveySignature() {
+      if (!sigCtx) return;
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      sigHasDrawing = false;
+      document.getElementById('sigHint').style.display = '';
+    }
+
+    // ── Submit Survey ───────────────────────────────────────────────
+    async function submitSurvey(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitSurvey');
+      btn.disabled = true;
+      btn.textContent = '⏳ Menyimpan...';
+
+      // Kumpulkan hama yang dipilih
+      const checkedChips = [...document.querySelectorAll('#pestChips .pest-chip.checked input')]
+        .map(cb => cb.value);
+      const tambahan = document.getElementById('svHamaTambahan').value
+        .split(',').map(s => s.trim()).filter(Boolean);
+      const hamaList = [...checkedChips, ...tambahan];
+
+      const signature_b64 = sigHasDrawing ? sigCanvas.toDataURL('image/png') : null;
+
+      const body = {
+        nama_calon_pelanggan: document.getElementById('svNama').value.trim(),
+        waktu_kunjungan: document.getElementById('svWaktu').value,
+        hama: hamaList,
+        signature_b64,
+      };
+
+      try {
+        const res = await fetch('/api/surveys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('✅ Data survey berhasil disimpan', 'success');
+          // Reset form
+          document.getElementById('surveyForm').reset();
+          clearSurveySignature();
+          document.querySelectorAll('#pestChips .pest-chip').forEach(c => c.classList.remove('checked'));
+          document.querySelectorAll('#pestChips .pest-chip input').forEach(cb => { cb.checked = false; });
+          loadSurveys();
+        } else {
+          showToast('❌ ' + (data.error || 'Gagal menyimpan'), 'error');
+        }
+      } catch (err) {
+        showToast('❌ Gagal terhubung ke server', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💾 Simpan Data Survey';
+      }
+    }
+
+    // ── Load Surveys Table ──────────────────────────────────────────
+    let surveySearchTimer;
+    async function loadSurveys() {
+      const search = document.getElementById('surveySearchInput')?.value || '';
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/surveys?${params}`);
+      if (!res.ok) return;
+      const { data } = await res.json();
+      const tbody = document.getElementById('surveyTableBody');
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">🔍</div><p>Belum ada data survey</p></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map((sv, i) => {
+        let hamaArr = [];
+        try { hamaArr = JSON.parse(sv.hama || '[]'); } catch { hamaArr = []; }
+        const hamaHtml = hamaArr.length
+          ? hamaArr.map(h => `<span class="badge badge-green" style="font-size:10px">${h}</span>`).join(' ')
+          : '<span style="color:var(--muted);font-size:12px">—</span>';
+        const waktu = sv.waktu_kunjungan
+          ? new Date(sv.waktu_kunjungan).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+          : '—';
+        const createdAt = new Date(sv.created_at).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        return `<tr>
+          <td style="color:var(--muted);font-size:12px">${i+1}</td>
+          <td><strong>${sv.nama_calon_pelanggan}</strong></td>
+          <td><span class="badge badge-blue">${waktu}</span></td>
+          <td style="max-width:220px">${hamaHtml}</td>
+          <td>${sv.signature_b64 && sv.signature_b64.length > 50
+            ? '<span class="badge badge-green">✅ Ada</span>'
+            : '<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+          <td style="font-size:12px;color:var(--muted)">${sv.full_name || sv.username || '—'}</td>
+          <td style="font-size:11px;color:var(--muted);white-space:nowrap">${createdAt}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-sm btn-detail" onclick="openSurveyDetail(${sv.id})">🔍 Detail</button>
+              ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-del" onclick="deleteSurvey(${sv.id},'${sv.nama_calon_pelanggan.replace(/'/g,'')}')">🗑</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const si = document.getElementById('surveySearchInput');
+      if (si) si.addEventListener('input', () => {
+        clearTimeout(surveySearchTimer);
+        surveySearchTimer = setTimeout(() => loadSurveys(), 400);
+      });
+    });
+
+    // ── Survey Detail Modal ────────────────────────────────────────
+    async function openSurveyDetail(id) {
+      document.getElementById('surveyDetailModal').classList.add('open');
+      document.getElementById('surveyDetailBody').innerHTML = '<p style="text-align:center;padding:30px;color:var(--muted)">Memuat...</p>';
+      const res = await fetch(`/api/surveys/${id}`);
+      if (!res.ok) { document.getElementById('surveyDetailBody').innerHTML = '<p style="color:red">Gagal memuat data</p>'; return; }
+      const { data: sv } = await res.json();
+      let hamaArr = [];
+      try { hamaArr = JSON.parse(sv.hama || '[]'); } catch {}
+      const waktu = sv.waktu_kunjungan
+        ? new Date(sv.waktu_kunjungan).toLocaleString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        : '—';
+      document.getElementById('surveyDetailBody').innerHTML = `
+        <div class="detail-section">
+          <h4>Informasi Survey</h4>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Nama Calon Pelanggan</label><p>${sv.nama_calon_pelanggan}</p></div>
+            <div class="detail-item"><label>Waktu Kunjungan</label><p>${waktu}</p></div>
+            <div class="detail-item"><label>Dicatat Oleh</label><p>${sv.full_name || sv.username || '—'}</p></div>
+            <div class="detail-item"><label>Waktu Input</label><p>${new Date(sv.created_at).toLocaleString('id-ID')}</p></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>Hama yang Disurvey</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${hamaArr.length ? hamaArr.map(h => `<span class="badge badge-green">${h}</span>`).join('') : '<span style="color:var(--muted)">Tidak ada data hama</span>'}
+          </div>
+        </div>
+        <div class="detail-section">
+          <h4>Tanda Tangan Calon Pelanggan</h4>
+          ${sv.signature_b64 && sv.signature_b64.length > 50
+            ? `<img src="${sv.signature_b64}" class="sig-img" alt="tanda tangan" style="max-height:180px" />`
+            : '<p style="color:var(--muted);font-size:13px">Tidak ada tanda tangan</p>'}
+        </div>
+      `;
+    }
+
+    // ── Delete Survey ──────────────────────────────────────────────
+    async function deleteSurvey(id, nama) {
+      if (!confirm(`Hapus data survey "${nama}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+      const res = await fetch(`/api/surveys/${id}`, { method: 'DELETE' });
+      if (res.ok) { showToast('✅ Data survey dihapus', 'success'); loadSurveys(); }
+      else { const d = await res.json(); showToast('❌ ' + (d.error || 'Gagal menghapus'), 'error'); }
+    }
+  </script>
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    //  TREATMENT CARD MANAGEMENT
+    // ══════════════════════════════════════════════════════════════
+    let editingTCCardId = null, tcSearchTimer;
+    let activeCardId = null;
+    let parafCanvas, parafCtx, parafDrawing = false, parafHasDrawing = false;
+
+    async function loadTreatmentCards() {
+      const search = document.getElementById('tcSearchInput')?.value || '';
+      const params = new URLSearchParams(); if (search) params.set('search', search);
+      const res = await fetch(`/api/treatment-cards?${params}`);
+      if (!res.ok) return;
+      const { data } = await res.json();
+      const tbody = document.getElementById('tcTableBody');
+      if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">🗂️</div><p>Belum ada Treatment Card</p></div></td></tr>`; return; }
+      tbody.innerHTML = data.map((c, i) => {
+        let tipeArr = []; try { tipeArr = JSON.parse(c.tipe || '[]'); } catch {}
+        const tipeBadges = tipeArr.map(t => `<span class="badge badge-purple" style="font-size:10px">${t}</span>`).join(' ') || '—';
+        return `<tr>
+          <td style="color:var(--muted);font-size:12px">${i + 1}</td>
+          <td><strong>${c.nama_client || '—'}</strong></td>
+          <td style="font-size:12px">${c.no_card || '—'}</td>
+          <td style="font-size:12px;color:var(--muted)">${c.periode_kontrak || '—'}</td>
+          <td style="font-size:12px">${c.jenis_layanan || '—'}</td>
+          <td style="font-size:12px">${c.jenis_treatment || '—'}</td>
+          <td><span class="badge badge-green">${c.entry_count} kunjungan</span></td>
+          <td style="font-size:12px;color:var(--muted)">${c.full_name || c.username || '—'}</td>
+          <td><div class="actions">
+            <button class="btn-sm btn-detail" onclick="openTCEntries(${c.id})">🗓️ Kunjungan</button>
+            <button class="btn-sm" style="background:#e8edf8;color:#3a5a9e" onclick="openTCCardModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️ Edit</button>
+            <button class="btn-sm btn-pdf" onclick="window.open('/api/treatment-cards/${c.id}/pdf','_blank')">📄 PDF</button>
+            ${currentUser?.role === 'admin' ? `<button class="btn-sm btn-del" onclick="deleteTCCard(${c.id},'${(c.nama_client || '').replace(/'/g, '')}')">🗑</button>` : ''}
+          </div></td></tr>`;
+      }).join('');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const si = document.getElementById('tcSearchInput');
+      if (si) si.addEventListener('input', () => { clearTimeout(tcSearchTimer); tcSearchTimer = setTimeout(() => loadTreatmentCards(), 400); });
+    });
+
+    function openTCCardModal(card) {
+      editingTCCardId = card?.id || null;
+      document.getElementById('tcCardModalTitle').textContent = card ? 'Edit Treatment Card' : 'Buat Treatment Card Baru';
+      const fldMap = { tcNamaClient: 'nama_client', tcAlamat: 'alamat', tcContactPerson: 'contact_person', tcPeriode: 'periode_kontrak', tcNoCard: 'no_card', tcJenisLayanan: 'jenis_layanan', tcJenisTreatment: 'jenis_treatment' };
+      Object.entries(fldMap).forEach(([id, key]) => { document.getElementById(id).value = card?.[key] || ''; });
+      let tipeArr = []; try { tipeArr = JSON.parse(card?.tipe || '[]'); } catch {}
+      ['PC', 'RC', 'TC', 'SP'].forEach(t => { document.getElementById(`tipe_${t}`).checked = tipeArr.includes(t); });
+      document.getElementById('tcContractType').value = card?.contract_type || 'kontrak';
+      document.getElementById('tcFrekuensi').value = card?.frekuensi || 1;
+      document.getElementById('tcCardModal').classList.add('open');
+    }
+    function closeTCCardModal() { document.getElementById('tcCardModal').classList.remove('open'); editingTCCardId = null; }
+    document.getElementById('tcCardModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeTCCardModal(); });
+    async function submitTCCardForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveTCCard');
+      btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+      const tipe = ['PC', 'RC', 'TC', 'SP'].filter(t => document.getElementById(`tipe_${t}`).checked);
+      const body = {
+        nama_client: document.getElementById('tcNamaClient').value,
+        alamat: document.getElementById('tcAlamat').value,
+        contact_person: document.getElementById('tcContactPerson').value,
+        periode_kontrak: document.getElementById('tcPeriode').value,
+        no_card: document.getElementById('tcNoCard').value,
+        jenis_layanan: document.getElementById('tcJenisLayanan').value,
+        jenis_treatment: document.getElementById('tcJenisTreatment').value,
+        tipe, contract_type: document.getElementById('tcContractType').value,
+        frekuensi: parseInt(document.getElementById('tcFrekuensi').value) || 1,
+      };
+      try {
+        const url = editingTCCardId ? `/api/treatment-cards/${editingTCCardId}` : '/api/treatment-cards';
+        const meth = editingTCCardId ? 'PUT' : 'POST';
+        const res = await fetch(url, { method: meth, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) { showToast('✅ Treatment Card disimpan', 'success'); closeTCCardModal(); loadTreatmentCards(); }
+        else showToast('❌ ' + (data.error || 'Gagal menyimpan'), 'error');
+      } catch { showToast('❌ Gagal terhubung ke server', 'error'); }
+      finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+    }
+
+    async function openTCEntries(cardId) {
+      activeCardId = cardId; parafCtx = null; parafHasDrawing = false;
+      document.getElementById('tcEntriesModal').classList.add('open');
+      document.getElementById('tcEntriesBody').innerHTML = '<p style="text-align:center;padding:30px;color:var(--muted)">Memuat...</p>';
+      await refreshTCEntries(cardId);
+    }
+    function closeTCEntriesModal() { document.getElementById('tcEntriesModal').classList.remove('open'); activeCardId = null; parafCtx = null; }
+    document.getElementById('tcEntriesModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeTCEntriesModal(); });
+
+    async function refreshTCEntries(cardId) {
+      const res = await fetch(`/api/treatment-cards/${cardId}`);
+      if (!res.ok) { document.getElementById('tcEntriesBody').innerHTML = '<p style="color:red">Gagal memuat</p>'; return; }
+      const { data: card, entries } = await res.json();
+      let tipeArr = []; try { tipeArr = JSON.parse(card.tipe || '[]'); } catch {}
+      document.getElementById('tcEntriesTitle').textContent = `Kunjungan — ${card.nama_client || ''}`;
+      const tipeBadges = tipeArr.map(t => `<span class="tipe-chip-disp">${t}</span>`).join('');
+      const entryRows = entries.length ? entries.map(en => {
+        const tgl = en.tanggal ? new Date(en.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+        return `<tr>
+          <td style="font-weight:700;color:var(--green-800)">${en.no_visit}</td>
+          <td>${tgl}</td><td>${en.teknisi || '-'}</td>
+          <td>${en.time_in || '-'} → ${en.time_out || '-'}</td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${en.area_treatment || '-'}</td>
+          <td>${en.jenis_treatment || '-'}</td>
+          <td>${en.paraf_b64 && en.paraf_b64.length > 50 ? `<img src="${en.paraf_b64}" style="height:30px;border-radius:4px;border:1px solid #ddd"/>` : '—'}</td>
+          <td><button class="btn-sm btn-del" onclick="deleteTCEntry(${cardId},${en.id})">🗑</button></td></tr>`;
+      }).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:16px">Belum ada data kunjungan — tambahkan di bawah</td></tr>`;
+      const visitOpts = Array.from({ length: 26 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+      document.getElementById('tcEntriesBody').innerHTML = `
+        <div class="tc-info-grid">
+          <div><div class="lbl">Nama Client</div><div class="val">${card.nama_client || '-'}</div></div>
+          <div><div class="lbl">No. Kartu</div><div class="val">${card.no_card || '-'}</div></div>
+          <div><div class="lbl">Periode Kontrak</div><div class="val">${card.periode_kontrak || '-'}</div></div>
+          <div><div class="lbl">Alamat</div><div class="val">${card.alamat || '-'}</div></div>
+          <div><div class="lbl">Jenis Layanan</div><div class="val">${card.jenis_layanan || '-'}</div></div>
+          <div><div class="lbl">Jenis Treatment</div><div class="val">${card.jenis_treatment || '-'}</div></div>
+        </div>
+        <div class="tipe-chips">${tipeBadges || ''}
+          <span class="tipe-chip-disp" style="background:${card.contract_type === 'job' ? '#e3f2fd' : '#fff3e0'};color:${card.contract_type === 'job' ? '#1565c0' : '#e65100'}">${card.contract_type === 'job' ? 'Job' : 'Kontrak'}</span>
+          <span class="tipe-chip-disp" style="background:#f3e5f5;color:#6a1b9a">${card.frekuensi || 1}x/Bulan</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="entry-table">
+            <thead><tr><th>No</th><th>Tanggal</th><th>Teknisi</th><th>In → Out</th><th>Area Treatment</th><th>Jenis Treatment</th><th>Paraf</th><th></th></tr></thead>
+            <tbody>${entryRows}</tbody>
+          </table>
+        </div>
+        <div class="tc-entry-form">
+          <h4>➕ Tambah / Update Kunjungan</h4>
+          <form id="tcEntryForm" onsubmit="submitTCEntry(event)">
+            <div class="tc-ef-row three">
+              <div class="tc-ef-group"><label>No Kunjungan *</label><select id="tcEntryNo">${visitOpts}</select></div>
+              <div class="tc-ef-group"><label>Tanggal *</label><input type="date" id="tcEntryTgl" required /></div>
+              <div class="tc-ef-group"><label>Nama Teknisi</label><input type="text" id="tcEntryTeknisi" placeholder="Nama teknisi" /></div>
+            </div>
+            <div class="tc-ef-row">
+              <div class="tc-ef-group"><label>Waktu Masuk (In)</label><input type="time" id="tcEntryIn" /></div>
+              <div class="tc-ef-group"><label>Waktu Keluar (Out)</label><input type="time" id="tcEntryOut" /></div>
+            </div>
+            <div class="tc-ef-row single">
+              <div class="tc-ef-group"><label>Area Treatment</label><textarea id="tcEntryArea" rows="2" placeholder="Contoh: Dapur, Gudang, Area Parkir"></textarea></div>
+            </div>
+            <div class="tc-ef-row single">
+              <div class="tc-ef-group"><label>Jenis Treatment</label><input type="text" id="tcEntryJenis" placeholder="Contoh: Fogging, Spraying, Baiting" /></div>
+            </div>
+            <div class="tc-ef-row single">
+              <div class="tc-ef-group">
+                <label>Paraf / Tanda Tangan Client</label>
+                <div class="paraf-container"><canvas id="parafCanvas"></canvas><span class="paraf-hint" id="parafHint">Tanda tangan di sini</span></div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px">
+                  <button type="button" class="btn-cancel" style="font-size:11px;padding:4px 10px" onclick="clearParaf()">🗑 Hapus Tanda Tangan</button>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+              <button type="button" class="btn-cancel" onclick="closeTCEntriesModal()">Tutup</button>
+              <button type="submit" class="btn-save-entry" id="btnSaveEntry">💾 Simpan Kunjungan</button>
+            </div>
+          </form>
+        </div>`;
+      setTimeout(() => initParafCanvas(), 80);
+    }
+
+    function initParafCanvas() {
+      parafCanvas = document.getElementById('parafCanvas');
+      if (!parafCanvas) return;
+      parafCtx = null; parafHasDrawing = false;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = parafCanvas.getBoundingClientRect();
+      parafCanvas.width  = (rect.width || 500) * dpr;
+      parafCanvas.height = 120 * dpr;
+      parafCtx = parafCanvas.getContext('2d');
+      parafCtx.scale(dpr, dpr);
+      parafCtx.strokeStyle = '#1a1a1a'; parafCtx.lineWidth = 2;
+      parafCtx.lineCap = 'round'; parafCtx.lineJoin = 'round';
+      function pos(e) { const r = parafCanvas.getBoundingClientRect(), src = e.touches ? e.touches[0] : e; return { x: src.clientX - r.left, y: src.clientY - r.top }; }
+      function startDraw(e) { e.preventDefault(); parafDrawing = true; const p = pos(e); parafCtx.beginPath(); parafCtx.moveTo(p.x, p.y); }
+      function draw(e) { if (!parafDrawing) return; e.preventDefault(); const p = pos(e); parafCtx.lineTo(p.x, p.y); parafCtx.stroke(); parafHasDrawing = true; const h = document.getElementById('parafHint'); if (h) h.style.display = 'none'; }
+      function endDraw() { parafDrawing = false; }
+      parafCanvas.addEventListener('mousedown',  startDraw);
+      parafCanvas.addEventListener('mousemove',  draw);
+      parafCanvas.addEventListener('mouseup',    endDraw);
+      parafCanvas.addEventListener('mouseleave', endDraw);
+      parafCanvas.addEventListener('touchstart', startDraw, { passive: false });
+      parafCanvas.addEventListener('touchmove',  draw,      { passive: false });
+      parafCanvas.addEventListener('touchend',   endDraw);
+    }
+    function clearParaf() {
+      if (!parafCtx) return;
+      parafCtx.clearRect(0, 0, parafCanvas.width, parafCanvas.height);
+      parafHasDrawing = false;
+      const h = document.getElementById('parafHint'); if (h) h.style.display = '';
+    }
+
+    async function submitTCEntry(e) {
+      e.preventDefault(); if (!activeCardId) return;
+      const btn = document.getElementById('btnSaveEntry');
+      btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+      const paraf_b64 = parafHasDrawing ? parafCanvas.toDataURL('image/png') : null;
+      const body = {
+        no_visit: parseInt(document.getElementById('tcEntryNo').value),
+        tanggal: document.getElementById('tcEntryTgl').value,
+        teknisi: document.getElementById('tcEntryTeknisi').value,
+        time_in: document.getElementById('tcEntryIn').value,
+        time_out: document.getElementById('tcEntryOut').value,
+        area_treatment: document.getElementById('tcEntryArea').value,
+        jenis_treatment: document.getElementById('tcEntryJenis').value,
+        paraf_b64,
+      };
+      try {
+        const res = await fetch(`/api/treatment-cards/${activeCardId}/entries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) { showToast('✅ Kunjungan disimpan', 'success'); document.getElementById('tcEntryForm').reset(); clearParaf(); await refreshTCEntries(activeCardId); loadTreatmentCards(); }
+        else showToast('❌ ' + (data.error || 'Gagal menyimpan'), 'error');
+      } catch { showToast('❌ Gagal terhubung ke server', 'error'); }
+      finally { btn.disabled = false; btn.textContent = '💾 Simpan Kunjungan'; }
+    }
+
+    async function deleteTCEntry(cardId, eid) {
+      if (!confirm('Hapus data kunjungan ini?')) return;
+      const res = await fetch(`/api/treatment-cards/${cardId}/entries/${eid}`, { method: 'DELETE' });
+      if (res.ok) { showToast('✅ Kunjungan dihapus', 'success'); refreshTCEntries(cardId); loadTreatmentCards(); }
+      else { const d = await res.json(); showToast('❌ ' + (d.error || 'Gagal'), 'error'); }
+    }
+    async function deleteTCCard(id, nama) {
+      if (!confirm(`Hapus Treatment Card "${nama}"? Semua kunjungan akan ikut terhapus.`)) return;
+      const res = await fetch(`/api/treatment-cards/${id}`, { method: 'DELETE' });
+      if (res.ok) { showToast('✅ Treatment Card dihapus', 'success'); loadTreatmentCards(); }
+      else { const d = await res.json(); showToast('❌ ' + (d.error || 'Gagal'), 'error'); }
+    }
   </script>
 
   <!-- ── WA MODAL ──────────────────────────────────────────────────── -->
@@ -1502,6 +2265,80 @@
       display: flex;
     }
   </style>
+  <!-- ── SURVEY DETAIL MODAL ────────────────────────────────────── -->
+  <div id="surveyDetailModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h3>🔍 Detail Survey Calon Pelanggan</h3>
+        <button class="modal-close" onclick="document.getElementById('surveyDetailModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body" id="surveyDetailBody">Memuat...</div>
+    </div>
+  </div>
+  <!-- ── TREATMENT CARD: CREATE/EDIT MODAL ────────────────────────────── -->
+  <div id="tcCardModal" class="modal-overlay">
+    <div class="modal" style="max-width:580px">
+      <div class="modal-header">
+        <h3 id="tcCardModalTitle">Buat Treatment Card Baru</h3>
+        <button class="modal-close" onclick="closeTCCardModal()">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="tcCardForm" onsubmit="submitTCCardForm(event)">
+          <div class="form-row">
+            <div><label>Nama Client *</label><input type="text" id="tcNamaClient" placeholder="Nama client / perusahaan" required /></div>
+            <div><label>No. Kartu</label><input type="text" id="tcNoCard" placeholder="Nomor kartu" /></div>
+          </div>
+          <div class="form-row single"><div><label>Alamat</label><input type="text" id="tcAlamat" placeholder="Alamat lengkap" /></div></div>
+          <div class="form-row">
+            <div><label>Contact Person</label><input type="text" id="tcContactPerson" placeholder="Nama kontak" /></div>
+            <div><label>Periode Kontrak</label><input type="text" id="tcPeriode" placeholder="Contoh: Jan 2026 - Des 2026" /></div>
+          </div>
+          <div class="form-row">
+            <div><label>Jenis Layanan</label><input type="text" id="tcJenisLayanan" placeholder="Contoh: Pest Control" /></div>
+            <div><label>Jenis Treatment</label><input type="text" id="tcJenisTreatment" placeholder="Contoh: Fogging, Spraying" /></div>
+          </div>
+          <div class="form-row single">
+            <div>
+              <label>Tipe Layanan</label>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tipe_PC" style="width:15px;height:15px"/> PC</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tipe_RC" style="width:15px;height:15px"/> RC</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tipe_TC" style="width:15px;height:15px"/> TC</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tipe_SP" style="width:15px;height:15px"/> SP</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div><label>Jenis Kontrak</label>
+              <select id="tcContractType">
+                <option value="kontrak">Kontrak</option>
+                <option value="job">Job</option>
+              </select>
+            </div>
+            <div><label>Frekuensi (per bulan)</label><input type="number" id="tcFrekuensi" value="1" min="1" max="12" /></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeTCCardModal()">Batal</button>
+            <button type="submit" class="btn-save" id="btnSaveTCCard">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TREATMENT CARD: ENTRIES MODAL ────────────────────────────────── -->
+  <div id="tcEntriesModal" class="modal-overlay">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3 id="tcEntriesTitle">Kunjungan Treatment Card</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-sm btn-pdf" onclick="if(activeCardId)window.open('/api/treatment-cards/'+activeCardId+'/pdf','_blank')" style="font-size:11px">&#128196; PDF</button>
+          <button class="modal-close" onclick="closeTCEntriesModal()">&#x2715;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="tcEntriesBody">Memuat...</div>
+    </div>
+  </div>
 
 </body>
 

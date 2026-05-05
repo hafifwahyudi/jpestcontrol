@@ -66,6 +66,54 @@ async function initDb() {
     ) CHARACTER SET utf8mb4
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS surveys (
+      id                   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      nama_calon_pelanggan VARCHAR(255) NOT NULL,
+      waktu_kunjungan      DATETIME NOT NULL,
+      hama                 TEXT,
+      signature_b64        LONGTEXT,
+      submitted_by         INT,
+      created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at           TIMESTAMP NULL DEFAULT NULL
+    ) CHARACTER SET utf8mb4
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS treatment_cards (
+      id               INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      nama_client      VARCHAR(255),
+      alamat           TEXT,
+      contact_person   VARCHAR(255),
+      periode_kontrak  VARCHAR(100),
+      no_card          VARCHAR(100),
+      jenis_layanan    VARCHAR(255),
+      jenis_treatment  VARCHAR(255),
+      tipe             TEXT,
+      contract_type    VARCHAR(20),
+      frekuensi        INT DEFAULT 1,
+      submitted_by     INT,
+      created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at       TIMESTAMP NULL DEFAULT NULL
+    ) CHARACTER SET utf8mb4
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS treatment_card_entries (
+      id               INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      card_id          INT NOT NULL,
+      no_visit         INT NOT NULL,
+      tanggal          DATE,
+      teknisi          VARCHAR(255),
+      time_in          VARCHAR(10),
+      time_out         VARCHAR(10),
+      area_treatment   TEXT,
+      jenis_treatment  VARCHAR(255),
+      paraf_b64        LONGTEXT,
+      created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) CHARACTER SET utf8mb4
+  `);
+
   // Seed default admin
   const existing = await get('SELECT id FROM users WHERE username = ?', ['admin']);
   if (!existing) {
