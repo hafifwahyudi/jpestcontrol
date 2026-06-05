@@ -46,26 +46,39 @@ function getCloudinary() {
 }
 
 function cloudinaryUpload(buffer, folder = 'pest-control/evidence', filename = '') {
-  return new Promise((resolve, reject) => {
-    const cld    = getCloudinary();
-    const stream = cld.uploader.upload_stream(
-      {
-        folder,
-        public_id:     filename || undefined,
-        resource_type: 'image',
-        overwrite:     false,
-        transformation: [
-          { width: 1200, crop: 'limit' },
-          { quality: 'auto:good' },
-          { fetch_format: 'auto' },
-        ],
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result.secure_url);
-      }
-    );
-    stream.end(buffer);
+  const cld = getCloudinary();
+
+  function attemptUpload() {
+    return new Promise((resolve, reject) => {
+      const stream = cld.uploader.upload_stream(
+        {
+          folder,
+          public_id:     filename || undefined,
+          resource_type: 'image',
+          overwrite:     false,
+          timeout:       120000, // 120 detik timeout
+          transformation: [
+            { width: 1200, crop: 'limit' },
+            { quality: 'auto:good' },
+            { fetch_format: 'auto' },
+          ],
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
+      stream.end(buffer);
+    });
+  }
+
+  // Retry up to 3x on timeout
+  return attemptUpload().catch(err => {
+    console.warn('[cloudinary] Attempt 1 failed:', err.message, '- retrying...');
+    return attemptUpload().catch(err2 => {
+      console.warn('[cloudinary] Attempt 2 failed:', err2.message, '- retrying...');
+      return attemptUpload();
+    });
   });
 }
 
