@@ -46,6 +46,13 @@ router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, r
     const signatureB64 = req.body.signature_b64 || null;
     const imageUrls    = [];
 
+    // DEBUG: log file info to diagnose server upload issue
+    console.log('[DEBUG CREATE] req.files count:', req.files?.length || 0);
+    console.log('[DEBUG CREATE] content-type:', req.headers['content-type']);
+    if (req.files?.length) {
+      req.files.forEach((f, i) => console.log(`[DEBUG CREATE] file[${i}]:`, f.originalname, f.size, 'bytes'));
+    }
+
     if (req.files?.length) {
       for (const file of req.files) {
         const url = await uploadImage(file.buffer, 'pest-control/evidence');
@@ -116,8 +123,8 @@ router.get('/:id/signature', requireAuth, async (req, res) => {
   res.json({ ok: true, signature_b64: row.signature_b64 });
 });
 
-// ── POST /api/submissions/edit/:id — (POST instead of PUT to prevent cPanel firewall dropping files) ──
-router.post('/edit/:id', requireAuth, upload.array('evidence_images', 10), async (req, res) => {
+// ── Shared edit handler ──────────────────────────────────────────────────────
+async function handleEditSubmission(req, res) {
   try {
     const existing = await get('SELECT * FROM submissions WHERE id = ?', [req.params.id]);
     if (!existing) return res.status(404).json({ error: 'Tidak ditemukan' });
@@ -147,13 +154,16 @@ router.post('/edit/:id', requireAuth, upload.array('evidence_images', 10), async
       [JSON.stringify(formData), signatureB64, JSON.stringify(imageUrls), req.params.id]
     );
 
-
     res.json({ ok: true, image_urls: imageUrls });
   } catch (err) {
-    console.error('[submissions PUT]', err);
+    console.error('[submissions EDIT]', err);
     res.status(500).json({ error: err.message });
   }
-});
+}
+
+// Register on BOTH methods — PUT for backward compat, POST to bypass LiteSpeed file stripping
+router.put('/:id', requireAuth, upload.array('evidence_images', 10), handleEditSubmission);
+router.post('/edit/:id', requireAuth, upload.array('evidence_images', 10), handleEditSubmission);
 
 // ── DELETE /api/submissions/:id ───────────────────────────────────────────────
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
