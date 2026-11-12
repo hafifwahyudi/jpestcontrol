@@ -67,53 +67,74 @@ router.post('/', requireAuth, upload.array('evidence_images', 10), async (req, r
 
 // ── GET /api/submissions — paginated list (karyawan only sees their own) ──────
 router.get('/', requireAuth, async (req, res) => {
-  const page    = Math.max(1, parseInt(req.query.page)  || 1);
-  const limit   = Math.min(50, parseInt(req.query.limit) || 20);
-  const offset  = (page - 1) * limit;
-  const search  = req.query.search;
-  const dateFrom = req.query.date_from;
-  const dateTo   = req.query.date_to;
+  try {
+    const page    = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit   = Math.min(50, parseInt(req.query.limit) || 20);
+    const offset  = (page - 1) * limit;
+    const search  = req.query.search;
+    const dateFrom = req.query.date_from;
+    const dateTo   = req.query.date_to;
 
-  const conditions = [];
-  const params = [];
+    const conditions = [];
+    const params = [];
 
-  // Karyawan hanya bisa lihat submission milik sendiri
-  if (req.user.role !== 'admin') {
-    conditions.push(`s.submitted_by = ?`);
-    params.push(req.user.id);
+    // Karyawan hanya bisa lihat submission milik sendiri
+    if (req.user.role !== 'admin') {
+      conditions.push(`s.submitted_by = ?`);
+      params.push(req.user.id);
+    }
+    if (search)   { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
+    if (dateFrom) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) >= ?`); params.push(dateFrom); }
+    if (dateTo)   { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(dateTo); }
+
+    const where     = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;
+
+    const rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.submitted_by, s.created_at, s.updated_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
+    const totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
+
+    const total  = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
+    const mapped = rows.map(r => {
+      let formData = {};
+      let imageUrls = [];
+      try { formData = typeof r.form_data === 'string' ? JSON.parse(r.form_data) : (r.form_data || {}); } catch (_) {}
+      try { imageUrls = typeof r.image_urls === 'string' ? JSON.parse(r.image_urls || '[]') : (r.image_urls || []); } catch (_) {}
+      return { ...r, form_data: formData, image_urls: imageUrls };
+    });
+    res.json({ ok: true, data: mapped, total, page, limit, pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.error('[submissions GET]', err);
+    res.status(500).json({ error: err.message });
   }
-  if (search)   { conditions.push(`s.form_data LIKE ?`); params.push(`%${search}%`); }
-  if (dateFrom) { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) >= ?`); params.push(dateFrom); }
-  if (dateTo)   { conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(s.form_data, '$.tanggal')) <= ?`); params.push(dateTo); }
-
-  const where     = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-  const baseQuery = `FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by ${where}`;
-
-  const rows     = await all(`SELECT s.id, s.form_data, s.image_urls, s.created_at, s.updated_at, u.username, u.full_name ${baseQuery} ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
-  const totalRow = await get(`SELECT COUNT(*) as c ${baseQuery}`, params);
-
-  const total  = parseInt(totalRow?.c ?? totalRow?.count ?? 0);
-  const mapped = rows.map(r => ({ ...r, form_data: JSON.parse(r.form_data), image_urls: JSON.parse(r.image_urls || '[]') }));
-  res.json({ ok: true, data: mapped, total, page, limit, pages: Math.ceil(total / limit) });
 });
 
 // ── GET /api/submissions/:id ──────────────────────────────────────────────────
 router.get('/:id', requireAuth, async (req, res) => {
-  const row = await get(`SELECT s.*, u.username, u.full_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by WHERE s.id = ?`, [req.params.id]);
-  if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
-  if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
-  row.form_data  = JSON.parse(row.form_data);
-  row.image_urls = JSON.parse(row.image_urls || '[]');
-  delete row.signature_b64;
-  res.json({ ok: true, data: row });
+  try {
+    const row = await get(`SELECT s.*, u.username, u.full_name FROM submissions s LEFT JOIN users u ON u.id = s.submitted_by WHERE s.id = ?`, [req.params.id]);
+    if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
+    if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
+    try { row.form_data = typeof row.form_data === 'string' ? JSON.parse(row.form_data) : (row.form_data || {}); } catch (_) { row.form_data = {}; }
+    try { row.image_urls = typeof row.image_urls === 'string' ? JSON.parse(row.image_urls || '[]') : (row.image_urls || []); } catch (_) { row.image_urls = []; }
+    delete row.signature_b64;
+    res.json({ ok: true, data: row });
+  } catch (err) {
+    console.error('[submissions GET :id]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── GET /api/submissions/:id/signature ───────────────────────────────────────
 router.get('/:id/signature', requireAuth, async (req, res) => {
-  const row = await get('SELECT signature_b64, submitted_by FROM submissions WHERE id = ?', [req.params.id]);
-  if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
-  if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
-  res.json({ ok: true, signature_b64: row.signature_b64 });
+  try {
+    const row = await get('SELECT signature_b64, submitted_by FROM submissions WHERE id = ?', [req.params.id]);
+    if (!row) return res.status(404).json({ error: 'Tidak ditemukan' });
+    if (req.user.role !== 'admin' && row.submitted_by !== req.user.id) return res.status(403).json({ error: 'Akses ditolak' });
+    res.json({ ok: true, signature_b64: row.signature_b64 });
+  } catch (err) {
+    console.error('[submissions GET signature]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── POST /api/submissions/edit/:id — (POST instead of PUT to prevent cPanel firewall dropping files) ──

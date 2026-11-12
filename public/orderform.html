@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Order - Local Pest Control Jember</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header dengan Informasi Perusahaan -->
+    <header class="bg-slate-900 text-white shadow-lg border-b-4 border-orange-500">
+        <div class="max-w-4xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left gap-4">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <!-- Logo Perusahaan -->
+                <div class="w-20 h-20 bg-white rounded-xl p-1 shadow-md flex items-center justify-center overflow-hidden border-2 border-orange-500">
+                    <img src="1001763353.jpg" alt="Local Pest Control Logo" class="w-full h-full object-cover rounded-lg" onerror="this.src='https://placehold.co/100x100/1e293b/f97316?text=LPC'">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">LOCAL PEST CONTROL</h1>
+                    <p class="text-xs text-orange-400 font-medium">Jasa Pengendalian Hama Profesional di Jember</p>
+                </div>
+            </div>
+            <div class="text-xs space-y-1 text-slate-300 bg-slate-800 p-3 rounded-xl border border-slate-700">
+                <p class="flex items-center justify-center sm:justify-start"><i class="fa-solid fa-location-dot text-orange-400 mr-2"></i> Perum. Ataya Residence Mumtazah No.5 Jember</p>
+                <p class="flex items-center justify-center sm:justify-start"><i class="fa-solid fa-map-pin text-orange-400 mr-2"></i> Jl. Kasuari No. 22 Jember</p>
+                <p class="flex items-center justify-center sm:justify-start font-semibold text-white"><i class="fa-brands fa-whatsapp text-emerald-400 mr-2 text-sm"></i> 0823-3217-3442</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content / Form Section -->
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-white text-center">
+                <h2 class="text-xl font-bold mb-1">Formulir Pesanan Layanan Pest Control</h2>
+                <p class="text-xs text-slate-300">Isi data di bawah ini untuk konsultasi cepat dan penjadwalan layanan via WhatsApp.</p>
+            </div>
+
+            <form id="orderForm" onsubmit="sendToWhatsApp(event)" class="p-6 sm:p-8 space-y-6">
+                <!-- Informasi Pelanggan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Nama Lengkap / Instansi <span class="text-red-500">*</span></label>
+                        <input type="text" id="custName" required placeholder="Cth: Bpk. Budi / Kafe Jember" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">No. Telepon / WhatsApp <span class="text-red-500">*</span></label>
+                        <input type="tel" id="custPhone" required placeholder="Cth: 081234567890" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Alamat Lokasi Pengerjaan <span class="text-red-500">*</span></label>
+                    <textarea id="custAddress" rows="2" required placeholder="Nama jalan, nomor rumah/gedung, RT/RW, kelurahan, kecamatan di Jember..." class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition"></textarea>
+                </div>
+
+                <!-- Jenis Bangunan & Luas Area -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Jenis Bangunan <span class="text-red-500">*</span></label>
+                        <select id="buildingType" onchange="checkOtherBuilding()" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition">
+                            <option value="" disabled selected>-- Pilih Jenis Bangunan --</option>
+                            <option value="Rumah">Rumah Tinggal</option>
+                            <option value="Toko">Toko / Ruko</option>
+                            <option value="Resto">Restoran / Cafe / Kuliner</option>
+                            <option value="Gudang">Gudang / Pabrik</option>
+                            <option value="Lainnya">Lainnya (Sebutkan)</option>
+                        </select>
+                    </div>
+                    <div id="otherBuildingWrapper" class="hidden">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Sebutkan Jenis Bangunan Lainnya <span class="text-red-500">*</span></label>
+                        <input type="text" id="otherBuilding" placeholder="Cth: Sekolah, Kantor, Hotel" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <div id="areaSizeContainer">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Perkiraan Luas Area <span class="text-red-500">*</span></label>
+                        <input type="text" id="areaSize" required placeholder="Cth: Type 45, atau ±150 m²" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                </div>
+
+                <!-- Permasalahan Hama -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Permasalahan Hama (Pilih minimal 1) <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Rayap (Termite)" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Rayap</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Tikus (Rodent)" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Tikus</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Kecoa & Semut" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Kecoa & Semut</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Nyamuk (Fogging)" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Nyamuk</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Kutu Busuk / Kutu Kasur" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Kutu Busuk</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-orange-50 hover:border-orange-300 transition">
+                            <input type="checkbox" name="pests" value="Lainnya" class="w-4 h-4 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-sm font-medium text-slate-700">Hama Lainnya</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Keterangan / Keluhan Tambahan</label>
+                    <textarea id="additionalNotes" rows="2" placeholder="Cth: Hama sudah parah di area dapur belakang..." class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white focus:outline-none transition"></textarea>
+                </div>
+
+                <!-- Tombol Kirim WhatsApp -->
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center space-x-3 text-base">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>Kirim Pesanan via WhatsApp ke Local Pest Control</span>
+                    </button>
+                    <p class="text-center text-xs text-slate-500 mt-3">Tombol ini akan langsung membuka aplikasi WhatsApp dan merangkum pesanan Anda secara otomatis.</p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800 mt-10">
+        <p>&copy; 2026 Local Pest Control Jember. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript Handler -->
+    <script>
+        function checkOtherBuilding() {
+            const select = document.getElementById('buildingType');
+            const wrapper = document.getElementById('otherBuildingWrapper');
+            const otherInput = document.getElementById('otherBuilding');
+            const areaContainer = document.getElementById('areaSizeContainer');
+
+            if (select.value === 'Lainnya') {
+                wrapper.classList.remove('hidden');
+                otherInput.required = true;
+                areaContainer.className = "sm:col-span-2";
+            } else {
+                wrapper.classList.add('hidden');
+                otherInput.required = false;
+                areaContainer.className = "";
+            }
+        }
+
+        function sendToWhatsApp(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            
+            let building = document.getElementById('buildingType').value;
+            if (building === 'Lainnya') {
+                building = document.getElementById('otherBuilding').value.trim();
+            }
+
+            const area = document.getElementById('areaSize').value.trim();
+            const notes = document.getElementById('additionalNotes').value.trim() || "Tidak ada catatan tambahan";
+
+            // Collect selected pests
+            const pestCheckboxes = document.querySelectorAll('input[name="pests"]:checked');
+            let pests = [];
+            pestCheckboxes.forEach(cb => pests.push(cb.value));
+
+            if (pests.length === 0) {
+                alert("Harap pilih minimal 1 jenis permasalahan hama yang ingin ditangani.");
+                return;
+            }
+
+            // Format WhatsApp Message with standard line breaks
+            let message = `Halo *Local Pest Control Jember*, saya ingin memesan layanan / konsultasi pengendalian hama:\n\n`;
+            message += `*DATA PELANGGAN*\n`;
+            message += `- Nama: ${name}\n`;
+            message += `- Telepon/WA: ${phone}\n`;
+            message += `- Alamat Lokasi: ${address}\n\n`;
+            message += `*DETAIL LOKASI & HAMA*\n`;
+            message += `- Jenis Bangunan: ${building}\n`;
+            message += `- Luas Area: ${area}\n`;
+            message += `- Hama Sasaran: ${pests.join(', ')}\n`;
+            message += `- Catatan: ${notes}\n\n`;
+            message += `Mohon informasi estimasi biaya dan jadwal survei/pengerjaannya. Terima kasih!`;
+
+            // Official WhatsApp Destination Number
+            const waNumber = "6282332173442";
+
+            // Encode message properly so it doesn't get cut off by special characters
+            const encodedMessage = encodeURIComponent(message);
+
+            // Open WhatsApp using the modern wa.me format
+            const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>

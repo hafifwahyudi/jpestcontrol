@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulir Pesanan — Jember Pest Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-900: #374151;
+      --green-800: #c2410c;
+      --green-700: #ea580c;
+      --green-600: #f97316;
+      --green-400: #fb923c;
+      --green-100: #fff3e6;
+      --accent: #fb923c;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border-light: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(150deg, #fff7ed 0%, #f3f4f6 50%, #ffffff 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px 48px;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(251,146,60,0.2) 0%, transparent 70%);
+      top: -150px; left: -150px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(156,163,175,0.18) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+      pointer-events: none;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.1);
+      border: 1px solid #e5e7eb;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header ── */
+    .card-header {
+      background: linear-gradient(135deg, #e06d2b 0%, #fb923c 100%);
+      padding: 32px 28px 28px;
+      text-align: center;
+    }
+    .card-header h1 {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .card-header p {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ── Body ── */
+    .card-body {
+      padding: 28px 24px 32px;
+      background: #f7faf8;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green-800);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+    .form-group label .required {
+      color: #e53935;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid var(--border-light);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input::placeholder,
+    textarea::placeholder { color: #b0bec5; }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61,220,132,0.15);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    /* ── Checkbox Grid ── */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #fff;
+      border: 1.5px solid var(--border-light);
+      border-radius: 10px;
+      padding: 11px 13px;
+      cursor: pointer;
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .checkbox-item:hover {
+      border-color: var(--accent);
+      background: rgba(61,220,132,0.04);
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      min-width: 17px;
+      accent-color: var(--green-600);
+      cursor: pointer;
+      margin-top: 1px;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .checkbox-item input[type="checkbox"]:focus {
+      box-shadow: none;
+      border: none;
+    }
+    .checkbox-item span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .checkbox-item.checked {
+      border-color: var(--green-600);
+      background: rgba(45,122,79,0.06);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 4px 0 20px;
+    }
+
+    /* ── WhatsApp Button ── */
+    .btn-wa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #25c05a, #1aa34a);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .btn-wa:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(37,192,90,0.4);
+      background: linear-gradient(135deg, #2cd465, #1ec454);
+    }
+    .btn-wa:active { transform: translateY(0); }
+    .btn-wa svg { flex-shrink: 0; }
+
+    .btn-wa-note {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+      font-weight: 500;
+      font-size: 12.5px;
+      text-decoration: none;
+      margin-bottom: 18px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #ea580c; }
+
+    /* ── Validation ── */
+    .error-hint {
+      font-size: 11px;
+      color: #e53935;
+      margin-top: 5px;
+      display: none;
+    }
+    .input-error {
+      border-color: #e53935 !important;
+      box-shadow: 0 0 0 3px rgba(229,57,53,0.1) !important;
+    }
+
+    @media (max-width: 400px) {
+      .card-header { padding: 26px 20px 22px; }
+      .card-body { padding: 22px 18px 28px; }
+      .checkbox-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div style="width:100%; max-width:480px; position:relative; z-index:1;">
+    <a href="/index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Kembali ke Login
+    </a>
+
+    <div class="card">
+      <!-- Header -->
+      <div class="card-header">
+        <h1>Formulir Pesanan Layanan<br>Pest Control</h1>
+        <p>Isi data di bawah ini untuk konsultasi cepat dan<br>penjadwalan layanan via WhatsApp.</p>
+      </div>
+
+      <!-- Body -->
+      <div class="card-body">
+        <form id="orderForm" novalidate>
+
+          <!-- Nama -->
+          <div class="form-group">
+            <label>Nama Lengkap / Instansi <span class="required">*</span></label>
+            <input type="text" id="nama" placeholder="Cth: Bpk. Sutikno/ Cafe Jember" />
+            <p class="error-hint" id="namaErr">Nama wajib diisi.</p>
+          </div>
+
+          <!-- Telepon -->
+          <div class="form-group">
+            <label>No. Telepon / WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="telp" placeholder="Cth: 082 332 173 442" />
+            <p class="error-hint" id="telpErr">Nomor WhatsApp wajib diisi.</p>
+          </div>
+
+          <!-- Alamat -->
+          <div class="form-group">
+            <label>Alamat Lokasi Pengerjaan <span class="required">*</span></label>
+            <textarea id="alamat" placeholder="Nama jalan, nomor rumah/gedung, kelurahan, kecamatan dll"></textarea>
+            <p class="error-hint" id="alamatErr">Alamat wajib diisi.</p>
+          </div>
+
+          <!-- Jenis Bangunan -->
+          <div class="form-group">
+            <label>Jenis Bangunan <span class="required">*</span></label>
+            <select id="bangunan">
+              <option value="" disabled selected>-- Pilih Jenis Bangunan --</option>
+              <option value="Rumah Tinggal">Rumah Tinggal</option>
+              <option value="Ruko / Toko">Ruko / Toko</option>
+              <option value="Kantor">Kantor</option>
+              <option value="Restoran / Cafe">Restoran / Cafe</option>
+              <option value="Hotel / Penginapan">Hotel / Penginapan</option>
+              <option value="Gudang / Pabrik">Gudang / Pabrik</option>
+              <option value="Sekolah / Kampus">Sekolah / Kampus</option>
+              <option value="Fasilitas Kesehatan">Fasilitas Kesehatan</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+            <p class="error-hint" id="bangunanErr">Pilih jenis bangunan.</p>
+          </div>
+
+          <!-- Luas Area -->
+          <div class="form-group">
+            <label>Perkiraan Luas Area <span class="required">*</span></label>
+            <input type="text" id="luas" placeholder="Cth: Type 45, atau ±150 m²" />
+            <p class="error-hint" id="luasErr">Luas area wajib diisi.</p>
+          </div>
+
+          <!-- Hama -->
+          <div class="form-group">
+            <label>Permasalahan Hama (Pilih minimal 1) <span class="required">*</span></label>
+            <div class="checkbox-grid" id="hamaGrid">
+              <label class="checkbox-item" id="lbl-rayap">
+                <input type="checkbox" value="Rayap" /> <span>Rayap</span>
+              </label>
+              <label class="checkbox-item" id="lbl-tikus">
+                <input type="checkbox" value="Tikus" /> <span>Tikus</span>
+              </label>
+              <label class="checkbox-item" id="lbl-kecoa">
+                <input type="checkbox" value="Kecoa & Semut" /> <span>Kecoa &amp; Semut</span>
+              </label>
+              <label class="checkbox-item" id="lbl-nyamuk">
+                <input type="checkbox" value="Nyamuk" /> <span>Nyamuk</span>
+              </label>
+              <label class="checkbox-item" id="lbl-kutu">
+                <input type="checkbox" value="Kutu Busuk" /> <span>Kutu Busuk</span>
+              </label>
+              <label class="checkbox-item" id="lbl-lainnya">
+                <input type="checkbox" value="Hama Lainnya" /> <span>Hama Lainnya</span>
+              </label>
+            </div>
+            <p class="error-hint" id="hamaErr">Pilih minimal 1 jenis hama.</p>
+          </div>
+
+          <!-- Keterangan -->
+          <div class="form-group">
+            <label>Keterangan / Keluhan Tambahan</label>
+            <textarea id="keterangan" placeholder="Cth: Hama sudah parah di area dapur belakang...!"></textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn-wa">
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.655 4.826 1.8 6.847L2 30l7.363-1.775A13.93 13.93 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm7.07 19.418c-.3.843-1.76 1.612-2.41 1.712-.613.093-1.389.132-2.24-.14-.517-.168-1.18-.392-2.03-.768-3.57-1.543-5.9-5.14-6.077-5.378-.178-.237-1.44-1.915-1.44-3.654 0-1.738.912-2.595 1.236-2.95.323-.355.705-.444.94-.444.237 0 .474.002.681.013.218.012.511-.082.8.61.3.714 1.018 2.453 1.108 2.631.09.178.149.386.03.623-.12.238-.178.386-.355.593-.178.207-.374.462-.534.621-.178.178-.363.37-.156.726.207.355.92 1.517 1.974 2.457 1.356 1.21 2.5 1.584 2.855 1.762.355.178.563.149.77-.09.208-.237.888-1.036 1.126-1.39.237-.356.474-.297.8-.178.326.118 2.065.974 2.42 1.151.355.178.592.267.681.414.09.148.09.858-.21 1.7z"/>
+            </svg>
+            Kirim Pesanan via WhatsApp ke Admin
+          </button>
+          <p class="btn-wa-note">Tombol ini akan langsung membuka aplikasi WhatsApp dan merangkum pesanan Anda secara otomatis.</p>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Nomor WhatsApp Admin (ganti sesuai kebutuhan)
+    const ADMIN_WA = '6282332173442';
+
+    // Checkbox visual toggle
+    document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        cb.closest('.checkbox-item').classList.toggle('checked', cb.checked);
+      });
+    });
+
+    // Validation helpers
+    function setErr(inputEl, hintEl, show) {
+      if (show) {
+        inputEl.classList.add('input-error');
+        hintEl.style.display = 'block';
+      } else {
+        inputEl.classList.remove('input-error');
+        hintEl.style.display = 'none';
+      }
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nama     = document.getElementById('nama');
+      const telp     = document.getElementById('telp');
+      const alamat   = document.getElementById('alamat');
+      const bangunan = document.getElementById('bangunan');
+      const luas     = document.getElementById('luas');
+      const keterangan = document.getElementById('keterangan');
+
+      let valid = true;
+
+      // Validate
+      if (!nama.value.trim())     { setErr(nama, document.getElementById('namaErr'), true);     valid = false; } else { setErr(nama, document.getElementById('namaErr'), false); }
+      if (!telp.value.trim())     { setErr(telp, document.getElementById('telpErr'), true);     valid = false; } else { setErr(telp, document.getElementById('telpErr'), false); }
+      if (!alamat.value.trim())   { setErr(alamat, document.getElementById('alamatErr'), true); valid = false; } else { setErr(alamat, document.getElementById('alamatErr'), false); }
+      if (!bangunan.value)        { setErr(bangunan, document.getElementById('bangunanErr'), true); valid = false; } else { setErr(bangunan, document.getElementById('bangunanErr'), false); }
+      if (!luas.value.trim())     { setErr(luas, document.getElementById('luasErr'), true);     valid = false; } else { setErr(luas, document.getElementById('luasErr'), false); }
+
+      // Hama checkboxes
+      const hamaChecked = [...document.querySelectorAll('#hamaGrid input[type="checkbox"]:checked')].map(c => c.value);
+      const hamaErr = document.getElementById('hamaErr');
+      if (hamaChecked.length === 0) {
+        hamaErr.style.display = 'block';
+        document.getElementById('hamaGrid').style.borderRadius = '10px';
+        document.getElementById('hamaGrid').style.outline = '2px solid #e53935';
+        valid = false;
+      } else {
+        hamaErr.style.display = 'none';
+        document.getElementById('hamaGrid').style.outline = 'none';
+      }
+
+      if (!valid) return;
+
+      // Build WhatsApp message
+      const msg = [
+        '🐛 *PESANAN LAYANAN PEST CONTROL*',
+        '━━━━━━━━━━━━━━━━━━━━━━',
+        `👤 *Nama / Instansi:* ${nama.value.trim()}`,
+        `📞 *No. WhatsApp:* ${telp.value.trim()}`,
+        `📍 *Alamat Pengerjaan:*\n${alamat.value.trim()}`,
+        `🏠 *Jenis Bangunan:* ${bangunan.value}`,
+        `📐 *Luas Area:* ${luas.value.trim()}`,
+        `🦟 *Jenis Hama:* ${hamaChecked.join(', ')}`,
+        keterangan.value.trim() ? `📝 *Keterangan:*\n${keterangan.value.trim()}` : '',
+        '━━━━━━━━━━━━━━━━━━━━━━',
+        '_Pesan dikirim melalui Formulir Online Jember Pest Control_',
+      ].filter(Boolean).join('\n');
+
+      const url = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    });
+  </script>
+</body>
+</html>

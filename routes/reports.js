@@ -66,18 +66,18 @@ async function buildSlipPages(doc, row, isFirst) {
   const imgs = JSON.parse(row.image_urls || '[]');
 
   const chk = (v) => v ? '[X]' : '[ ]';
-  const PRI = '#1a4a2e', SEC = '#2d7a4f', GRY = '#555555', LGT = '#f0f7f4';
+  const PRI = '#e06d2b', SEC = '#f97316', GRY = '#4b5563', LGT = '#f3f4f6';
   const W = doc.page.width - 90;
 
   // ── HEADER ──────────────────────────────────────────────────────────
   doc.rect(45, 45, W, 72).fill(PRI);
   doc.fillColor('white').fontSize(18).font('Helvetica-Bold').text('SLIP SERVICE', 55, 52);
   doc.fontSize(9).font('Helvetica')
-    .text('CV. KASUARI INVESTAMA - Jember Pest Control', 55, 74)
+    .text('CV. KASUARI INVESTAMA - Local Pest Control', 55, 74)
     .text('Jl. Kasuari No. 22, Gebang-Patrang-Jember', 55, 86)
     .text('Telp/WA: 082 332 173 442 | jemberpestcontrol@gmail.com | www.jemberpest.co.id', 55, 98);
   const rightX = 45 + W - 150;
-  doc.fillColor('#ccffcc').fontSize(9).font('Helvetica-Bold')
+  doc.fillColor('#fff7ed').fontSize(9).font('Helvetica-Bold')
     .text(`No: ${fd.no || '-'}`, rightX, 52, { width: 145, align: 'right' })
     .text(`Tgl: ${fd.tanggal || '-'}`, rightX, 64, { width: 145, align: 'right' });
   let y = 130;
@@ -128,7 +128,7 @@ async function buildSlipPages(doc, row, isFirst) {
   const pests2 = ['nyamuk', 'lalat', 'laba2', 'kutu'];
   const rowH = 16, ph = pests1.length * rowH + 12;
   doc.rect(45, y, half, ph).fill(LGT); doc.rect(45 + half + 10, y, half, ph).fill(LGT);
-  doc.fillColor('#a0c8a0').fontSize(8).font('Helvetica-Bold')
+  doc.fillColor('#c2410c').fontSize(8).font('Helvetica-Bold')
     .text('Hama', 52, y + 4).text('Metode', 130, y + 4)
     .text('Hama', 52 + half + 10, y + 4).text('Metode', 130 + half + 10, y + 4);
   // Fixed pests
@@ -173,21 +173,26 @@ async function buildSlipPages(doc, row, isFirst) {
 
   // ── CHEMICAL ─────────────────────────────────────────────────────────
   y = ensureSpace(doc, y, 80); section('BAHAN AKTIF CHEMICAL');
-  doc.rect(45, y, W, 16).fill('#c8e6c0');
-  doc.fillColor(GRY).fontSize(8).font('Helvetica-Bold')
-    .text('Bahan Aktif', 52, y + 4).text('Dosis Pemakaian', 45 + W - 155, y + 4);
+  doc.rect(45, y, W, 16).fill('#ffedd5');
+  doc.fillColor('#9a3412').fontSize(8).font('Helvetica-Bold')
+    .text('Bahan Aktif', 52, y + 4)
+    .text('Dosis', 45 + W - 260, y + 4)
+    .text('Jumlah Pemakaian', 45 + W - 130, y + 4);
   y += 16;
-  [[fd.chemical1_name, fd.chemical1_dose],
-  [fd.chemical2_name, fd.chemical2_dose],
-  [fd.chemical3_name, fd.chemical3_dose],
-  [fd.chemical4_name, fd.chemical4_dose],
-  ...(fd.extra_chemicals || []).map(c => [c.name, c.dose])
-  ].forEach(([name, dose], idx) => {
-    if (!name && !dose) return;
-    doc.rect(45, y, W, 18).fill(LGT);
+  const chemRows = [
+    [fd.chemical1_name, fd.chemical1_dose, fd.chemical1_amount],
+    [fd.chemical2_name, fd.chemical2_dose, fd.chemical2_amount],
+    ...([fd.chemical3_name, fd.chemical3_dose, fd.chemical3_amount].some(Boolean) ? [[fd.chemical3_name, fd.chemical3_dose, fd.chemical3_amount]] : []),
+    ...([fd.chemical4_name, fd.chemical4_dose, fd.chemical4_amount].some(Boolean) ? [[fd.chemical4_name, fd.chemical4_dose, fd.chemical4_amount]] : []),
+    ...(fd.extra_chemicals || []).map(c => [c.name, c.dose, c.amount])
+  ];
+  chemRows.forEach(([name, dose, amount], idx) => {
+    if (idx >= 2 && !name && !dose && !amount) return;
+    doc.rect(45, y, W, 18).fill(idx % 2 === 0 ? LGT : '#fff7ed');
     doc.fillColor('#111').fontSize(9).font('Helvetica')
-      .text(`${idx + 1}. ${name || '-'}`, 52, y + 4, { width: W - 200 })
-      .text(dose || '-', 45 + W - 155, y + 4, { width: 150 });
+      .text(`${idx + 1}. ${name || '-'}`, 52, y + 4, { width: W - 280 })
+      .text(dose || '-', 45 + W - 260, y + 4, { width: 120 })
+      .text(amount || '-', 45 + W - 130, y + 4, { width: 125 });
     y += 20;
   });
   y += 6;
@@ -290,7 +295,7 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
   doc.on('data', d => bufs.push(d));
   doc.on('end', () => {
     // Add footer to all pages
-    const PRI = '#1a4a2e';
+    const PRI = '#e06d2b';
     const W = doc.page.width - 90;
     const pageCount = doc.bufferedPageRange().count;
     for (let i = 0; i < pageCount; i++) {
@@ -298,7 +303,7 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
@@ -335,7 +340,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 
   if (!row) return res.status(404).json({ error: 'Submission tidak ditemukan' });
 
-  const PRI = '#1a4a2e';
+  const PRI = '#e06d2b';
   const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: true, bufferPages: true });
   const W = doc.page.width - 90;
 
@@ -349,7 +354,7 @@ router.get('/:id', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
         .text(`Report #${row.id} | Dicetak: ${new Date().toLocaleString('id-ID')} | Oleh: ${row.tech_name || row.username || '-'} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
@@ -388,17 +393,17 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   const ws = wb.addWorksheet('Ringkasan Submissions', { views: [{ state: 'frozen', ySplit: 4 }] });
 
   // Company header
-  ws.mergeCells('A1:R1');
-  ws.getCell('A1').value = 'JEMBER PEST CONTROL — CV. KASUARI INVESTAMA';
+  ws.mergeCells('A1:T1');
+  ws.getCell('A1').value = 'LOCAL PEST CONTROL — CV. KASUARI INVESTAMA';
   ws.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
-  ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a4a2e' } };
+  ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe06d2b' } };
   ws.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
   ws.getRow(1).height = 28;
 
-  ws.mergeCells('A2:R2');
+  ws.mergeCells('A2:T2');
   ws.getCell('A2').value = `Jl. Kasuari No. 22, Gebang-Patrang-Jember | Telp/WA: 082 332 173 442 | Dicetak: ${new Date().toLocaleString('id-ID')}`;
   ws.getCell('A2').font = { size: 9, color: { argb: 'FFFFFFFF' } };
-  ws.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2d7a4f' } };
+  ws.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFf97316' } };
   ws.getCell('A2').alignment = { horizontal: 'center' };
   ws.getRow(2).height = 18;
 
@@ -408,7 +413,8 @@ router.get('/export/excel', requireAuth, async (req, res) => {
     '#', 'Tanggal', 'No. Slip', 'Nama Client', 'Alamat',
     'Jenis Kunjungan', 'Waktu Masuk', 'Waktu Keluar',
     'Sasaran Hama', 'Glue Trap', 'Baiting', 'Fly Catcher', 'Live Trap',
-    'Chemical 1', 'Dosis 1', 'Chemical 2', 'Dosis 2',
+    'Chemical 1', 'Dosis 1', 'Jumlah Pemakaian 1',
+    'Chemical 2', 'Dosis 2', 'Jumlah Pemakaian 2',
     'Catatan', 'Nama Client (TTD)', 'Telp Client', 'Foto Count',
     'Disubmit Oleh', 'Waktu Submit',
   ];
@@ -417,9 +423,9 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   const hRow = ws.lastRow;
   hRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 9 };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a4a2e' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe06d2b' } };
     cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    cell.border = { bottom: { style: 'thin', color: { argb: 'FF4caf80' } } };
+    cell.border = { bottom: { style: 'thin', color: { argb: 'FFfb923c' } } };
   });
   ws.getRow(4).height = 30;
 
@@ -445,8 +451,10 @@ router.get('/export/excel', requireAuth, async (req, res) => {
       Number(fd.live_trap ?? fd.perangkap_masal) || 0,
       fd.chemical1_name || '-',
       fd.chemical1_dose || '-',
+      fd.chemical1_amount || '-',
       fd.chemical2_name || '-',
       fd.chemical2_dose || '-',
+      fd.chemical2_amount || '-',
       fd.catatan || '-',
       fd.client_nama || '-',
       fd.client_telp || '-',
@@ -456,7 +464,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
     ]);
     r.eachCell({ includeEmpty: false }, cell => {
       cell.alignment = { vertical: 'top', wrapText: false };
-      cell.border = { bottom: { style: 'hair', color: { argb: 'FFdde8e2' } } };
+      cell.border = { bottom: { style: 'hair', color: { argb: 'FFe5e7eb' } } };
       if (cell.col >= 10 && cell.col <= 13) {
         cell.numFmt = '0';
         cell.alignment = { horizontal: 'center' };
@@ -464,14 +472,14 @@ router.get('/export/excel', requireAuth, async (req, res) => {
     });
     if (idx % 2 === 1) {
       r.eachCell({ includeEmpty: true }, cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7F5' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF7ED' } };
       });
     }
     r.height = 18;
   });
 
   // Column widths
-  const colWidths = [5, 12, 18, 25, 35, 18, 11, 11, 45, 10, 13, 13, 14, 20, 14, 20, 14, 40, 22, 16, 8, 20, 22];
+  const colWidths = [5, 12, 18, 25, 35, 18, 11, 11, 45, 10, 13, 13, 14, 20, 14, 18, 20, 14, 18, 40, 22, 16, 8, 20, 22];
   colWidths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
 
   // Auto-filter
@@ -482,14 +490,14 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   wsImg.mergeCells('A1:D1');
   wsImg.getCell('A1').value = 'DAFTAR FOTO BUKTI PEKERJAAN';
   wsImg.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
-  wsImg.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a4a2e' } };
+  wsImg.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe06d2b' } };
   wsImg.getCell('A1').alignment = { horizontal: 'center' };
   wsImg.getRow(1).height = 24;
 
   wsImg.addRow(['#Sub', 'Client', 'Tanggal', 'URL Foto']);
   wsImg.lastRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2d7a4f' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFf97316' } };
   });
 
   rows.forEach(row => {
@@ -536,9 +544,9 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
 
   // Header branding
   ws.mergeCells('A1:C1');
-  ws.getCell('A1').value = 'SLIP SERVICE — JEMBER PEST CONTROL';
+  ws.getCell('A1').value = 'SLIP SERVICE — LOCAL PEST CONTROL';
   ws.getCell('A1').font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
-  ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a4a2e' } };
+  ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe06d2b' } };
   ws.getCell('A1').alignment = { horizontal: 'center' };
   ws.getRow(1).height = 26;
 
@@ -546,15 +554,15 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
     ws.addRow([]);
     const r = ws.addRow([title]);
     r.getCell(1).font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
-    r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2d7a4f' } };
+    r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFf97316' } };
     ws.mergeCells(`A${r.number}:C${r.number}`);
     r.height = 20;
   };
 
   const addField = (label, value) => {
     const r = ws.addRow([label, value]);
-    r.getCell(1).font = { bold: true, size: 9, color: { argb: 'FF555555' } };
-    r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F7F4' } };
+    r.getCell(1).font = { bold: true, size: 9, color: { argb: 'FF4b5563' } };
+    r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF7ED' } };
     r.getCell(2).font = { size: 9 };
     ws.mergeCells(`B${r.number}:C${r.number}`);
   };
@@ -585,8 +593,17 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
   addSection('BAHAN AKTIF CHEMICAL');
   addField('Bahan Aktif 1', fd.chemical1_name || '-');
   addField('Dosis 1', fd.chemical1_dose || '-');
+  addField('Jumlah Pemakaian 1', fd.chemical1_amount || '-');
   addField('Bahan Aktif 2', fd.chemical2_name || '-');
   addField('Dosis 2', fd.chemical2_dose || '-');
+  addField('Jumlah Pemakaian 2', fd.chemical2_amount || '-');
+  if (Array.isArray(fd.extra_chemicals)) {
+    fd.extra_chemicals.forEach((ec, i) => {
+      addField(`Bahan Aktif ${i + 3}`, ec.name || '-');
+      addField(`Dosis ${i + 3}`, ec.dose || '-');
+      addField(`Jumlah Pemakaian ${i + 3}`, ec.amount || '-');
+    });
+  }
 
   addSection('CATATAN');
   addField('Catatan', fd.catatan || '-');
@@ -649,14 +666,14 @@ router.get('/:id/public', async (req, res) => {
   doc.on('data', d => bufs.push(d));
   doc.on('end', () => {
     const W = doc.page.width - 90;
-    const PRI = '#1a4a2e';
+    const PRI = '#e06d2b';
     const pageCount = doc.bufferedPageRange().count;
     for (let i = 0; i < pageCount; i++) {
       doc.switchToPage(i);
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Jember Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);

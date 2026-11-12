@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Slip Service — Jember Pest Control</title>
+  <title>Slip Service — Local Pest Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green-900: #0f2d1a; --green-800: #1a4a2e; --green-600: #2d7a4f;
-      --green-400: #4caf80; --green-100: #e8f5ed; --accent: #3ddc84;
-      --bg: #f4f7f5; --card: #fff; --text: #1a1a1a; --muted: #777;
-      --border: #dde8e2; --radius: 12px;
+      --green-900: #374151; --green-800: #e06d2b; --green-600: #f97316;
+      --green-400: #fb923c; --green-100: #fff3e6; --accent: #fb923c;
+      --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --muted: #6b7280;
+      --border: #e5e7eb; --radius: 12px;
     }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #fff7ed 0%, #f3f4f6 50%, #ffffff 100%); color: var(--text); min-height: 100vh; }
 
     /* NAV */
     nav {
@@ -272,7 +272,7 @@
 </head>
 <body>
   <nav>
-    <div class="nav-brand"><img src="logo.png" style="width: 25px; height: 25px; object-fit: contain;" alt="Logo" /> Jember Pest Control</div>
+    <div class="nav-brand"><img src="Local.jpg" style="width: 25px; height: 25px; object-fit: contain; border-radius: 4px;" alt="Logo" /> Local Pest Control</div>
     <div class="nav-actions">
       <button class="nav-btn nav-btn-ghost" onclick="window.location.href='/dashboard.html'">📋 Dashboard</button>
       <button class="nav-btn nav-btn-ghost" id="logoutBtn">Keluar</button>
@@ -435,25 +435,33 @@
       <div class="card">
         <div class="card-header">🧪 Bahan Aktif Chemical</div>
         <div class="card-body">
-          <div class="grid-2" id="fixedChemicals">
+          <div class="grid-3" id="fixedChemicals">
             <div class="form-group">
               <label>Bahan Aktif 1</label>
               <input type="text" name="chemical1_name" id="chemical1_name" placeholder="Nama bahan aktif" />
             </div>
             <div class="form-group">
-              <label>Dosis Pemakaian 1</label>
+              <label>Dosis 1</label>
               <input type="text" name="chemical1_dose" id="chemical1_dose" placeholder="Dosis / konsentrasi" />
+            </div>
+            <div class="form-group">
+              <label>Jumlah Pemakaian 1</label>
+              <input type="text" name="chemical1_amount" id="chemical1_amount" placeholder="Jumlah pemakaian" />
             </div>
             <div class="form-group">
               <label>Bahan Aktif 2</label>
               <input type="text" name="chemical2_name" id="chemical2_name" placeholder="Nama bahan aktif" />
             </div>
             <div class="form-group">
-              <label>Dosis Pemakaian 2</label>
+              <label>Dosis 2</label>
               <input type="text" name="chemical2_dose" id="chemical2_dose" placeholder="Dosis / konsentrasi" />
             </div>
+            <div class="form-group">
+              <label>Jumlah Pemakaian 2</label>
+              <input type="text" name="chemical2_amount" id="chemical2_amount" placeholder="Jumlah pemakaian" />
+            </div>
           </div>
-          <div class="grid-2" id="extraChemicalsContainer"></div>
+          <div class="grid-3" id="extraChemicalsContainer" style="margin-top:14px"></div>
           <div style="margin-top:10px">
             <button type="button" onclick="addExtraChemical()" style="padding:8px 16px;border:1.5px dashed var(--green-400);background:var(--green-100);color:var(--green-800);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s">+ Tambah Bahan</button>
           </div>
@@ -887,31 +895,59 @@
 
     // ── DYNAMIC CHEMICALS ──────────────────────────────────────────────────
     let extraChemCount = 0;
-    function addExtraChemical(name = '', dose = '') {
+    function renumberExtraChems() {
+      const container = document.getElementById('extraChemicalsContainer');
+      const amountGroups = container.querySelectorAll('[id^="extraChem_"]');
+      amountGroups.forEach((d3, i) => {
+        const num = 3 + i;
+        const d2 = d3.previousElementSibling;
+        const d1 = d2?.previousElementSibling;
+        if (d1) {
+          const lbl1 = d1.querySelector('label');
+          if (lbl1) lbl1.textContent = `Bahan Aktif ${num}`;
+        }
+        if (d2) {
+          const lbl2 = d2.querySelector('label');
+          if (lbl2) lbl2.textContent = `Dosis ${num}`;
+        }
+        const lbl3 = d3.querySelector('label');
+        if (lbl3) lbl3.textContent = `Jumlah Pemakaian ${num}`;
+      });
+    }
+    function addExtraChemical(name = '', dose = '', amount = '') {
       extraChemCount++;
       const idx = extraChemCount;
-      const totalNum = 4 + idx;
       const container = document.getElementById('extraChemicalsContainer');
+      const totalNum = 3 + container.querySelectorAll('[id^="extraChem_"]').length;
       const d1 = document.createElement('div');
       d1.className = 'form-group';
       d1.innerHTML = `<label>Bahan Aktif ${totalNum}</label><input type="text" name="extra_chem_name_${idx}" value="${name}" placeholder="Nama bahan aktif" />`;
       const d2 = document.createElement('div');
       d2.className = 'form-group';
-      d2.id = `extraChem_${idx}`;
-      d2.innerHTML = `
-        <label>Dosis Pemakaian ${totalNum}</label>
+      d2.innerHTML = `<label>Dosis ${totalNum}</label><input type="text" name="extra_chem_dose_${idx}" value="${dose}" placeholder="Dosis / konsentrasi" />`;
+      const d3 = document.createElement('div');
+      d3.className = 'form-group';
+      d3.id = `extraChem_${idx}`;
+      d3.innerHTML = `
+        <label>Jumlah Pemakaian ${totalNum}</label>
         <div style="display:flex;gap:6px">
-          <input type="text" name="extra_chem_dose_${idx}" value="${dose}" placeholder="Dosis / konsentrasi" style="flex:1"/>
+          <input type="text" name="extra_chem_amount_${idx}" value="${amount}" placeholder="Jumlah pemakaian" style="flex:1"/>
           <button type="button" onclick="removeExtraChem(${idx})" style="padding:4px 8px;border:none;background:#fde8e8;color:#9e2c2c;border-radius:6px;cursor:pointer;font-weight:700;align-self:flex-end;height:40px">✕</button>
         </div>
       `;
       container.appendChild(d1);
       container.appendChild(d2);
+      container.appendChild(d3);
       d1.querySelector('input').focus();
     }
     function removeExtraChem(idx) {
-      document.getElementById(`extraChem_${idx}`)?.previousElementSibling?.remove();
-      document.getElementById(`extraChem_${idx}`)?.remove();
+      const d3 = document.getElementById(`extraChem_${idx}`);
+      const d2 = d3?.previousElementSibling;
+      const d1 = d2?.previousElementSibling;
+      d1?.remove();
+      d2?.remove();
+      d3?.remove();
+      renumberExtraChems();
     }
 
     // Set today's date & auto slip number (only in create mode)
@@ -945,8 +981,8 @@
 
       // Fill text fields
       ['no','tanggal','nama_client','alamat','time_in','time_out',
-       'chemical1_name','chemical1_dose','chemical2_name','chemical2_dose',
-       'chemical3_name','chemical3_dose','chemical4_name','chemical4_dose',
+       'chemical1_name','chemical1_dose','chemical1_amount','chemical2_name','chemical2_dose','chemical2_amount',
+       'chemical3_name','chemical3_dose','chemical3_amount','chemical4_name','chemical4_dose','chemical4_amount',
        'catatan','client_nama','client_telp'].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.value = fd[f] || '';
@@ -981,7 +1017,7 @@
       (fd.custom_monitors || []).forEach(m => addCustomMonitor(m.label, m.count));
 
       // Extra chemicals
-      (fd.extra_chemicals || []).forEach(c => addExtraChemical(c.name, c.dose));
+      (fd.extra_chemicals || []).forEach(c => addExtraChemical(c.name, c.dose, c.amount || ''));
 
       // Found pests (hama yang ditemukan)
       if (fd.found_pests && fd.found_pests.length) {
@@ -1161,8 +1197,8 @@
       const form = e.target;
       const fields = ['no','tanggal','nama_client','alamat','time_in','time_out',
         'glue_trap','baiting','fly_catcher','live_trap',
-        'chemical1_name','chemical1_dose','chemical2_name','chemical2_dose',
-        'chemical3_name','chemical3_dose','chemical4_name','chemical4_dose',
+        'chemical1_name','chemical1_dose','chemical1_amount','chemical2_name','chemical2_dose','chemical2_amount',
+        'chemical3_name','chemical3_dose','chemical3_amount','chemical4_name','chemical4_dose','chemical4_amount',
         'catatan','client_nama','client_telp'];
       fields.forEach(f => { formData[f] = form[f]?.value || ''; });
 
@@ -1209,9 +1245,12 @@
       formData.extra_chemicals = [];
       document.querySelectorAll('[id^="extraChem_"]').forEach(el => {
         const idx = el.id.replace('extraChem_','');
-        const name = el.previousElementSibling?.querySelector(`[name="extra_chem_name_${idx}"]`)?.value?.trim();
-        const dose = el.querySelector(`[name="extra_chem_dose_${idx}"]`)?.value?.trim();
-        if (name) formData.extra_chemicals.push({ name, dose: dose||'' });
+        const d2 = el.previousElementSibling;
+        const d1 = d2?.previousElementSibling;
+        const name = d1?.querySelector(`[name="extra_chem_name_${idx}"]`)?.value?.trim();
+        const dose = d2?.querySelector(`[name="extra_chem_dose_${idx}"]`)?.value?.trim();
+        const amount = el.querySelector(`[name="extra_chem_amount_${idx}"]`)?.value?.trim();
+        if (name) formData.extra_chemicals.push({ name, dose: dose||'', amount: amount||'' });
       });
 
       fd.append('form_data', JSON.stringify(formData));
