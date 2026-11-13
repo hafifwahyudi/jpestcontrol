@@ -13,6 +13,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// Halaman utama (/) menampilkan localpest.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'localpest.html'));
+});
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'data', 'uploads')));
