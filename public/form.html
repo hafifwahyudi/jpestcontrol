@@ -608,7 +608,7 @@
     // ── AUTH CHECK ──────────────────────────────────────────────────
     (async () => {
       const r = await fetch('/api/auth/me');
-      if (!r.ok) { window.location.href = '/'; return; }
+      if (!r.ok) { window.location.href = '/utama.html'; return; }
       const { user } = await r.json();
       // Show dashboard link for all roles
       if (editId) {
@@ -621,7 +621,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.href = '/';
+      window.location.href = '/utama.html';
     });
 
     // ── CLIENT DROPDOWN LOGIC ───────────────────────────────────────────

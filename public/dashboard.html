@@ -1004,7 +1004,7 @@
     let currentUser = null;
     (async () => {
       const r = await fetch('/api/auth/me');
-      if (!r.ok) { window.location.href = '/'; return; }
+      if (!r.ok) { window.location.href = '/utama.html'; return; }
       const d = await r.json();
       currentUser = d.user;
       // Hide Karyawan management and Data Client tabs for non-admin (karyawan)
@@ -1016,7 +1016,7 @@
     })();
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.href = '/';
+      window.location.href = '/utama.html';
     });
 
     // ── TOAST ──────────────────────────────────────────────────────────
