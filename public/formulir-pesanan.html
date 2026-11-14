@@ -361,6 +361,19 @@
             <textarea id="keterangan" placeholder="Cth: Hama sudah parah di area dapur belakang...!"></textarea>
           </div>
 
+          <!-- Jenis Permintaan -->
+          <div class="form-group">
+            <label>Jenis Permintaan (bisa pilih salah satu atau keduanya)</label>
+            <div class="checkbox-grid" id="layananGrid">
+              <label class="checkbox-item" id="lbl-survey">
+                <input type="checkbox" value="Permintaan Survey" /> <span>Permintaan Survey</span>
+              </label>
+              <label class="checkbox-item" id="lbl-estimasi">
+                <input type="checkbox" value="Permintaan Estimasi Biaya" /> <span>Permintaan Estimasi Biaya</span>
+              </label>
+            </div>
+          </div>
+
           <div class="divider"></div>
 
           <!-- Submit -->
@@ -433,6 +446,8 @@
 
       if (!valid) return;
 
+      const layananChecked = [...document.querySelectorAll('#layananGrid input[type="checkbox"]:checked')].map(c => c.value);
+
       // Build WhatsApp message
       const msg = [
         '🐛 *PESANAN LAYANAN PEST CONTROL*',
@@ -444,6 +459,7 @@
         `📐 *Luas Area:* ${luas.value.trim()}`,
         `🦟 *Jenis Hama:* ${hamaChecked.join(', ')}`,
         keterangan.value.trim() ? `📝 *Keterangan:*\n${keterangan.value.trim()}` : '',
+        layananChecked.length ? `📋 *Jenis Permintaan:* ${layananChecked.join(', ')}` : '',
         '━━━━━━━━━━━━━━━━━━━━━━',
         '_Pesan dikirim melalui Formulir Online Jember Pest Control_',
       ].filter(Boolean).join('\n');
