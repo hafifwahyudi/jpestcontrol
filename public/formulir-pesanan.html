@@ -147,6 +147,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+    .form-group label.checkbox-item { text-transform: none; letter-spacing: normal; }
     .checkbox-item {
       display: flex;
       align-items: flex-start;
@@ -331,7 +332,7 @@
 
           <!-- Hama -->
           <div class="form-group">
-            <label>Permasalahan Hama (Pilih minimal 1) <span class="required">*</span></label>
+            <label style="text-transform:none;letter-spacing:0.2px;font-size:13px;">Permasalahan Hama (Pilih minimal 1) <span class="required">*</span></label>
             <div class="checkbox-grid" id="hamaGrid">
               <label class="checkbox-item" id="lbl-rayap">
                 <input type="checkbox" value="Rayap" /> <span>Rayap</span>
@@ -363,7 +364,7 @@
 
           <!-- Jenis Permintaan -->
           <div class="form-group">
-            <label>Jenis Permintaan (bisa pilih salah satu atau keduanya)</label>
+            <label style="text-transform:none;letter-spacing:0.2px;font-size:13px;">Jenis Permintaan (bisa pilih salah satu atau keduanya)</label>
             <div class="checkbox-grid" id="layananGrid">
               <label class="checkbox-item" id="lbl-survey">
                 <input type="checkbox" value="Permintaan Survey" /> <span>Permintaan Survey</span>
