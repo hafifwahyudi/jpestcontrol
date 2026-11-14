@@ -165,15 +165,23 @@
       background: rgba(61,220,132,0.04);
     }
     .checkbox-item input[type="checkbox"] {
-      width: 17px;
-      height: 17px;
-      min-width: 17px;
-      accent-color: var(--green-600);
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border-radius: 50%;
+      border: 2px solid #9db8a8;
+      background: #fff;
       cursor: pointer;
       margin-top: 1px;
-      border: none;
-      box-shadow: none;
       padding: 0;
+      box-shadow: none;
+      transition: all 0.15s;
+    }
+    .checkbox-item input[type="checkbox"]:checked {
+      border-color: var(--green-600);
+      background: radial-gradient(circle, var(--green-600) 0 45%, #fff 50%);
     }
     .checkbox-item input[type="checkbox"]:focus {
       box-shadow: none;
@@ -284,6 +292,18 @@
       <div class="card-body">
         <form id="orderForm" novalidate>
 
+          <!-- Jenis Permintaan -->
+          <div class="form-group">
+            <label>Jenis Permintaan (bisa pilih salah satu atau keduanya)</label>
+            <div class="checkbox-grid" id="layananGrid">
+              <label class="checkbox-item" id="lbl-survey">
+                <input type="checkbox" value="Permintaan Survey" /> <span>Permintaan Survey</span>
+              </label>
+              <label class="checkbox-item" id="lbl-estimasi">
+                <input type="checkbox" value="Estimasi Biaya" /> <span>Estimasi Biaya</span>
+              </label>
+            </div>
+          </div>
           <!-- Nama -->
           <div class="form-group">
             <label>Nama Lengkap / Instansi <span class="required">*</span></label>
@@ -332,7 +352,7 @@
 
           <!-- Hama -->
           <div class="form-group">
-            <label style="text-transform:none;letter-spacing:0.2px;font-size:13px;">Permasalahan Hama (Pilih minimal 1) <span class="required">*</span></label>
+            <label>Permasalahan Hama (Pilih minimal 1) <span class="required">*</span></label>
             <div class="checkbox-grid" id="hamaGrid">
               <label class="checkbox-item" id="lbl-rayap">
                 <input type="checkbox" value="Rayap" /> <span>Rayap</span>
@@ -360,19 +380,6 @@
           <div class="form-group">
             <label>Keterangan / Keluhan Tambahan</label>
             <textarea id="keterangan" placeholder="Cth: Hama sudah parah di area dapur belakang...!"></textarea>
-          </div>
-
-          <!-- Jenis Permintaan -->
-          <div class="form-group">
-            <label style="text-transform:none;letter-spacing:0.2px;font-size:13px;">Jenis Permintaan (bisa pilih salah satu atau keduanya)</label>
-            <div class="checkbox-grid" id="layananGrid">
-              <label class="checkbox-item" id="lbl-survey">
-                <input type="checkbox" value="Permintaan Survey" /> <span>Permintaan Survey</span>
-              </label>
-              <label class="checkbox-item" id="lbl-estimasi">
-                <input type="checkbox" value="Permintaan Estimasi Biaya" /> <span>Permintaan Estimasi Biaya</span>
-              </label>
-            </div>
           </div>
 
           <div class="divider"></div>
@@ -451,18 +458,18 @@
 
       // Build WhatsApp message
       const msg = [
-        '🐛 *PESANAN LAYANAN PEST CONTROL*',
+        '*LAYANAN LOCAL PEST CONTROL*',
         '━━━━━━━━━━━━━━━━━━━━━━',
-        `👤 *Nama / Instansi:* ${nama.value.trim()}`,
-        `📞 *No. WhatsApp:* ${telp.value.trim()}`,
-        `📍 *Alamat Pengerjaan:*\n${alamat.value.trim()}`,
-        `🏠 *Jenis Bangunan:* ${bangunan.value}`,
-        `📐 *Luas Area:* ${luas.value.trim()}`,
-        `🦟 *Jenis Hama:* ${hamaChecked.join(', ')}`,
-        keterangan.value.trim() ? `📝 *Keterangan:*\n${keterangan.value.trim()}` : '',
-        layananChecked.length ? `📋 *Jenis Permintaan:* ${layananChecked.join(', ')}` : '',
+        `● *Nama / Instansi:* ${nama.value.trim()}`,
+        `● *No. WhatsApp:* ${telp.value.trim()}`,
+        `● *Alamat Pengerjaan:*\n${alamat.value.trim()}`,
+        `● *Jenis Bangunan:* ${bangunan.value}`,
+        `● *Luas Area:* ${luas.value.trim()}`,
+        `● *Jenis Hama:* ${hamaChecked.join(', ')}`,
+        keterangan.value.trim() ? `● *Keterangan:*\n${keterangan.value.trim()}` : '',
+        layananChecked.length ? `● *Jenis Permintaan:* ${layananChecked.join(', ')}` : '',
         '━━━━━━━━━━━━━━━━━━━━━━',
-        '_Pesan dikirim melalui Formulir Online Jember Pest Control_',
+        '_Pesan dikirim melalui Formulir Online Local Pest Control_',
       ].filter(Boolean).join('\n');
 
       const url = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`;
