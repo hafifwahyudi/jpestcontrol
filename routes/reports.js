@@ -73,9 +73,9 @@ async function buildSlipPages(doc, row, isFirst) {
   doc.rect(45, 45, W, 72).fill(PRI);
   doc.fillColor('white').fontSize(18).font('Helvetica-Bold').text('SLIP SERVICE', 55, 52);
   doc.fontSize(9).font('Helvetica')
-    .text('CV. KASUARI INVESTAMA - Local Pest Control', 55, 74)
-    .text('Jl. Kasuari No. 22, Gebang-Patrang-Jember', 55, 86)
-    .text('Telp/WA: 082 332 173 442 | jemberpestcontrol@gmail.com | www.jemberpest.co.id', 55, 98);
+    .text('LOCAL PEST CONTROL - CV. Kasuari Investama', 55, 74)
+    .text('Perum. Ataya Residence Blok. Mumtazah No. 05, Jl. Kasuari No. 22 - Jember', 55, 86)
+    .text('082 332 173 442 | www.localpestcontrol.id | admin@localpestcontrol.id', 55, 98);
   const rightX = 45 + W - 150;
   doc.fillColor('#fff7ed').fontSize(9).font('Helvetica-Bold')
     .text(`No: ${fd.no || '-'}`, rightX, 52, { width: 145, align: 'right' })
@@ -241,6 +241,18 @@ async function buildSlipPages(doc, row, isFirst) {
     .text(fd.client_telp || '-', 45 + W - 130, y + 50);
   y += sigH + 8;
 
+  // Teknisi yang bertugas
+  const teknisiList = [fd.teknisi_1, fd.teknisi_2].filter(Boolean);
+  if (teknisiList.length) {
+    y = ensureSpace(doc, y, 40);
+    doc.rect(45, y, W, 18 + teknisiList.length * 14).fill(LGT);
+    doc.fillColor(GRY).fontSize(8.5).font('Helvetica-Bold').text('Teknisi Bertugas:', 52, y + 6);
+    teknisiList.forEach((t, i) => {
+      doc.fillColor('#111').fontSize(9).font('Helvetica').text(`${i + 1}. ${t}`, 150, y + 6 + i * 14);
+    });
+    y += 18 + teknisiList.length * 14 + 8;
+  }
+
   // ── EVIDENCE PHOTOS ──────────────────────────────────────────────────
   if (imgs.length > 0) {
     y = ensureSpace(doc, y, 40); section('FOTO BUKTI PEKERJAAN');
@@ -303,7 +315,7 @@ router.get('/export/pdf-merge', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.localpestcontrol.id | 082 332 173 442', 52, fY)
         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
@@ -354,7 +366,7 @@ router.get('/:id', requireAuth, async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.localpestcontrol.id | 082 332 173 442', 52, fY)
         .text(`Report #${row.id} | Dicetak: ${new Date().toLocaleString('id-ID')} | Oleh: ${row.tech_name || row.username || '-'} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);
@@ -385,7 +397,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   `);
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Jember Pest Control';
+  wb.creator = 'Local Pest Control';
   wb.lastModifiedBy = 'System';
   wb.created = new Date();
 
@@ -394,14 +406,14 @@ router.get('/export/excel', requireAuth, async (req, res) => {
 
   // Company header
   ws.mergeCells('A1:T1');
-  ws.getCell('A1').value = 'LOCAL PEST CONTROL — CV. KASUARI INVESTAMA';
+  ws.getCell('A1').value = 'LOCAL PEST CONTROL - CV. Kasuari Investama';
   ws.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
   ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe06d2b' } };
   ws.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
   ws.getRow(1).height = 28;
 
   ws.mergeCells('A2:T2');
-  ws.getCell('A2').value = `Jl. Kasuari No. 22, Gebang-Patrang-Jember | Telp/WA: 082 332 173 442 | Dicetak: ${new Date().toLocaleString('id-ID')}`;
+  ws.getCell('A2').value = `Perum. Ataya Residence Blok. Mumtazah No. 05, Jl. Kasuari No. 22 - Jember | 082 332 173 442 | www.localpestcontrol.id | admin@localpestcontrol.id | Dicetak: ${new Date().toLocaleString('id-ID')}`;
   ws.getCell('A2').font = { size: 9, color: { argb: 'FFFFFFFF' } };
   ws.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFf97316' } };
   ws.getCell('A2').alignment = { horizontal: 'center' };
@@ -415,7 +427,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
     'Sasaran Hama', 'Glue Trap', 'Baiting', 'Fly Catcher', 'Live Trap',
     'Chemical 1', 'Dosis 1', 'Jumlah Pemakaian 1',
     'Chemical 2', 'Dosis 2', 'Jumlah Pemakaian 2',
-    'Catatan', 'Nama Client (TTD)', 'Telp Client', 'Foto Count',
+    'Catatan', 'Nama Client (TTD)', 'Telp Client', 'Teknisi Bertugas', 'Foto Count',
     'Disubmit Oleh', 'Waktu Submit',
   ];
   ws.addRow(headers);
@@ -458,6 +470,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
       fd.catatan || '-',
       fd.client_nama || '-',
       fd.client_telp || '-',
+      [fd.teknisi_1, fd.teknisi_2].filter(Boolean).join(', ') || '-',
       imgUrls.length,
       row.tech_name || row.username || '-',
       row.created_at,
@@ -479,7 +492,7 @@ router.get('/export/excel', requireAuth, async (req, res) => {
   });
 
   // Column widths
-  const colWidths = [5, 12, 18, 25, 35, 18, 11, 11, 45, 10, 13, 13, 14, 20, 14, 18, 20, 14, 18, 40, 22, 16, 8, 20, 22];
+  const colWidths = [5, 12, 18, 25, 35, 18, 11, 11, 45, 10, 13, 13, 14, 20, 14, 18, 20, 14, 18, 40, 22, 16, 28, 8, 20, 22];
   colWidths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
 
   // Auto-filter
@@ -611,6 +624,7 @@ router.get('/:id/excel', requireAuth, async (req, res) => {
   addSection('TANDA TANGAN CLIENT');
   addField('Nama', fd.client_nama || '-');
   addField('Telepon', fd.client_telp || '-');
+  addField('Teknisi Bertugas', [fd.teknisi_1, fd.teknisi_2].filter(Boolean).join(', ') || '-');
 
   if (imgUrls.length > 0) {
     addSection('FOTO BUKTI (URL)');
@@ -648,7 +662,7 @@ router.get('/:id/public', async (req, res) => {
     return res.status(403).send(`
       <html><body style="font-family:sans-serif;text-align:center;padding:60px">
         <h2>🔒 Link Tidak Valid atau Sudah Kadaluarsa</h2>
-        <p>Link PDF ini hanya berlaku 7 hari. Minta link baru dari Jember Pest Control.</p>
+        <p>Link PDF ini hanya berlaku 7 hari. Minta link baru dari Local Pest Control.</p>
       </body></html>
     `);
   }
@@ -673,7 +687,7 @@ router.get('/:id/public', async (req, res) => {
       const fY = doc.page.height - 36;
       doc.rect(45, fY - 6, W, 28).fill(PRI);
       doc.fillColor('white').fontSize(7.5).font('Helvetica')
-        .text('Local Pest Control | www.jemberpest.co.id | 082 332 173 442', 52, fY)
+        .text('Local Pest Control | www.localpestcontrol.id | 082 332 173 442', 52, fY)
         .text(`Dicetak: ${new Date().toLocaleString('id-ID')} | Hal. ${i + 1}/${pageCount}`, 52, fY + 11);
     }
     const pdfBuf = Buffer.concat(bufs);

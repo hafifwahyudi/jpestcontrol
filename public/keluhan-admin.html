@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daftar Keluhan Pelanggan — Local Pest Control</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Segoe UI,Arial,sans-serif;margin:0;background:#f3f4f6;color:#1f2937}
+  header{background:linear-gradient(135deg,#e06d2b,#fb923c);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  header h1{margin:0;font-size:18px} header a{color:#fff;font-size:13px;margin-left:14px}
+  main{max-width:1100px;margin:auto;padding:16px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input,select,textarea{padding:9px;border:1.5px solid #e5e7eb;border-radius:8px;font:inherit;font-size:13px;width:100%}
+  .filters input,.filters select{width:auto;flex:1;min-width:140px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:13px}
+  th{background:#c2410c;color:#fff;text-align:left;padding:9px} td{padding:9px;border-bottom:1px solid #eee;vertical-align:top}
+  tr.row{cursor:pointer} tr.row:hover{background:#fff7ed}
+  .badge{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
+  .P1{background:#dc2626}.P2{background:#ea580c}.P3{background:#ca8a04}
+  .st{background:#e5e7eb;color:#374151}
+  dialog{border:0;border-radius:14px;max-width:640px;width:94%;padding:0;box-shadow:0 20px 60px #0004}
+  dialog::backdrop{background:#0006}
+  .dh{background:#c2410c;color:#fff;padding:14px 18px;display:flex;justify-content:space-between}
+  .db{padding:16px 18px;max-height:75vh;overflow:auto}
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;font-size:13px;margin-bottom:12px}
+  .kv b{color:#c2410c}
+  .imgs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}.imgs img{width:90px;height:90px;object-fit:cover;border-radius:8px}
+  label{display:block;font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;margin:10px 0 4px}
+  button{background:#ea580c;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:600;cursor:pointer;margin:12px 6px 0 0}
+  button.sec{background:#6b7280}
+  @media print{body *{visibility:hidden}#rpt,#rpt *{visibility:visible}#rpt{position:absolute;left:0;top:0;width:100%}button,.filters{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Daftar Keluhan Pelanggan</h1>
+  <div><a href="/dashboard.html">Dashboard</a><a href="/formulir-keluhan.html" target="_blank">Form Pelanggan</a><a href="#" id="csv">Ekspor CSV</a></div>
+</header>
+<main>
+  <div class="filters">
+    <input id="q" placeholder="Cari nama / tiket / kontak..." />
+    <select id="fs"><option value="">Semua status</option><option>Baru</option><option>Dalam Penanganan</option><option>Dalam Pemantauan</option><option>Selesai &amp; Klien Puas</option><option>Perlu Tindakan Lanjutan</option></select>
+    <select id="fl"><option value="">Semua level</option><option value="P1">P1 Darurat</option><option value="P2">P2 Sedang</option><option value="P3">P3 Rendah</option></select>
+  </div>
+  <table><thead><tr><th>Tiket</th><th>Masuk</th><th>Klien</th><th>Hama</th><th>Level</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table>
+  <p id="empty" style="text-align:center;color:#6b7280;display:none">Belum ada keluhan.</p>
+</main>
+
+<dialog id="dlg"><div id="rpt">
+  <div class="dh"><b id="dTitle"></b><span style="cursor:pointer" onclick="dlg.close()">✕</span></div>
+  <div class="db">
+    <div class="kv" id="kv"></div>
+    <div class="imgs" id="imgs"></div>
+    <label>Status Akhir</label>
+    <select id="eStatus"><option>Baru</option><option>Dalam Penanganan</option><option>Dalam Pemantauan</option><option>Selesai &amp; Klien Puas</option><option>Perlu Tindakan Lanjutan</option></select>
+    <label>Tim / Supervisor Ditugaskan &amp; Jadwal</label><input id="ePenugasan" />
+    <label>Teknisi Penanggung Jawab Asal</label><input id="eTeknisi" />
+    <label>Tindakan Penyelesaian (Corrective Action)</label><textarea id="eTindakan" rows="3"></textarea>
+    <label>Tanggal Follow-Up (2 hari setelah tindakan)</label><input type="date" id="eFollow" />
+    <label>Catatan Internal (QA Log)</label><textarea id="eCatatan" rows="2"></textarea>
+    <button onclick="save()">Simpan</button><button class="sec" onclick="window.print()">Cetak / PDF</button><button class="sec" onclick="wa()">WhatsApp Klien</button>
+  </div>
+</div></dialog>
+
+<script>
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let rows=[],cur=null,SLA={};
+const dt=s=>new Date(s).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+
+async function load(){
+  const me=await fetch('/api/auth/me'); if(!me.ok){location.href='/index.html';return;}
+  const p=new URLSearchParams({search:$('q').value,status:$('fs').value,level:$('fl').value});
+  const r=await fetch('/api/keluhan?'+p); const d=await r.json(); rows=d.data||[]; SLA=d.sla||{};
+  $('tb').innerHTML=rows.map((x,i)=>`<tr class="row" onclick="open_(${i})"><td><b>${esc(x.ticket_no)}</b></td><td>${dt(x.created_at)}</td><td>${esc(x.nama)}<br><small>${esc(x.kontak)}</small></td><td>${esc(x.hama)}</td><td><span class="badge ${x.level}">${x.level}</span></td><td><span class="badge st">${esc(x.status)}</span></td></tr>`).join('');
+  $('empty').style.display=rows.length?'none':'block';
+}
+function open_(i){
+  cur=rows[i]; const x=cur, s=SLA[x.level]||{};
+  $('dTitle').textContent=x.ticket_no;
+  const f=[['Masuk',dt(x.created_at)],['Klien',x.nama],['Kontak',x.kontak],['Alamat',x.alamat],['Bangunan',x.bangunan],['Layanan sebelumnya',x.layanan],['Hama',x.hama],['Level / SLA',`${x.level} — respon ${s.respon||'-'}, selesai ${s.selesai||'-'}`],['Keluhan',x.deskripsi],['Harapan klien',x.harapan||'-'],['Teknisi asal (versi klien)',x.teknisi_asal||'-']];
+  $('kv').innerHTML=f.map(([k,v])=>`<b>${k}</b><span>${esc(v)}</span>`).join('');
+  $('imgs').innerHTML=(x.image_urls||[]).map(u=>`<a href="${esc(u)}" target="_blank"><img src="${esc(u)}"></a>`).join('');
+  $('eStatus').value=x.status; $('ePenugasan').value=x.penugasan||''; $('eTeknisi').value=x.teknisi_asal||'';
+  $('eTindakan').value=x.tindakan||''; $('eFollow').value=x.followup_date?String(x.followup_date).slice(0,10):''; $('eCatatan').value=x.catatan_admin||'';
+  dlg.showModal();
+}
+async function save(){
+  const body={status:$('eStatus').value,penugasan:$('ePenugasan').value,teknisi_asal:$('eTeknisi').value,tindakan:$('eTindakan').value,followup_date:$('eFollow').value,catatan_admin:$('eCatatan').value};
+  const r=await fetch('/api/keluhan/'+cur.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){alert((await r.json()).error);return;} dlg.close(); load();
+}
+function wa(){
+  let p=cur.kontak.replace(/\D/g,''); if(p.startsWith('0'))p='62'+p.slice(1);
+  const h={P1:2,P2:2,P3:2}[cur.level];
+  const m=`Halo Kak ${cur.nama}, terima kasih telah menghubungi Local Pest Control. Kami mohon maaf atas ketidaknyamanan terkait kendala hama di ${cur.alamat}. Laporan Anda (${cur.ticket_no}) telah kami teruskan kepada Tim Operasional kami. Supervisor kami akan segera berkoordinasi untuk penjadwalan investigasi/penanganan ulang ke lokasi Bapak/Ibu dalam waktu maksimal ${h} jam ke depan. Untuk bantuan darurat, silakan hubungi kami langsung di 082332173442. Terima kasih atas kepercayaan Anda kepada layanan kami.`;
+  open(`https://wa.me/${p}?text=${encodeURIComponent(m)}`);
+}
+$('csv').onclick=e=>{e.preventDefault();if(!rows.length)return;
+  const k=['ticket_no','created_at','nama','kontak','alamat','bangunan','layanan','hama','level','deskripsi','harapan','teknisi_asal','status','penugasan','tindakan','followup_date','catatan_admin'];
+  const c=[k.join(',')].concat(rows.map(r=>k.map(x=>'"'+String(r[x]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+c],{type:'text/csv'}));a.download='keluhan-pelanggan.csv';a.click();};
+['q','fs','fl'].forEach(i=>$(i).addEventListener('input',load));
+load();
+if(new URLSearchParams(location.search).has('embed')){document.querySelector('header').style.display='none';document.body.style.background='transparent';}
+</script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulir Keluhan Pelanggan — Local Pest Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --green-800:#c2410c; --green-600:#f97316; --accent:#fb923c; --text:#1f2937; --muted:#6b7280; --border-light:#e5e7eb; }
+    body { font-family:'Inter',sans-serif; min-height:100vh; background:linear-gradient(150deg,#fff7ed 0%,#f3f4f6 50%,#fff 100%);
+      display:flex; justify-content:center; padding:32px 16px 48px; }
+    .wrap { width:100%; max-width:480px; }
+    .card { background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.1); border:1px solid #e5e7eb; }
+    .card-header { background:linear-gradient(135deg,#e06d2b 0%,#fb923c 100%); padding:32px 28px 28px; text-align:center; }
+    .card-header h1 { color:#fff; font-size:22px; font-weight:700; line-height:1.3; margin-bottom:10px; }
+    .card-header p { color:rgba(255,255,255,.8); font-size:13px; line-height:1.6; }
+    .card-body { padding:28px 24px 32px; background:#f7faf8; }
+    .form-group { margin-bottom:20px; }
+    .form-group > label { display:block; font-size:11px; font-weight:700; color:var(--green-800); text-transform:uppercase; letter-spacing:.7px; margin-bottom:8px; }
+    .required { color:#e53935; margin-left:2px; }
+    input[type=text], input[type=tel], textarea, select {
+      width:100%; background:#fff; border:1.5px solid var(--border-light); border-radius:10px; color:var(--text);
+      padding:12px 14px; font-size:14px; font-family:inherit; outline:none; transition:all .2s; -webkit-appearance:none; appearance:none; }
+    input:focus, textarea:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(251,146,60,.18); }
+    textarea { resize:vertical; min-height:100px; }
+    select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }
+    .checkbox-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .form-group label.checkbox-item { text-transform:none; letter-spacing:normal; margin:0; }
+    .checkbox-item { display:flex; align-items:flex-start; gap:10px; background:#fff; border:1.5px solid var(--border-light); border-radius:10px; padding:11px 13px; cursor:pointer; transition:all .18s; user-select:none; }
+    .checkbox-item:hover { border-color:var(--accent); }
+    .checkbox-item input { -webkit-appearance:none; appearance:none; width:18px; height:18px; min-width:18px; border-radius:50%; border:2px solid #9db8a8; background:#fff; cursor:pointer; margin-top:1px; }
+    .checkbox-item input:checked { border-color:var(--green-600); background:radial-gradient(circle,var(--green-600) 0 45%,#fff 50%); }
+    .checkbox-item span { font-size:13px; font-weight:500; color:var(--text); line-height:1.4; }
+    .checkbox-item.checked { border-color:var(--green-600); background:rgba(249,115,22,.06); }
+    .level-grid { display:grid; grid-template-columns:1fr; gap:8px; }
+    .level-grid .checkbox-item small { display:block; color:var(--muted); font-size:11.5px; font-weight:400; }
+    .divider { height:1px; background:var(--border-light); margin:4px 0 20px; }
+    .btn-submit { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:linear-gradient(135deg,#ea580c,#f97316);
+      border:none; border-radius:12px; color:#fff; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:all .2s; }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(234,88,12,.4); }
+    .btn-submit:disabled { opacity:.6; cursor:wait; transform:none; box-shadow:none; }
+    .btn-wa { display:flex; justify-content:center; width:100%; padding:14px; margin-top:10px; background:linear-gradient(135deg,#25c05a,#1aa34a); border-radius:12px; color:#fff; font-weight:700; text-decoration:none; }
+    .note { text-align:center; font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+    .back-link { display:inline-flex; gap:6px; color:#4b5563; font-weight:500; font-size:12.5px; text-decoration:none; margin-bottom:18px; }
+    .back-link:hover { color:#ea580c; }
+    .error-hint { font-size:11px; color:#e53935; margin-top:5px; display:none; }
+    .input-error { border-color:#e53935 !important; box-shadow:0 0 0 3px rgba(229,57,53,.1) !important; }
+    .hp { position:absolute; left:-9999px; }
+    .staff-box { background:#fff3e6; border:1.5px dashed #fb923c; border-radius:12px; padding:14px; }
+    .client-results { margin-top:6px; background:#fff; border:1px solid var(--border-light); border-radius:10px; max-height:220px; overflow:auto; display:none; }
+    .client-results div { padding:10px 12px; font-size:13px; cursor:pointer; border-bottom:1px solid #f1f1f1; }
+    .client-results div:last-child { border-bottom:0; }
+    .client-results div:hover { background:#fff7ed; }
+    .client-results small { display:block; color:var(--muted); }
+    .preview { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .preview img { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid var(--border-light); }
+    .file-btn { display:block; text-align:center; border:1.5px dashed var(--accent); border-radius:10px; padding:14px; font-size:13px; color:var(--green-800); cursor:pointer; background:#fff; }
+    .success { text-align:center; padding:12px 4px; }
+    .success .tick { font-size:52px; }
+    .success h2 { font-size:20px; margin:8px 0; color:#c2410c; }
+    .success .ticket { display:inline-block; background:#fff3e6; border:1.5px dashed #fb923c; border-radius:10px; padding:10px 16px; font-weight:700; margin:12px 0; user-select:all; }
+    .success p { font-size:13.5px; color:var(--text); line-height:1.6; }
+    #formError { display:none; background:#fdecea; color:#b71c1c; padding:10px 12px; border-radius:10px; font-size:13px; margin-bottom:14px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/index.html" class="back-link">‹ Kembali</a>
+  <div class="card">
+    <div class="card-header">
+      <h1>Formulir Keluhan Pelanggan<br>Local Pest Control</h1>
+      <p>Sampaikan kendala hama Anda. Tim kami akan merespons secepatnya &amp; menjadwalkan penanganan ulang.</p>
+    </div>
+    <div class="card-body">
+
+      <form id="keluhanForm" novalidate>
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" />
+
+        <!-- Hanya tampil untuk teknisi/admin yang sudah login -->
+        <div class="form-group staff-box" id="staffBox" style="display:none">
+          <label>🔎 Ambil dari Data Client (khusus teknisi)</label>
+          <input type="text" id="clientSearch" placeholder="Ketik nama / alamat / no HP client tersimpan..." autocomplete="off" />
+          <div id="clientResults" class="client-results"></div>
+          <p class="note" style="text-align:left;margin-top:6px">Pilih client untuk mengisi nama, kontak, dan alamat otomatis.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Nama Lengkap / Perusahaan <span class="required">*</span></label>
+          <input type="text" id="nama" name="nama" placeholder="Cth: Bpk. Sutikno / Cafe Jember" />
+          <p class="error-hint">Nama wajib diisi.</p>
+        </div>
+
+        <div class="form-group">
+          <label>No. Telepon / WhatsApp <span class="required">*</span></label>
+          <input type="tel" id="kontak" name="kontak" placeholder="Cth: 082 332 173 442" />
+          <p class="error-hint">Nomor WhatsApp wajib diisi.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Alamat Lokasi Pengerjaan <span class="required">*</span></label>
+          <textarea id="alamat" name="alamat" style="min-height:80px" placeholder="Nama jalan, nomor, kelurahan, kecamatan, kota (Banyuwangi / Jember)"></textarea>
+          <p class="error-hint">Alamat wajib diisi.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Jenis Bangunan <span class="required">*</span></label>
+          <select id="bangunan" name="bangunan">
+            <option value="" disabled selected>-- Pilih Jenis Bangunan --</option>
+            <option>Rumah Tinggal</option><option>Ruko / Toko</option><option>Kantor</option>
+            <option>Restoran / Cafe</option><option>Hotel / Penginapan</option><option>Gudang / Pabrik</option>
+            <option>Sekolah / Kampus</option><option>Fasilitas Kesehatan</option><option>Lainnya</option>
+          </select>
+          <p class="error-hint">Pilih jenis bangunan.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Layanan yang Pernah Kami Kerjakan <span class="required">*</span></label>
+          <select id="layanan" name="layanan">
+            <option value="" disabled selected>-- Pilih Layanan --</option>
+            <option>Anti-Rayap</option><option>Fogging Nyamuk</option><option>Pembasmian Kecoa</option>
+            <option>Rodent Control (Tikus)</option><option>Kontrol Berkala / Kontrak</option><option>Lainnya / Tidak Tahu</option>
+          </select>
+          <p class="error-hint">Pilih layanan sebelumnya.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Hama yang Dikeluhkan (Pilih minimal 1) <span class="required">*</span></label>
+          <div class="checkbox-grid" id="hamaGrid">
+            <label class="checkbox-item"><input type="checkbox" value="Rayap" /><span>Rayap</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Tikus" /><span>Tikus</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Kecoa" /><span>Kecoa</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Semut" /><span>Semut</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Nyamuk" /><span>Nyamuk</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Hama Lainnya" /><span>Hama Lainnya</span></label>
+          </div>
+          <p class="error-hint" id="hamaErr">Pilih minimal 1 jenis hama.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Seberapa Mendesak? <span class="required">*</span></label>
+          <div class="level-grid" id="levelGrid">
+            <label class="checkbox-item"><input type="checkbox" value="P1" /><span>🔴 Darurat<small>Mengganggu operasional usaha / membahayakan kesehatan (mis. hama di dapur restoran aktif)</small></span></label>
+            <label class="checkbox-item"><input type="checkbox" value="P2" /><span>🟠 Sedang<small>Hama muncul lagi sebelum jadwal berkala</small></span></label>
+            <label class="checkbox-item"><input type="checkbox" value="P3" /><span>🟡 Ringan<small>Pertanyaan teknis / ubah jadwal kunjungan</small></span></label>
+          </div>
+          <p class="error-hint" id="levelErr">Pilih tingkat urgensi.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Deskripsi Keluhan <span class="required">*</span></label>
+          <textarea id="deskripsi" name="deskripsi" placeholder="Ceritakan kapan & di area mana hama terlihat, seberapa banyak, dll."></textarea>
+          <p class="error-hint">Deskripsi keluhan wajib diisi.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Yang Anda Harapkan dari Kami</label>
+          <textarea id="harapan" name="harapan" style="min-height:70px" placeholder="Cth: Mohon dijadwalkan pengecekan ulang secepatnya"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Nama Teknisi yang Menangani Sebelumnya (jika ingat)</label>
+          <input type="text" id="teknisi_asal" name="teknisi_asal" placeholder="Opsional" />
+        </div>
+
+        <div class="form-group">
+          <label>Foto Pendukung (maks. 5 foto)</label>
+          <label class="file-btn" for="foto">📷 Ketuk untuk pilih / ambil foto</label>
+          <input type="file" id="foto" accept="image/*" multiple style="display:none" />
+          <div class="preview" id="preview"></div>
+        </div>
+
+        <div class="divider"></div>
+        <div id="formError"></div>
+        <button type="submit" class="btn-submit" id="btnSubmit">Kirim Keluhan</button>
+        <p class="note">Respon awal maks. 15 menit pada jam kerja (08.00–17.00 WIB).<br>Keluhan darurat: WhatsApp / telepon <b>082332173442</b></p>
+      </form>
+
+      <div class="success" id="success" style="display:none">
+        <div class="tick">✅</div>
+        <h2>Keluhan Anda Sudah Kami Terima</h2>
+        <p>Mohon maaf atas ketidaknyamanan Anda. Simpan nomor tiket berikut:</p>
+        <div class="ticket" id="ticketNo"></div>
+        <p id="slaText"></p>
+        <a class="btn-wa" id="waLink" target="_blank" rel="noopener">Hubungi Admin via WhatsApp</a>
+        <p class="note"><a href="/formulir-keluhan.html" style="color:#c2410c">Kirim keluhan lain</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_WA = '6282332173442';
+  const $ = id => document.getElementById(id);
+  let files = [];
+
+  // ── Teknisi (login): cari & isi otomatis dari Data Client ──
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  let clientList = [], searchTimer;
+  fetch('/api/auth/me').then(r => { if (r.ok) $('staffBox').style.display = ''; }).catch(() => {});
+
+  $('clientSearch').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    const q = $('clientSearch').value.trim();
+    const box = $('clientResults');
+    if (q.length < 2) { box.style.display = 'none'; return; }
+    searchTimer = setTimeout(async () => {
+      try {
+        const r = await fetch('/api/clients?search=' + encodeURIComponent(q));
+        if (!r.ok) return;
+        clientList = (await r.json()).data.slice(0, 20);
+        box.innerHTML = clientList.length
+          ? clientList.map((c, i) => `<div data-i="${i}"><b>${esc(c.nama)}</b><small>${esc(c.no_hp)} · ${esc(c.alamat)}</small></div>`).join('')
+          : '<div style="cursor:default;color:#6b7280">Client tidak ditemukan</div>';
+        box.style.display = 'block';
+      } catch (_) {}
+    }, 250);
+  });
+  $('clientResults').addEventListener('click', e => {
+    const row = e.target.closest('[data-i]'); if (!row) return;
+    const c = clientList[row.dataset.i];
+    $('nama').value = c.nama || ''; $('kontak').value = c.no_hp || ''; $('alamat').value = c.alamat || '';
+    ['nama', 'kontak', 'alamat'].forEach(id => mark($(id), false));
+    $('clientSearch').value = c.nama; $('clientResults').style.display = 'none';
+  });
+
+  // Toggle style + single-select for urgency
+  document.querySelectorAll('.checkbox-item input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.closest('#levelGrid') && cb.checked) {
+        document.querySelectorAll('#levelGrid input').forEach(o => { if (o !== cb) { o.checked = false; o.closest('.checkbox-item').classList.remove('checked'); } });
+      }
+      cb.closest('.checkbox-item').classList.toggle('checked', cb.checked);
+    });
+  });
+
+  $('foto').addEventListener('change', e => {
+    files = [...files, ...e.target.files].slice(0, 5);
+    e.target.value = '';
+    $('preview').innerHTML = '';
+    files.forEach(f => { const i = new Image(); i.src = URL.createObjectURL(f); $('preview').appendChild(i); });
+  });
+
+  function mark(el, bad) {
+    el.classList.toggle('input-error', bad);
+    const hint = el.parentElement.querySelector('.error-hint');
+    if (hint) hint.style.display = bad ? 'block' : 'none';
+    return !bad;
+  }
+
+  $('keluhanForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    $('formError').style.display = 'none';
+    let ok = true;
+    ['nama', 'kontak', 'alamat', 'bangunan', 'layanan', 'deskripsi'].forEach(id => { if (!mark($(id), !$(id).value.trim())) ok = false; });
+
+    const hama = [...document.querySelectorAll('#hamaGrid input:checked')].map(c => c.value);
+    $('hamaErr').style.display = hama.length ? 'none' : 'block'; if (!hama.length) ok = false;
+    const lv = document.querySelector('#levelGrid input:checked');
+    $('levelErr').style.display = lv ? 'none' : 'block'; if (!lv) ok = false;
+    if (!ok) return;
+
+    const fd = new FormData();
+    ['nama', 'kontak', 'alamat', 'bangunan', 'layanan', 'deskripsi', 'harapan', 'teknisi_asal'].forEach(k => fd.append(k, $(k).value.trim()));
+    fd.append('hama', hama.join(', '));
+    fd.append('level', lv.value);
+    fd.append('website', document.querySelector('.hp').value);
+    files.forEach(f => fd.append('foto', f));
+
+    const btn = $('btnSubmit'); btn.disabled = true; btn.textContent = 'Mengirim...';
+    try {
+      const res = await fetch('/api/keluhan', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal mengirim');
+      $('keluhanForm').style.display = 'none';
+      $('success').style.display = 'block';
+      $('ticketNo').textContent = data.ticket_no;
+      $('slaText').textContent = data.sla ? `Kami akan merespons dalam maksimal ${data.sla.respon} dan menargetkan penyelesaian maksimal ${data.sla.selesai}.` : '';
+      $('waLink').href = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(`Halo Local Pest Control, saya telah mengirim keluhan dengan nomor tiket ${data.ticket_no} atas nama ${$('nama').value.trim()}.`)}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      $('formError').textContent = err.message; $('formError').style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Kirim Keluhan';
+    }
+  });
+</script>
+</body>
+</html>

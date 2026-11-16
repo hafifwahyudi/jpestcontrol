@@ -586,6 +586,22 @@
             <button type="button" class="btn-outline" id="clearSig">🗑 Hapus</button>
             <span style="font-size:12px;color:var(--muted);line-height:1.4;align-self:center">Gunakan jari atau stylus untuk menandatangani</span>
           </div>
+
+          <div style="margin-top:18px;padding-top:16px;border-top:1px dashed var(--border, #e5e7eb)">
+            <label style="margin-bottom:8px;display:block">🧑‍🔧 Teknisi yang Bertugas</label>
+            <div class="form-group" style="margin-bottom:10px">
+              <label style="font-size:11px">Teknisi 1 (otomatis sesuai akun login)</label>
+              <input type="text" name="teknisi_1" id="teknisi_1" placeholder="Nama teknisi" />
+            </div>
+            <div class="form-group" id="teknisi2Group" style="margin-bottom:10px;display:none">
+              <label style="font-size:11px">Teknisi 2</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" name="teknisi_2" id="teknisi_2" placeholder="Nama teknisi ke-2" style="flex:1" />
+                <button type="button" class="btn-outline" id="removeTeknisi2" title="Hapus teknisi 2">✕</button>
+              </div>
+            </div>
+            <button type="button" class="btn-outline" id="addTeknisi2">+ Tambah Teknisi 2</button>
+          </div>
         </div>
       </div>
 
@@ -610,6 +626,8 @@
       const r = await fetch('/api/auth/me');
       if (!r.ok) { window.location.href = '/utama.html'; return; }
       const { user } = await r.json();
+      // Teknisi 1 otomatis dari akun yang login
+      document.getElementById('teknisi_1').value = user.full_name || user.username || '';
       // Show dashboard link for all roles
       if (editId) {
         document.getElementById('pageTitle').textContent = 'Edit Slip Service';
@@ -618,6 +636,15 @@
         await loadEditData();
       }
     })();
+
+    // ── TEKNISI 2 (opsional) ─────────────────────────────────────────
+    function showTeknisi2(show) {
+      document.getElementById('teknisi2Group').style.display = show ? '' : 'none';
+      document.getElementById('addTeknisi2').style.display  = show ? 'none' : '';
+      if (!show) document.getElementById('teknisi_2').value = '';
+    }
+    document.getElementById('addTeknisi2').addEventListener('click', () => { showTeknisi2(true); document.getElementById('teknisi_2').focus(); });
+    document.getElementById('removeTeknisi2').addEventListener('click', () => showTeknisi2(false));
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -988,6 +1015,10 @@
         if (el) el.value = fd[f] || '';
       });
 
+      // Teknisi (slip lama tanpa data teknisi tetap memakai nama login)
+      if (fd.teknisi_1) document.getElementById('teknisi_1').value = fd.teknisi_1;
+      if (fd.teknisi_2) { document.getElementById('teknisi_2').value = fd.teknisi_2; showTeknisi2(true); }
+
       // Backward compatibility for monitor fields
       document.getElementById('glue_trap').value = fd.glue_trap ?? fd.glue_trapping ?? 0;
       document.getElementById('baiting').value = fd.baiting ?? fd.rat_box ?? 0;
@@ -1199,7 +1230,7 @@
         'glue_trap','baiting','fly_catcher','live_trap',
         'chemical1_name','chemical1_dose','chemical1_amount','chemical2_name','chemical2_dose','chemical2_amount',
         'chemical3_name','chemical3_dose','chemical3_amount','chemical4_name','chemical4_dose','chemical4_amount',
-        'catatan','client_nama','client_telp'];
+        'catatan','client_nama','client_telp','teknisi_1','teknisi_2'];
       fields.forEach(f => { formData[f] = form[f]?.value || ''; });
 
       // Checkboxes & Radios
