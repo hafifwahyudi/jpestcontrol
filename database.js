@@ -114,6 +114,43 @@ async function initDb() {
     ) CHARACTER SET utf8mb4
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS attendance (
+      id             INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      user_id        INT NOT NULL,
+      tanggal        VARCHAR(10) NOT NULL,
+      jam_masuk      VARCHAR(8),
+      jam_pulang     VARCHAR(8),
+      status         VARCHAR(20) NOT NULL DEFAULT 'Hadir',
+      lokasi_type    VARCHAR(20),
+      masuk_lat      DOUBLE, masuk_lng DOUBLE, masuk_akurasi INT, masuk_jarak INT,
+      pulang_lat     DOUBLE, pulang_lng DOUBLE, pulang_akurasi INT,
+      masuk_foto     VARCHAR(500),
+      pulang_foto    VARCHAR(500),
+      keterangan     TEXT,
+      catatan        TEXT,
+      device         VARCHAR(255),
+      created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_user_tanggal (user_id, tanggal),
+      KEY idx_tanggal (tanggal)
+    ) CHARACTER SET utf8mb4
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS attendance_settings (
+      k VARCHAR(50) NOT NULL PRIMARY KEY,
+      v VARCHAR(255) NOT NULL
+    ) CHARACTER SET utf8mb4
+  `);
+
+  // Migrasi shift (abaikan jika kolom sudah ada)
+  for (const sql of [
+    "ALTER TABLE users ADD COLUMN shift VARCHAR(10) NOT NULL DEFAULT 'pagi'",
+    "ALTER TABLE attendance ADD COLUMN shift VARCHAR(10) DEFAULT NULL",
+  ]) {
+    try { await pool.query(sql); } catch (e) { if (e.errno !== 1060) throw e; }
+  }
+
   // Seed default admin
   const existing = await get('SELECT id FROM users WHERE username = ?', ['admin']);
   if (!existing) {

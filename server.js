@@ -29,6 +29,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/clients', require('./routes/clients'));
 app.use('/api/surveys', require('./routes/surveys'));
 app.use('/api/keluhan', require('./routes/keluhan'));
+app.use('/api/absensi', require('./routes/absensi'));
 
 
 

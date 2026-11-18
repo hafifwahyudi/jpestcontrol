@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Absensi — Jember Pest Control</title>
+<style>
+  :root { --o:#e06d2b; --bg:#f6f4f1; --mut:#6b7280; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:Inter,system-ui,sans-serif; }
+  body { background:var(--bg); color:#1f2937; }
+  header { background:var(--o); color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  header a { color:#fff; background:rgba(255,255,255,.18); padding:8px 12px; border-radius:8px; font-size:13px; text-decoration:none; margin-left:6px; }
+  main { max-width:1150px; margin:0 auto; padding:16px; }
+  .tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .tabs button { padding:10px 16px; border:0; border-radius:10px; background:#e5e7eb; font-weight:600; cursor:pointer; }
+  .tabs button.on { background:var(--o); color:#fff; }
+  .card { background:#fff; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,.08); overflow-x:auto; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:14px; }
+  .stat { background:#fff; border-radius:12px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .stat b { font-size:26px; display:block; } .stat span { font-size:12px; color:var(--mut); }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:760px; }
+  th,td { padding:9px 6px; text-align:left; border-bottom:1px solid #f1f1f1; vertical-align:middle; }
+  th { color:var(--mut); font-size:12px; }
+  .badge { display:inline-block; padding:3px 9px; border-radius:99px; font-size:12px; font-weight:600; }
+  .b-Hadir { background:#dcfce7; color:#16a34a; } .b-Terlambat { background:#fef3c7; color:#d97706; }
+  .b-Izin { background:#dbeafe; color:#2563eb; } .b-Sakit { background:#fce7f3; color:#be185d; }
+  .b-Alpa,.b-none { background:#fee2e2; color:#dc2626; }
+  input,select,textarea { padding:9px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; }
+  .bar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .btn { padding:9px 14px; border:0; border-radius:8px; background:var(--o); color:#fff; font-weight:600; cursor:pointer; font-size:13px; text-decoration:none; display:inline-block; }
+  .btn.sec { background:#e5e7eb; color:#111; }
+  img.th { width:42px; height:56px; object-fit:cover; border-radius:6px; cursor:pointer; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .grid label { font-size:12px; font-weight:600; display:block; margin-bottom:4px; } .grid input { width:100%; }
+  .hide { display:none; }
+  #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:12px 18px; border-radius:10px; display:none; }
+  #lb { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:50; } #lb img { max-width:92%; max-height:92%; }
+</style>
+</head>
+<body>
+<header><b>🛡️ Admin Absensi Karyawan</b><div><a href="/absensi.html">Absen Saya</a><a href="/dashboard.html">Dashboard</a></div></header>
+<main>
+  <div class="tabs">
+    <button class="on" data-t="harian">Harian</button>
+    <button data-t="rekap">Rekap Bulanan</button>
+    <button data-t="setting">Pengaturan</button>
+  </div>
+
+  <section id="t-harian">
+    <div class="bar"><input type="date" id="tgl" /><button class="btn sec" id="refresh">Muat ulang</button></div>
+    <div class="stats" id="stats"></div>
+    <div class="card"><table><thead><tr><th>Karyawan</th><th>Shift</th><th>Status</th><th>Masuk</th><th>Pulang</th><th>Lokasi / Klien</th><th>Foto</th><th>Peta</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section id="t-rekap" class="hide">
+    <div class="bar"><input type="month" id="bln" /><a class="btn" id="exp">⬇ Export Excel</a></div>
+    <div class="card"><table style="min-width:600px"><thead><tr><th>Karyawan</th><th>Hadir</th><th>Terlambat</th><th>Izin</th><th>Sakit</th><th>Hari di Lapangan</th></tr></thead><tbody id="rekap"></tbody></table></div>
+  </section>
+
+  <section id="t-setting" class="hide">
+    <div class="card">
+      <h3 style="margin-bottom:12px">Jam Kerja & Lokasi Kantor</h3>
+      <div class="grid">
+        <div><label>Shift Pagi — masuk</label><input type="time" id="sPM" /></div>
+        <div><label>Shift Pagi — pulang</label><input type="time" id="sPP" /></div>
+        <div><label>Shift Sore — masuk</label><input type="time" id="sSM" /></div>
+        <div><label>Shift Sore — pulang</label><input type="time" id="sSP" /></div>
+        <div><label>Toleransi terlambat (menit)</label><input type="number" id="sTol" /></div>
+        <div><label>Absen dibuka sebelum shift (menit)</label><input type="number" id="sAwal" /></div>
+        <div><label>Latitude kantor</label><input id="sLat" /></div>
+        <div><label>Longitude kantor</label><input id="sLng" /></div>
+        <div><label>Radius kantor (meter)</label><input type="number" id="sRad" /></div>
+      </div>
+      <p style="margin:12px 0;font-size:13px;color:var(--mut)">Absen di dalam radius = <b>Kantor</b>. Di luar radius = <b>Lapangan</b> (teknisi wajib isi nama klien). Kosongkan lat/lng bila semua dianggap lapangan.</p>
+      <label><input type="checkbox" id="sFoto" /> Wajib selfie</label> &nbsp;
+      <label><input type="checkbox" id="sGps" /> Wajib GPS</label>
+      <div class="bar" style="margin-top:14px"><button class="btn" id="saveS">Simpan</button><button class="btn sec" id="here">📍 Pakai lokasi saya sekarang</button></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">Input / Koreksi Manual</h3>
+      <div class="bar">
+        <select id="mUser"></select><input type="date" id="mTgl" />
+        <select id="mStatus"><option>Hadir</option><option>Terlambat</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select>
+        <input type="time" id="mIn" /><input type="time" id="mOut" /><input id="mKet" placeholder="Keterangan" />
+        <button class="btn" id="mSave">Simpan</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div><div id="lb" onclick="this.style.display='none'"><img id="lbi"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function toast(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+async function api(url, opt) {
+  const r = await fetch(url, opt && { headers: { 'Content-Type': 'application/json' }, ...opt });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) location.href = '/utama.html';
+  if (r.status === 403) location.href = '/absensi.html';
+  if (!r.ok) throw new Error(d.error || 'Error');
+  return d;
+}
+const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+$('tgl').value = today; $('mTgl').value = today; $('bln').value = today.slice(0, 7);
+function zoom(u) { $('lbi').src = u; $('lb').style.display = 'flex'; }
+const map = (la, ln) => la ? `<a href="https://maps.google.com/?q=${la},${ln}" target="_blank">📍 Buka</a>` : '-';
+const img = u => u ? `<img class="th" src="${esc(u)}" onclick="zoom('${esc(u)}')">` : '';
+
+async function harian() {
+  const d = await api('/api/absensi/admin/harian?tanggal=' + $('tgl').value), s = d.summary;
+  $('stats').innerHTML = [['Total', s.total], ['Hadir', s.hadir], ['Terlambat', s.terlambat], ['Izin', s.izin], ['Sakit', s.sakit], ['Belum absen', s.belum]]
+    .map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+  $('rows').innerHTML = d.data.map(r => `<tr>
+    <td><b>${esc(r.full_name || r.username)}</b><br><small style="color:#6b7280">${esc(r.role)}</small></td>
+    <td><select onchange="setShift(${r.user_id},this.value)"><option value="pagi" ${r.user_shift !== 'sore' ? 'selected' : ''}>Pagi</option><option value="sore" ${r.user_shift === 'sore' ? 'selected' : ''}>Sore</option></select></td>
+    <td><span class="badge b-${r.status || 'none'}">${r.status || 'Belum absen'}</span></td>
+    <td>${(r.jam_masuk || '-').slice(0, 5)}</td><td>${(r.jam_pulang || '-').slice(0, 5)}</td>
+    <td>${esc(r.lokasi_type || '')} ${r.masuk_jarak != null ? `<small>(${r.masuk_jarak} m dari kantor)</small>` : ''}<br><small>${esc(r.keterangan || '')}</small>${r.catatan ? `<br><small style="color:#6b7280">📝 ${esc(r.catatan)}</small>` : ''}</td>
+    <td>${img(r.masuk_foto)} ${img(r.pulang_foto)}</td>
+    <td>${map(r.masuk_lat, r.masuk_lng)}</td>
+    <td>${r.id ? `<button class="btn sec" onclick="del(${r.id})">🗑</button>` : ''}</td></tr>`).join('');
+}
+async function setShift(id, shift) { try { await api('/api/absensi/admin/shift', { method: 'PUT', body: JSON.stringify({ user_id: id, shift }) }); toast('Shift diperbarui (berlaku untuk absen berikutnya)'); } catch (e) { toast(e.message); } }
+async function del(id) { if (!confirm('Hapus catatan absensi ini?')) return; await api('/api/absensi/admin/' + id, { method: 'DELETE' }); harian(); }
+
+async function rekap() {
+  const d = await api('/api/absensi/admin/rekap?bulan=' + $('bln').value);
+  $('rekap').innerHTML = d.data.map(r => `<tr><td><b>${esc(r.full_name || r.username)}</b></td><td>${r.hadir || 0}</td><td>${r.terlambat || 0}</td><td>${r.izin || 0}</td><td>${r.sakit || 0}</td><td>${r.lapangan || 0}</td></tr>`).join('');
+  $('exp').href = '/api/absensi/admin/export?bulan=' + $('bln').value;
+}
+async function settings() {
+  const s = (await api('/api/absensi/admin/settings')).data;
+  $('sPM').value = s.shift_pagi_masuk; $('sPP').value = s.shift_pagi_pulang; $('sSM').value = s.shift_sore_masuk; $('sSP').value = s.shift_sore_pulang; $('sTol').value = s.toleransi_menit; $('sAwal').value = s.boleh_awal_menit;
+  $('sLat').value = s.office_lat; $('sLng').value = s.office_lng; $('sRad').value = s.office_radius;
+  $('sFoto').checked = s.wajib_foto === '1'; $('sGps').checked = s.wajib_gps === '1';
+  const u = await api('/api/users'); $('mUser').innerHTML = u.data.map(x => `<option value="${x.id}">${esc(x.full_name || x.username)}</option>`).join('');
+}
+$('saveS').onclick = async () => {
+  try {
+    await api('/api/absensi/admin/settings', { method: 'PUT', body: JSON.stringify({
+      shift_pagi_masuk: $('sPM').value, shift_pagi_pulang: $('sPP').value, shift_sore_masuk: $('sSM').value, shift_sore_pulang: $('sSP').value, toleransi_menit: $('sTol').value, boleh_awal_menit: $('sAwal').value,
+      office_lat: $('sLat').value, office_lng: $('sLng').value, office_radius: $('sRad').value,
+      wajib_foto: $('sFoto').checked, wajib_gps: $('sGps').checked }) });
+    toast('Pengaturan disimpan');
+  } catch (e) { toast(e.message); }
+};
+$('here').onclick = () => navigator.geolocation.getCurrentPosition(p => { $('sLat').value = p.coords.latitude.toFixed(7); $('sLng').value = p.coords.longitude.toFixed(7); toast('Lokasi diisi, klik Simpan'); }, e => toast(e.message), { enableHighAccuracy: true });
+$('mSave').onclick = async () => {
+  try {
+    await api('/api/absensi/admin/manual', { method: 'POST', body: JSON.stringify({ user_id: $('mUser').value, tanggal: $('mTgl').value, status: $('mStatus').value, jam_masuk: $('mIn').value, jam_pulang: $('mOut').value, keterangan: $('mKet').value }) });
+    toast('Tersimpan');
+  } catch (e) { toast(e.message); }
+};
+$('tgl').onchange = harian; $('refresh').onclick = harian; $('bln').onchange = rekap;
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  ['harian', 'rekap', 'setting'].forEach(t => $('t-' + t).classList.toggle('hide', t !== b.dataset.t));
+  ({ harian, rekap, setting: settings })[b.dataset.t]();
+});
+harian();
+</script>
+</body>
+</html>
