@@ -148,7 +148,7 @@ async function initDb() {
     "ALTER TABLE users ADD COLUMN shift VARCHAR(10) NOT NULL DEFAULT 'pagi'",
     "ALTER TABLE attendance ADD COLUMN shift VARCHAR(10) DEFAULT NULL",
   ]) {
-    try { await pool.query(sql); } catch (e) { if (e.errno !== 1060) throw e; }
+    try { await pool.query(sql); } catch (e) { if (e.errno !== 1060) console.error('[migrasi shift] GAGAL:', e.code, e.message, '\n  → jalankan manual:', sql); }
   }
 
   // Seed default admin
