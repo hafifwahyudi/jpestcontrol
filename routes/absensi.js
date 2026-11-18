@@ -2,7 +2,7 @@ const express = require('express');
 const ExcelJS = require('exceljs');
 const { get, all, run } = require('../database');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
-const { uploadImage } = require('../services/storage');
+const { uploadImageLocal } = require('../services/storage');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -55,7 +55,7 @@ async function saveSelfie(dataUrl, userId, tag) {
   if (!m) throw Object.assign(new Error('Format foto tidak valid'), { status: 400 });
   const buf = Buffer.from(m[2], 'base64');
   if (buf.length > 3 * 1024 * 1024) throw Object.assign(new Error('Foto terlalu besar'), { status: 400 });
-  return uploadImage(buf, 'pest-control/absensi', `abs_${userId}_${tag}_${Date.now()}.jpg`);
+  return uploadImageLocal(buf, `abs_${userId}_${tag}.jpg`);
 }
 
 function parseGeo(body, required) {

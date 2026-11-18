@@ -106,4 +106,9 @@ async function deleteImage(urlOrPublicId) {
 }
 
 console.log(`[storage] Using provider: ${PROVIDER}`);
-module.exports = { uploadImage, deleteImage, PROVIDER };
+// Simpan selalu di server lokal (tanpa Cloudinary) — dipakai untuk foto absensi
+function uploadImageLocal(buffer, filename = 'image.jpg') {
+  return localUpload(buffer, filename);
+}
+
+module.exports = { uploadImage, uploadImageLocal, deleteImage, PROVIDER };
