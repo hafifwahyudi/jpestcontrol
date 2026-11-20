@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -717,8 +717,14 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('submissions')" id="tab-submissions">📋 Submissions</button>
       <button class="tab-btn" onclick="switchTab('keluhan')" id="tab-keluhan">>📢 Keluhan</button>
+      <button class="tab-btn" onclick="switchTab('pesanan')" id="tab-pesanan">&#128221; Permintaan</button>
       <button class="tab-btn" onclick="switchTab('clients')" id="tab-clients">👤 Data Client</button>
       <button class="tab-btn" onclick="switchTab('karyawan')" id="tab-karyawan">👥 Manajemen Karyawan</button>
+    </div>
+
+    <!-- PESANAN TAB -->
+    <div id="section-pesanan" style="display:none">
+      <iframe id="pesananFrame" style="width:100%;height:80vh;border:0;border-radius:12px;background:#fff" title="Permintaan Survey"></iframe>
     </div>
 
     <!-- KELUHAN TAB -->
@@ -1004,7 +1010,7 @@
 
     // ── TABS ──────────────────────────────────────────────────────
     function switchTab(name) {
-      ['submissions', 'karyawan', 'clients', 'keluhan'].forEach(t => {
+      ['submissions', 'karyawan', 'clients', 'keluhan', 'pesanan'].forEach(t => {
         const section = document.getElementById(`section-${t}`);
         const tab = document.getElementById(`tab-${t}`);
         if (section) section.style.display = t === name ? '' : 'none';
@@ -1012,6 +1018,7 @@
       });
       if (name === 'karyawan') loadUsers();
       if (name === 'clients') loadClients();
+      if (name === 'pesanan') document.getElementById('pesananFrame').src = '/pesanan-admin.html?embed=1&_=' + Date.now();
       if (name === 'keluhan') {
         const fr = document.getElementById('keluhanFrame');
         fr.src = '/keluhan-admin.html?embed=1&_=' + Date.now();
@@ -1028,6 +1035,7 @@
       // Hide Karyawan management and Data Client tabs for non-admin (karyawan)
       if (currentUser.role !== 'admin') {
         document.getElementById('tab-karyawan').style.display = 'none';
+        document.getElementById('tab-pesanan').style.display = 'none';
         document.getElementById('tab-clients').style.display = 'none';
       }
       loadData();

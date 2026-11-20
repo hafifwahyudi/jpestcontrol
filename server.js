@@ -49,6 +49,7 @@ app.use('/api/clients', require('./routes/clients'));
 app.use('/api/surveys', require('./routes/surveys'));
 app.use('/api/keluhan', require('./routes/keluhan'));
 app.use('/api/absensi', require('./routes/absensi'));
+app.use('/api/pesanan', require('./routes/pesanan'));
 
 // API yang tidak dikenal → JSON 404 (bukan halaman HTML)
 app.use('/api', (req, res) => res.status(404).json({ error: `Endpoint tidak ditemukan: ${req.method} ${req.originalUrl}` }));

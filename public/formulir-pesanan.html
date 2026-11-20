@@ -473,7 +473,38 @@
       ].filter(Boolean).join('\n');
 
       const url = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
+            // Simpan ke database dulu, lalu buka WhatsApp
+      const btn = document.querySelector('#orderForm button[type="submit"]');
+      if (btn) btn.disabled = true;
+      const waWin = window.open('', '_blank');
+
+      fetch('/api/pesanan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jenis_permintaan: layananChecked.join(', '),
+          nama: nama.value.trim(),
+          telepon: telp.value.trim(),
+          alamat: alamat.value.trim(),
+          bangunan: bangunan.value,
+          luas: luas.value.trim(),
+          hama: hamaChecked.join(', '),
+          keterangan: keterangan.value.trim(),
+        }),
+      })
+        .then(r => r.json().then(d => ({ ok: r.ok, d })))
+        .then(({ ok, d }) => {
+          if (!ok) throw new Error(d.error || 'Gagal menyimpan');
+          if (waWin) waWin.location.href = url; else window.open(url, '_blank');
+          alert('Data berhasil tersimpan. Silakan lanjutkan pengiriman via WhatsApp.');
+          document.getElementById('orderForm').reset();
+          document.querySelectorAll('.checkbox-item').forEach(el => el.classList.remove('checked'));
+        })
+        .catch(err => {
+          if (waWin) waWin.close();
+          alert('Data gagal tersimpan: ' + err.message);
+        })
+        .finally(() => { if (btn) btn.disabled = false; });
     });
   </script>
 </body>

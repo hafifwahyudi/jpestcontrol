@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daftar Permintaan Survey & Estimasi — Local Pest Control</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Inter',Segoe UI,Arial,sans-serif;margin:0;background:#f3f4f6;color:#1f2937}
+  header{background:linear-gradient(135deg,#e06d2b,#fb923c);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  header h1{margin:0;font-size:18px} header a{color:#fff;font-size:13px;margin-left:14px}
+  main{max-width:1100px;margin:auto;padding:16px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input,select{padding:9px;border:1.5px solid #e5e7eb;border-radius:8px;font:inherit;font-size:13px;width:100%}
+  .filters input,.filters select{width:auto;flex:1;min-width:140px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:13px}
+  th{background:#c2410c;color:#fff;text-align:left;padding:9px} td{padding:9px;border-bottom:1px solid #eee;vertical-align:top}
+  tr.row{cursor:pointer} tr.row:hover{background:#fff7ed}
+  .badge{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;background:#e5e7eb;color:#374151;white-space:nowrap}
+  .s-Baru{background:#dc2626;color:#fff}.s-Dihubungi{background:#ca8a04;color:#fff}
+  .s-Survey{background:#2563eb;color:#fff}.s-Selesai{background:#16a34a;color:#fff}
+  dialog{border:0;border-radius:14px;max-width:600px;width:94%;padding:0;box-shadow:0 20px 60px #0004}
+  dialog::backdrop{background:#0006}
+  .dh{background:#c2410c;color:#fff;padding:14px 18px;display:flex;justify-content:space-between}
+  .db{padding:16px 18px;max-height:75vh;overflow:auto}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:13px;margin-bottom:12px}
+  .kv b{color:#c2410c}
+  label{display:block;font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;margin:10px 0 4px}
+  button{background:#ea580c;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:600;cursor:pointer;margin:12px 6px 0 0}
+  button.sec{background:#6b7280} button.del{background:#dc2626}
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Permintaan Survey & Estimasi Biaya</h1>
+  <div><a href="/dashboard.html">Dashboard</a><a href="/formulir-pesanan.html" target="_blank">Form Pelanggan</a><a href="#" id="csv">Ekspor CSV</a></div>
+</header>
+<main>
+  <div class="filters">
+    <input id="q" placeholder="Cari nama / telepon / alamat / hama..." />
+    <select id="fs"><option value="">Semua status</option></select>
+  </div>
+  <table><thead><tr><th>Masuk</th><th>Klien</th><th>Permintaan</th><th>Hama</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table>
+  <p id="empty" style="text-align:center;color:#6b7280;display:none">Belum ada data.</p>
+</main>
+
+<dialog id="dlg">
+  <div class="dh"><b id="dTitle"></b><span style="cursor:pointer" onclick="dlg.close()">✕</span></div>
+  <div class="db">
+    <div class="kv" id="kv"></div>
+    <label>Status</label><select id="eStatus"></select>
+    <button onclick="save()">Simpan</button>
+    <button class="sec" onclick="wa()">WhatsApp Klien</button>
+    <button class="del" onclick="del()">Hapus</button>
+  </div>
+</dialog>
+
+<script>
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let rows=[],cur=null,ST=[];
+const dt=s=>new Date(s).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+const cls=s=>'s-'+String(s).split(' ')[0];
+
+async function load(){
+  const me=await fetch('/api/auth/me'); if(!me.ok){location.href='/index.html';return;}
+  const u=(await me.json()); const role=(u.user||u).role; if(role!=='admin'){document.body.innerHTML='<p style="padding:40px;text-align:center">Hanya admin yang dapat mengakses halaman ini.</p>';return;}
+  const p=new URLSearchParams({search:$('q').value,status:$('fs').value});
+  const r=await fetch('/api/pesanan?'+p); const d=await r.json(); rows=d.data||[];
+  if(!ST.length&&d.statuses){ST=d.statuses;
+    $('fs').innerHTML='<option value="">Semua status</option>'+ST.map(s=>`<option>${esc(s)}</option>`).join('');
+    $('eStatus').innerHTML=ST.map(s=>`<option>${esc(s)}</option>`).join('');}
+  $('tb').innerHTML=rows.map((x,i)=>`<tr class="row" onclick="open_(${i})"><td>${dt(x.created_at)}</td><td><b>${esc(x.nama)}</b><br><small>${esc(x.telepon)}</small></td><td>${esc(x.jenis_permintaan||'-')}</td><td>${esc(x.hama)}</td><td><span class="badge ${cls(x.status)}">${esc(x.status)}</span></td></tr>`).join('');
+  $('empty').style.display=rows.length?'none':'block';
+}
+function open_(i){
+  cur=rows[i]; const x=cur;
+  $('dTitle').textContent='Permintaan #'+x.id;
+  const f=[['Masuk',dt(x.created_at)],['Permintaan',x.jenis_permintaan||'-'],['Nama',x.nama],['Telepon',x.telepon],['Alamat',x.alamat],['Bangunan',x.bangunan],['Luas',x.luas],['Hama',x.hama],['Keterangan',x.keterangan||'-']];
+  $('kv').innerHTML=f.map(([k,v])=>`<b>${k}</b><span>${esc(v)}</span>`).join('');
+  $('eStatus').value=x.status; dlg.showModal();
+}
+async function save(){
+  const r=await fetch('/api/pesanan/'+cur.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:$('eStatus').value})});
+  if(!r.ok){alert((await r.json()).error);return;} dlg.close(); load();
+}
+async function del(){
+  if(!confirm('Hapus data ini?'))return;
+  const r=await fetch('/api/pesanan/'+cur.id,{method:'DELETE'});
+  if(!r.ok){alert((await r.json()).error);return;} dlg.close(); load();
+}
+function wa(){
+  let p=cur.telepon.replace(/\D/g,''); if(p.startsWith('0'))p='62'+p.slice(1);
+  const m=`Halo Kak ${cur.nama}, terima kasih telah menghubungi Local Pest Control. Kami menerima permintaan ${cur.jenis_permintaan||'layanan'} untuk lokasi ${cur.alamat}. Tim kami akan segera menindaklanjuti. Terima kasih.`;
+  open(`https://wa.me/${p}?text=${encodeURIComponent(m)}`);
+}
+$('csv').onclick=e=>{e.preventDefault();if(!rows.length)return;
+  const k=['id','created_at','jenis_permintaan','nama','telepon','alamat','bangunan','luas','hama','keterangan','status'];
+  const c=[k.join(',')].concat(rows.map(r=>k.map(x=>'"'+String(r[x]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+c],{type:'text/csv'}));a.download='permintaan-pesanan.csv';a.click();};
+['q','fs'].forEach(i=>$(i).addEventListener('input',load));
+load();
+if(new URLSearchParams(location.search).has('embed')){document.querySelector('header').style.display='none';document.body.style.background='transparent';}
+</script>
+</body>
+</html>
