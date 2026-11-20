@@ -2,7 +2,7 @@ const express = require('express');
 const ExcelJS = require('exceljs');
 const { get, all, run } = require('../database');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
-const { uploadImageLocal } = require('../services/storage');
+const { uploadImage, uploadImageLocal } = require('../services/storage');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -55,7 +55,15 @@ async function saveSelfie(dataUrl, userId, tag) {
   if (!m) throw Object.assign(new Error('Format foto tidak valid'), { status: 400 });
   const buf = Buffer.from(m[2], 'base64');
   if (buf.length > 3 * 1024 * 1024) throw Object.assign(new Error('Foto terlalu besar'), { status: 400 });
-  return uploadImageLocal(buf, `abs_${userId}_${tag}.jpg`);
+  // Ikut STORAGE_PROVIDER (Cloudinary / lokal), sama seperti foto slip & keluhan.
+  // Jika Cloudinary gagal, simpan lokal supaya karyawan tetap bisa absen.
+  const name = `abs_${userId}_${tag}.jpg`;
+  try {
+    return await uploadImage(buf, 'pest-control/absensi', name);
+  } catch (e) {
+    console.warn('[absensi] upload foto gagal, disimpan lokal:', e.message);
+    return uploadImageLocal(buf, name);
+  }
 }
 
 function parseGeo(body, required) {

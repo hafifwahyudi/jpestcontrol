@@ -273,7 +273,8 @@
     const btn = $('btnSubmit'); btn.disabled = true; btn.textContent = 'Mengirim...';
     try {
       const res = await fetch('/api/keluhan', { method: 'POST', body: fd });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (!data) throw new Error(`Server belum bisa menerima keluhan (kode ${res.status}). Mohon coba lagi nanti atau hubungi kami via WhatsApp 082332173442.`);
       if (!res.ok) throw new Error(data.error || 'Gagal mengirim');
       $('keluhanForm').style.display = 'none';
       $('success').style.display = 'block';

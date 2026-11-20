@@ -4,8 +4,9 @@
  * Control via: STORAGE_PROVIDER=local|cloudinary in .env
  */
 
-const fs   = require('fs');
-const path = require('path');
+const fs     = require('fs');
+const path   = require('path');
+const crypto = require('crypto');
 
 const PROVIDER = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
 
@@ -13,8 +14,11 @@ const PROVIDER = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
 const UPLOAD_DIR = path.join(__dirname, '..', 'data', 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+// Awalan unik: banyak HP memberi nama file yang sama (mis. "image.jpg"), jadi nama asli saja tidak cukup
+const uniq = () => `${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+
 function localUpload(buffer, filename) {
-  const safeName = `${Date.now()}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+  const safeName = `${uniq()}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const filePath  = path.join(UPLOAD_DIR, safeName);
   fs.writeFileSync(filePath, buffer);
   // Return public URL path (served as /uploads/<filename>)
@@ -48,12 +52,17 @@ function getCloudinary() {
 function cloudinaryUpload(buffer, folder = 'pest-control/evidence', filename = '') {
   const cld = getCloudinary();
 
+  // Nama asli tidak boleh jadi public_id apa adanya: dengan overwrite:false, file bernama sama
+  // TIDAK diunggah dan Cloudinary mengembalikan foto lama → foto tertukar antar keluhan.
+  const base = filename.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
+  const publicId = base ? `${uniq()}_${base}` : undefined;
+
   function attemptUpload() {
     return new Promise((resolve, reject) => {
       const stream = cld.uploader.upload_stream(
         {
           folder,
-          public_id:     filename || undefined,
+          public_id:     publicId,
           resource_type: 'image',
           overwrite:     false,
           timeout:       120000, // 120 detik timeout
@@ -106,7 +115,7 @@ async function deleteImage(urlOrPublicId) {
 }
 
 console.log(`[storage] Using provider: ${PROVIDER}`);
-// Simpan selalu di server lokal (tanpa Cloudinary) — dipakai untuk foto absensi
+// Simpan selalu di server lokal — cadangan foto absensi bila Cloudinary gagal
 function uploadImageLocal(buffer, filename = 'image.jpg') {
   return localUpload(buffer, filename);
 }
